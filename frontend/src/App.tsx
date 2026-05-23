@@ -42,6 +42,11 @@ type EmployeeOverview = {
   };
   todayAttendance: AttendanceRow | null;
   recentAttendance: AttendanceRow[];
+  tracking: {
+    active: boolean;
+    lastTrackedAt: string | null;
+    pointsCapturedToday: number;
+  };
 };
 
 type AttendanceRow = {
@@ -94,6 +99,26 @@ type Branch = {
   latitude: number;
   longitude: number;
   radiusMeters: number;
+};
+
+type AdminTracking = {
+  date: string;
+  employees: Array<{
+    employeeId: string;
+    employeeName: string;
+    branchName: string;
+    attendanceStatus: string;
+    checkInTime: string;
+    checkOutTime: string | null;
+    trackingActive: boolean;
+    totalPings: number;
+    points: Array<{
+      capturedAt: string;
+      latitude: number;
+      longitude: number;
+      accuracyMeters: number | null;
+    }>;
+  }>;
 };
 
 type ApiError = {
@@ -671,6 +696,7 @@ function EmployeeScreen({
   const [cameraReady, setCameraReady] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const [activeTutorialStep, setActiveTutorialStep] = useState(0);
+  const [trackingMessage, setTrackingMessage] = useState("");
   const [attendanceSummary, setAttendanceSummary] = useState<{
     mode: "check-in" | "check-out";
     branchName: string;
@@ -717,6 +743,73 @@ function EmployeeScreen({
 
     return () => window.clearInterval(interval);
   }, [showTutorial]);
+
+  useEffect(() => {
+    if (!overview?.tracking.active || overview.todayAttendance?.status !== "CHECKED_IN") {
+      return;
+    }
+
+    let cancelled = false;
+
+    async function sendTrackingPing() {
+      try {
+        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 10000
+          });
+        });
+
+        if (cancelled) {
+          return;
+        }
+
+        const nextCoords = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        };
+        setCoords(nextCoords);
+
+        const response = await apiFetch<{ message: string; capturedAt: string }>(
+          session,
+          "/attendance/location-ping",
+          {
+            method: "POST",
+            body: JSON.stringify({
+              latitude: nextCoords.latitude,
+              longitude: nextCoords.longitude,
+              accuracyMeters: position.coords.accuracy
+            })
+          }
+        );
+
+        if (cancelled) {
+          return;
+        }
+
+        setTrackingMessage(`${response.message} Last sync ${formatDateTime(response.capturedAt)}.`);
+        await loadOverview();
+      } catch (trackingError) {
+        if (!cancelled) {
+          setTrackingMessage(
+            trackingError instanceof Error
+              ? trackingError.message
+              : "Tracking could not update your current location."
+          );
+        }
+      }
+    }
+
+    void sendTrackingPing();
+    const interval = window.setInterval(() => {
+      void sendTrackingPing();
+    }, 10 * 60 * 1000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, [overview?.tracking.active, overview?.todayAttendance?.status, session]);
 
   async function requestLocation() {
     setStatus("Fetching your current location...");
@@ -937,10 +1030,24 @@ function EmployeeScreen({
               <strong>{formatDateTime(overview.todayAttendance?.checkOutTime)}</strong>
             </div>
           </div>
+          <div className="stat-row">
+            <div>
+              <span className="label">Tracking status</span>
+              <strong>{overview.tracking.active ? "Tracking live" : "Tracking off"}</strong>
+            </div>
+            <div>
+              <span className="label">Location updates today</span>
+              <strong>{overview.tracking.pointsCapturedToday}</strong>
+            </div>
+          </div>
           <p className="muted">
             Branch target coordinate: {overview.branch.latitude.toFixed(5)},{" "}
             {overview.branch.longitude.toFixed(5)}
           </p>
+          {overview.tracking.lastTrackedAt ? (
+            <p className="muted">Last tracked location: {formatDateTime(overview.tracking.lastTrackedAt)}</p>
+          ) : null}
+          {trackingMessage ? <p className="muted">{trackingMessage}</p> : null}
           {attendanceSummary ? (
             <div className="info-card success-card">
               <strong>{attendanceSummary.mode === "check-in" ? "Check-in saved" : "Check-out saved"}</strong>
@@ -1077,25 +1184,29 @@ function AdminScreen({
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [attendance, setAttendance] = useState<AttendanceRow[]>([]);
+  const [tracking, setTracking] = useState<AdminTracking | null>(null);
+  const [trackingDate, setTrackingDate] = useState(() => formatLocalDateKey(new Date()));
   const [previewImage, setPreviewImage] = useState<AttendancePreview | null>(null);
 
   useEffect(() => {
     async function loadAdminData() {
-      const [dashboardData, employeeData, branchData, attendanceData] = await Promise.all([
+      const [dashboardData, employeeData, branchData, attendanceData, trackingData] = await Promise.all([
         apiFetch<Dashboard>(session, "/admin/dashboard"),
         apiFetch<Employee[]>(session, "/admin/employees"),
         apiFetch<Branch[]>(session, "/admin/branches"),
-        apiFetch<AttendanceRow[]>(session, "/admin/attendance")
+        apiFetch<AttendanceRow[]>(session, "/admin/attendance"),
+        apiFetch<AdminTracking>(session, `/admin/tracking?date=${trackingDate}`)
       ]);
 
       setDashboard(dashboardData);
       setEmployees(employeeData);
       setBranches(branchData);
       setAttendance(attendanceData);
+      setTracking(trackingData);
     }
 
     void loadAdminData();
-  }, []);
+  }, [session, trackingDate]);
 
   if (!dashboard) {
     return <LoadingWorkspace title="Loading your dashboard" lines={5} />;
@@ -1269,6 +1380,79 @@ function AdminScreen({
           onPreviewImage={setPreviewImage}
           emptyMessage="Attendance evidence will appear here once your staff start checking in and out."
         />
+      </section>
+
+      <section className="panel">
+        <div className="topbar">
+          <div>
+            <h3>On-duty location tracking</h3>
+            <p className="muted section-intro">
+              View the places employees visited after check-in and before checkout.
+            </p>
+          </div>
+          <label className="date-filter">
+            Tracking date
+            <input
+              type="date"
+              value={trackingDate}
+              onChange={(event) => setTrackingDate(event.target.value)}
+            />
+          </label>
+        </div>
+        {tracking?.employees.length ? (
+          <div className="tracking-card-list">
+            {tracking.employees.map((employeeRoute) => (
+              <article className="tracking-card" key={employeeRoute.employeeId}>
+                <div className="tracking-card-header">
+                  <div>
+                    <strong>{employeeRoute.employeeName}</strong>
+                    <span className="muted">
+                      {employeeRoute.branchName} · {employeeRoute.attendanceStatus}
+                    </span>
+                  </div>
+                  <span className="pill">{employeeRoute.totalPings} updates</span>
+                </div>
+                <div className="tracking-card-summary">
+                  <span>Check-in: {formatDateTime(employeeRoute.checkInTime)}</span>
+                  <span>
+                    {employeeRoute.checkOutTime
+                      ? `Check-out: ${formatDateTime(employeeRoute.checkOutTime)}`
+                      : "Still on duty"}
+                  </span>
+                </div>
+                <div className="tracking-point-list">
+                  {employeeRoute.points.map((point, index) => (
+                    <a
+                      className="tracking-point"
+                      href={buildMapsUrl(point.latitude, point.longitude)}
+                      key={`${employeeRoute.employeeId}-${point.capturedAt}`}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      <span className="tracking-point-order">{index + 1}</span>
+                      <div>
+                        <strong>{formatDateTime(point.capturedAt)}</strong>
+                        <span>
+                          {point.latitude.toFixed(5)}, {point.longitude.toFixed(5)}
+                        </span>
+                        <span>
+                          {point.accuracyMeters !== null
+                            ? `Accuracy ${point.accuracyMeters.toFixed(0)}m`
+                            : "Accuracy unavailable"}
+                        </span>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            title="No tracked routes for this date"
+            message="Location updates will appear here after employees check in and keep the portal open during their shift."
+          />
+        )}
       </section>
       {previewImage ? (
         <div className="image-modal-backdrop" onClick={() => setPreviewImage(null)}>
@@ -1506,6 +1690,10 @@ function formatTimeOnly(value: string | null | undefined) {
     hour: "2-digit",
     minute: "2-digit"
   });
+}
+
+function buildMapsUrl(latitude: number, longitude: number) {
+  return `https://www.google.com/maps?q=${latitude},${longitude}`;
 }
 
 function formatWorkedHours(checkInTime: string | null | undefined, checkOutTime: string | null | undefined) {

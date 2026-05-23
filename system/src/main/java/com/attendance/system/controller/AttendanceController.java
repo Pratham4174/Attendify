@@ -3,6 +3,8 @@ package com.attendance.system.controller;
 import com.attendance.system.dto.AttendanceActionResponse;
 import com.attendance.system.dto.AttendanceRequest;
 import com.attendance.system.dto.EmployeeOverviewResponse;
+import com.attendance.system.dto.LocationPingRequest;
+import com.attendance.system.dto.LocationPingResponse;
 import com.attendance.system.security.AuthenticatedUser;
 import com.attendance.system.service.AttendanceService;
 import jakarta.validation.Valid;
@@ -41,6 +43,14 @@ public class AttendanceController {
             @Valid @RequestBody AttendanceRequest request
     ) {
         return attendanceService.checkOut(currentUser(authentication), request);
+    }
+
+    @PostMapping("/attendance/location-ping")
+    public LocationPingResponse locationPing(
+            Authentication authentication,
+            @Valid @RequestBody LocationPingRequest request
+    ) {
+        return attendanceService.recordLocationPing(currentUser(authentication), request);
     }
 
     private AuthenticatedUser currentUser(Authentication authentication) {

@@ -8,11 +8,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.attendance.system.dto.AttendanceRowResponse;
+import com.attendance.system.dto.AdminTrackingResponse;
 import com.attendance.system.dto.BranchResponse;
 import com.attendance.system.dto.DashboardSummaryResponse;
 import com.attendance.system.dto.EmployeeResponse;
 import com.attendance.system.security.AuthenticatedUser;
 import com.attendance.system.service.AdminService;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -41,6 +43,14 @@ public class AdminController {
     @GetMapping("/attendance")
     public List<AttendanceRowResponse> attendance(Authentication authentication) {
         return adminService.attendance(currentUser(authentication));
+    }
+
+    @GetMapping("/tracking")
+    public AdminTrackingResponse tracking(
+            Authentication authentication,
+            @RequestParam(required = false) String date
+    ) {
+        return adminService.tracking(currentUser(authentication), date);
     }
 
     private AuthenticatedUser currentUser(Authentication authentication) {

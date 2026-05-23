@@ -6,7 +6,8 @@ public record EmployeeOverviewResponse(
         EmployeeSummary employee,
         BranchSummary branch,
         AttendanceRowResponse todayAttendance,
-        List<AttendanceRowResponse> recentAttendance
+        List<AttendanceRowResponse> recentAttendance,
+        TrackingSummary tracking
 ) {
     public record EmployeeSummary(
             String id,
@@ -27,6 +28,13 @@ public record EmployeeOverviewResponse(
             double latitude,
             double longitude,
             double radiusMeters
+    ) {
+    }
+
+    public record TrackingSummary(
+            boolean active,
+            String lastTrackedAt,
+            int pointsCapturedToday
     ) {
     }
 }

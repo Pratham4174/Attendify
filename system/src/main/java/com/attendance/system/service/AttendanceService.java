@@ -3,12 +3,16 @@ package com.attendance.system.service;
 import com.attendance.system.dto.AttendanceActionResponse;
 import com.attendance.system.dto.AttendanceRequest;
 import com.attendance.system.dto.EmployeeOverviewResponse;
+import com.attendance.system.dto.LocationPingRequest;
+import com.attendance.system.dto.LocationPingResponse;
+import com.attendance.system.model.AttendanceLocationLogEntity;
 import com.attendance.system.model.AttendanceRecordEntity;
 import com.attendance.system.model.AttendanceStatus;
 import com.attendance.system.model.BranchEntity;
 import com.attendance.system.model.EmployeeEntity;
 import com.attendance.system.model.UserRole;
 import com.attendance.system.repository.AttendanceRecordRepository;
+import com.attendance.system.repository.AttendanceLocationLogRepository;
 import com.attendance.system.repository.BranchRepository;
 import com.attendance.system.repository.EmployeeRepository;
 import com.attendance.system.security.AuthenticatedUser;
@@ -29,17 +33,20 @@ import java.util.UUID;
 @Service
 public class AttendanceService {
     private final AttendanceRecordRepository attendanceRecordRepository;
+    private final AttendanceLocationLogRepository attendanceLocationLogRepository;
     private final EmployeeRepository employeeRepository;
     private final BranchRepository branchRepository;
     private final AttendanceMapper mapper;
 
     public AttendanceService(
             AttendanceRecordRepository attendanceRecordRepository,
+            AttendanceLocationLogRepository attendanceLocationLogRepository,
             EmployeeRepository employeeRepository,
             BranchRepository branchRepository,
             AttendanceMapper mapper
     ) {
         this.attendanceRecordRepository = attendanceRecordRepository;
+        this.attendanceLocationLogRepository = attendanceLocationLogRepository;
         this.employeeRepository = employeeRepository;
         this.branchRepository = branchRepository;
         this.mapper = mapper;
@@ -70,6 +77,7 @@ public class AttendanceService {
         record.setStatus(AttendanceStatus.CHECKED_IN);
 
         AttendanceRecordEntity saved = attendanceRecordRepository.save(record);
+        saveLocationPing(saved, employee, request.latitude(), request.longitude(), distanceMeters.doubleValue());
         return new AttendanceActionResponse("Checked in successfully.", distanceMeters.doubleValue(), true, mapper.toAttendanceRow(saved));
     }
 
@@ -99,12 +107,39 @@ public class AttendanceService {
     public EmployeeOverviewResponse employeeOverview(AuthenticatedUser user) {
         EmployeeEntity employee = requireEmployeeUser(user);
         List<AttendanceRecordEntity> history = attendanceRecordRepository.findByEmployee_IdOrderByAttendanceDateDescCheckInTimeDesc(employee.getId());
+        AttendanceRecordEntity latestRecord = history.isEmpty() ? null : history.get(0);
+        EmployeeOverviewResponse.TrackingSummary trackingSummary = latestRecord == null
+                ? new EmployeeOverviewResponse.TrackingSummary(false, null, 0)
+                : new EmployeeOverviewResponse.TrackingSummary(
+                        latestRecord.getStatus() == AttendanceStatus.CHECKED_IN,
+                        attendanceLocationLogRepository.findFirstByAttendanceRecord_IdOrderByCapturedAtDesc(latestRecord.getId())
+                                .map(log -> log.getCapturedAt().toString())
+                                .orElse(null),
+                        (int) attendanceLocationLogRepository.countByAttendanceRecord_Id(latestRecord.getId())
+                );
         return new EmployeeOverviewResponse(
                 mapper.toEmployeeSummary(employee),
                 mapper.toBranchSummary(employee.getBranch()),
-                history.isEmpty() ? null : mapper.toAttendanceRow(history.get(0)),
-                history.stream().limit(7).map(mapper::toAttendanceRow).toList()
+                latestRecord == null ? null : mapper.toAttendanceRow(latestRecord),
+                history.stream().limit(7).map(mapper::toAttendanceRow).toList(),
+                trackingSummary
         );
+    }
+
+    @Transactional
+    public LocationPingResponse recordLocationPing(AuthenticatedUser user, LocationPingRequest request) {
+        EmployeeEntity employee = requireEmployeeUser(user);
+        AttendanceRecordEntity record = attendanceRecordRepository
+                .findFirstByEmployee_IdAndAttendanceDateAndCheckOutTimeIsNull(employee.getId(), LocalDate.now(ZoneOffset.UTC))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT, "Tracking starts only after check-in and stops after check-out."));
+
+        OffsetDateTime minWindow = OffsetDateTime.now(ZoneOffset.UTC).minusMinutes(9);
+        if (attendanceLocationLogRepository.existsByAttendanceRecord_IdAndCapturedAtAfter(record.getId(), minWindow)) {
+            return new LocationPingResponse("Tracking already updated recently.", OffsetDateTime.now(ZoneOffset.UTC).toString());
+        }
+
+        saveLocationPing(record, employee, request.latitude(), request.longitude(), request.accuracyMeters());
+        return new LocationPingResponse("Tracking location saved.", OffsetDateTime.now(ZoneOffset.UTC).toString());
     }
 
     private EmployeeEntity requireEmployeeUser(AuthenticatedUser user) {
@@ -144,5 +179,27 @@ public class AttendanceService {
 
     private BigDecimal scale(double value) {
         return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private void saveLocationPing(
+            AttendanceRecordEntity record,
+            EmployeeEntity employee,
+            double latitude,
+            double longitude,
+            Double accuracyMeters
+    ) {
+        AttendanceLocationLogEntity locationLog = new AttendanceLocationLogEntity();
+        locationLog.setVendor(employee.getVendor());
+        locationLog.setEmployee(employee);
+        locationLog.setAttendanceRecord(record);
+        locationLog.setLatitude(scaleCoordinate(latitude));
+        locationLog.setLongitude(scaleCoordinate(longitude));
+        locationLog.setAccuracyMeters(accuracyMeters == null ? null : scale(accuracyMeters));
+        locationLog.setCapturedAt(OffsetDateTime.now(ZoneOffset.UTC));
+        attendanceLocationLogRepository.save(locationLog);
+    }
+
+    private BigDecimal scaleCoordinate(double value) {
+        return BigDecimal.valueOf(value).setScale(7, RoundingMode.HALF_UP);
     }
 }
