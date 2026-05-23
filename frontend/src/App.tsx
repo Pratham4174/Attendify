@@ -108,6 +108,20 @@ type EmployeeSeedForm = {
   designation: string;
 };
 
+type RegistrationSummary = {
+  message: string;
+  propertyName: string;
+  adminEmail: string;
+  employeesCreated: number;
+};
+
+type AttendancePreview = {
+  image: string;
+  label: string;
+  time: string | null;
+  employeeName: string;
+};
+
 function RequiredLabel({ children }: { children: string }) {
   return (
     <>
@@ -115,13 +129,6 @@ function RequiredLabel({ children }: { children: string }) {
     </>
   );
 }
-
-const demoAccounts = [
-  { label: "Hotel One Admin", email: "admin@hotelone.test", password: "password" },
-  { label: "Hotel One Employee", email: "ravi@hotelone.test", password: "password" },
-  { label: "Hotel Two Admin", email: "admin@hoteltwo.test", password: "password" },
-  { label: "Hotel Two Employee", email: "neha@hoteltwo.test", password: "password" }
-];
 
 function App() {
   const [session, setSession] = useState<Session | null>(() => {
@@ -153,13 +160,14 @@ function App() {
 }
 
 function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
-  const [email, setEmail] = useState(demoAccounts[0].email);
-  const [password, setPassword] = useState(demoAccounts[0].password);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [registrationMode, setRegistrationMode] = useState(false);
   const [registrationLoading, setRegistrationLoading] = useState(false);
   const [registrationStatus, setRegistrationStatus] = useState("");
+  const [registrationSummary, setRegistrationSummary] = useState<RegistrationSummary | null>(null);
   const [propertyForm, setPropertyForm] = useState({
     propertyCode: "",
     propertyName: "",
@@ -230,6 +238,7 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
     event.preventDefault();
     setRegistrationLoading(true);
     setRegistrationStatus("");
+    setRegistrationSummary(null);
 
     try {
       const payload = {
@@ -263,9 +272,13 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
         adminEmail: string;
       };
 
-      setRegistrationStatus(
-        `${data.message} Admin login: ${data.adminEmail}. Starter employee accounts created: ${data.employeesCreated}. Employee password defaults to "password".`
-      );
+      setRegistrationSummary({
+        message: data.message,
+        propertyName: propertyForm.propertyName,
+        adminEmail: data.adminEmail,
+        employeesCreated: data.employeesCreated
+      });
+      setRegistrationStatus("");
       setRegistrationMode(false);
       setEmail(propertyForm.adminEmail);
       setPassword(propertyForm.adminPassword);
@@ -314,23 +327,23 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
     <main className="login-layout">
       <section className="hero-panel">
         <span className="eyebrow">ATTENDIFY</span>
-        <h1>Simple attendance tracking for teams that work across properties and branches.</h1>
+        <h1>Know who checked in, where they checked in, and how the day is moving.</h1>
         <p>
-          ATTENDIFY helps you mark attendance quickly, keep staff records organized,
-          and review check-ins with confidence from one easy dashboard.
+          ATTENDIFY keeps attendance simple for hotels, stores, and field teams with
+          quick check-ins, clear records, and one place to review every workday.
         </p>
         <div className="feature-list">
           <div>
             <strong>Easy daily tracking</strong>
-            <span>See who checked in, who checked out, and who still needs attention.</span>
+            <span>Follow today&apos;s attendance in minutes instead of chasing updates across calls and chats.</span>
           </div>
           <div>
             <strong>Clear staff records</strong>
-            <span>Keep employee details, branch locations, and attendance history in one place.</span>
+            <span>Keep employee details, branch locations, and attendance history neatly organized.</span>
           </div>
           <div>
             <strong>Reliable proof</strong>
-            <span>Use location and live selfie capture to make attendance more trustworthy.</span>
+            <span>Review each check-in with location details and selfie proof whenever needed.</span>
           </div>
         </div>
       </section>
@@ -364,6 +377,7 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
                   type="email"
                   placeholder="you@property.com"
                 />
+                <span className="field-hint">Use your admin or employee email to continue.</span>
               </label>
               <label>
                 Password
@@ -373,9 +387,19 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
                   type="password"
                   placeholder="password"
                 />
+                <span className="field-hint">Enter the password linked to your ATTENDIFY account.</span>
               </label>
               {error ? <p className="error-text">{error}</p> : null}
               {registrationStatus ? <p className="status-text">{registrationStatus}</p> : null}
+              {registrationSummary ? (
+                <div className="info-card">
+                  <strong>{registrationSummary.propertyName} is ready</strong>
+                  <span>{registrationSummary.message}</span>
+                  <span>Admin sign-in: {registrationSummary.adminEmail}</span>
+                  <span>Starter employees added: {registrationSummary.employeesCreated}</span>
+                  <span>Employee starter password: password</span>
+                </div>
+              ) : null}
               <button className="primary-button" disabled={loading} type="submit">
                 {loading ? "Signing in..." : "Access workspace"}
               </button>
@@ -399,6 +423,7 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
                   required
                   placeholder="sunrise-hotel"
                 />
+                <span className="field-hint">Use a short code for your property. You can use letters, numbers, and hyphens.</span>
               </label>
               <label>
                 <RequiredLabel>Property name</RequiredLabel>
@@ -410,6 +435,7 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
                   required
                   placeholder="Sunrise Hotel"
                 />
+                <span className="field-hint">This is the business name your team will see across the workspace.</span>
               </label>
               <label>
                 <RequiredLabel>Admin name</RequiredLabel>
@@ -421,6 +447,7 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
                   required
                   placeholder="Owner / HR manager"
                 />
+                <span className="field-hint">Choose the person who will manage attendance, staff, and branch records.</span>
               </label>
               <label>
                 <RequiredLabel>Admin email</RequiredLabel>
@@ -433,6 +460,7 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
                   required
                   placeholder="admin@sunrisehotel.com"
                 />
+                <span className="field-hint">This email will be used to sign in as the main property admin.</span>
               </label>
               <label>
                 <RequiredLabel>Admin password</RequiredLabel>
@@ -445,6 +473,7 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
                   required
                   placeholder="Create a password"
                 />
+                <span className="field-hint">Pick a password you will remember for your first ATTENDIFY admin account.</span>
               </label>
               <label>
                 <RequiredLabel>Admin phone</RequiredLabel>
@@ -456,6 +485,7 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
                   required
                   placeholder="+91-98xxxxxxx"
                 />
+                <span className="field-hint">Used for quick contact if your team needs help with account setup.</span>
               </label>
               <label>
                 <RequiredLabel>Branch name</RequiredLabel>
@@ -467,6 +497,7 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
                   required
                   placeholder="Main Property"
                 />
+                <span className="field-hint">Add the branch or site where staff will start marking attendance.</span>
               </label>
               <label>
                 <RequiredLabel>Branch address</RequiredLabel>
@@ -478,6 +509,7 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
                   required
                   placeholder="Full business address"
                 />
+                <span className="field-hint">Use the real address so your team can identify the correct workplace easily.</span>
               </label>
               <div className="grid two-column compact-grid">
                 <label>
@@ -489,6 +521,7 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
                     }
                     required
                   />
+                  <span className="field-hint">Use your current location or paste the branch pin value here.</span>
                 </label>
                 <label>
                   <RequiredLabel>Longitude</RequiredLabel>
@@ -499,6 +532,7 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
                     }
                     required
                   />
+                  <span className="field-hint">Keep this editable in case you want to fine-tune the attendance point.</span>
                 </label>
               </div>
               <div className="action-row">
@@ -520,6 +554,7 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
                   }
                   required
                 />
+                <span className="field-hint">A smaller radius works best when staff should mark attendance close to the property gate or desk.</span>
               </label>
               <div className="employee-seed-list">
                 <div className="action-row">
@@ -539,6 +574,7 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
                           required
                           placeholder="EMP-001"
                         />
+                        <span className="field-hint">Add a short code your team already uses internally.</span>
                       </label>
                       <label>
                         <RequiredLabel>Name</RequiredLabel>
@@ -548,6 +584,7 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
                           required
                           placeholder="Employee name"
                         />
+                        <span className="field-hint">Use the staff member&apos;s display name as they should appear in records.</span>
                       </label>
                     </div>
                     <div className="grid two-column compact-grid">
@@ -560,6 +597,7 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
                           required
                           placeholder="employee@property.com"
                         />
+                        <span className="field-hint">Employees use this email to sign in and mark attendance.</span>
                       </label>
                       <label>
                         <RequiredLabel>Phone</RequiredLabel>
@@ -569,6 +607,7 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
                           required
                           placeholder="+91-98xxxxxxx"
                         />
+                        <span className="field-hint">Helpful for staff contact and attendance follow-up.</span>
                       </label>
                     </div>
                     <label>
@@ -579,6 +618,7 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
                         required
                         placeholder="Front desk / Manager / Housekeeping"
                       />
+                      <span className="field-hint">Mention the team role so attendance reports are easier to review later.</span>
                     </label>
                     <button
                       className="ghost-button"
@@ -618,6 +658,14 @@ function EmployeeScreen({
   const [selfie, setSelfie] = useState<string>("");
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
+  const [cameraReady, setCameraReady] = useState(false);
+  const [attendanceSummary, setAttendanceSummary] = useState<{
+    mode: "check-in" | "check-out";
+    branchName: string;
+    time: string;
+    distanceMeters: number;
+    image: string;
+  } | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
@@ -646,7 +694,7 @@ function EmployeeScreen({
             longitude: position.coords.longitude
           };
           setCoords(next);
-          setStatus("Location locked.");
+          setStatus("Location locked. You are ready for the next step.");
           resolve(next);
         },
         () => reject(new Error("Location permission was denied.")),
@@ -665,6 +713,8 @@ function EmployeeScreen({
     if (videoRef.current) {
       videoRef.current.srcObject = stream;
     }
+    setCameraReady(true);
+    setStatus("Camera is ready. Capture a fresh selfie to continue.");
   }
 
   function captureSelfie() {
@@ -682,7 +732,7 @@ function EmployeeScreen({
 
     ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
     setSelfie(canvas.toDataURL("image/jpeg", 0.9));
-    setStatus("Selfie captured.");
+    setStatus("Selfie captured. You can submit attendance now.");
   }
 
   async function submitAttendance(mode: "check-in" | "check-out") {
@@ -714,6 +764,13 @@ function EmployeeScreen({
       );
 
       setStatus(`${data.message} Distance from branch: ${data.distanceMeters.toFixed(1)}m.`);
+      setAttendanceSummary({
+        mode,
+        branchName: overview.branch.name,
+        time: new Date().toISOString(),
+        distanceMeters: data.distanceMeters,
+        image: selfie
+      });
       setSelfie("");
       await loadOverview();
     } catch (submitError) {
@@ -726,17 +783,61 @@ function EmployeeScreen({
   }
 
   if (!overview) {
-    return <div className="center-message">Loading employee workspace...</div>;
+    return <LoadingWorkspace title="Preparing your workspace" lines={4} />;
   }
 
   const canCheckOut = overview.todayAttendance?.status === "CHECKED_IN";
   const hasCheckedIn = !!overview.todayAttendance;
+  const geofenceDistance =
+    coords
+      ? getDistanceMeters(
+          coords.latitude,
+          coords.longitude,
+          overview.branch.latitude,
+          overview.branch.longitude
+        )
+      : null;
+  const insideGeofence =
+    geofenceDistance !== null ? geofenceDistance <= overview.branch.radiusMeters : null;
+  const completedThisMonth = overview.recentAttendance.filter((record) => {
+    if (!record.checkOutTime) {
+      return false;
+    }
+
+    const date = new Date(record.checkOutTime);
+    const now = new Date();
+    return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+  }).length;
+  const lastActionTime =
+    overview.todayAttendance?.checkOutTime ?? overview.todayAttendance?.checkInTime ?? null;
+  const employeeSteps = [
+    {
+      title: "Allow location",
+      detail: coords ? `Locked at ${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}` : "We use your live location to confirm you are at the branch.",
+      complete: !!coords
+    },
+    {
+      title: "Start camera",
+      detail: cameraReady ? "Camera is ready for a fresh selfie." : "Turn on the front camera before capturing attendance proof.",
+      complete: cameraReady
+    },
+    {
+      title: "Capture selfie",
+      detail: selfie ? "Selfie captured and ready to attach." : "Take a clear selfie before you check in or check out.",
+      complete: !!selfie
+    },
+    {
+      title: canCheckOut ? "Check out" : "Check in",
+      detail: canCheckOut ? "Finish your day once your work is complete." : "Submit your attendance once location and selfie are ready.",
+      complete: canCheckOut ? overview.todayAttendance?.status === "COMPLETED" : hasCheckedIn
+    }
+  ];
 
   return (
     <main className="workspace">
       <header className="topbar">
         <div>
-          <span className="eyebrow">Employee workspace</span>
+          <span className="eyebrow">ATTENDIFY employee view</span>
           <h2>{overview.employee.name}</h2>
           <p className="muted">
             {overview.employee.designation} at {overview.branch.name} for {session.user.vendorName}
@@ -746,6 +847,13 @@ function EmployeeScreen({
           Log out
         </button>
       </header>
+
+      <section className="metric-grid">
+        <MetricCard label="Today's status" value={overview.todayAttendance?.status ?? "Not marked"} />
+        <MetricCard label="Last activity" value={lastActionTime ? formatTimeOnly(lastActionTime) : "Pending"} />
+        <MetricCard label="Completed this month" value={completedThisMonth} />
+        <MetricCard label="Assigned branch" value={overview.branch.name} />
+      </section>
 
       <section className="grid two-column">
         <article className="panel">
@@ -774,10 +882,30 @@ function EmployeeScreen({
             Branch target coordinate: {overview.branch.latitude.toFixed(5)},{" "}
             {overview.branch.longitude.toFixed(5)}
           </p>
+          {attendanceSummary ? (
+            <div className="info-card success-card">
+              <strong>{attendanceSummary.mode === "check-in" ? "Check-in saved" : "Check-out saved"}</strong>
+              <span>{attendanceSummary.branchName}</span>
+              <span>{formatDateTime(attendanceSummary.time)}</span>
+              <span>Distance from branch: {attendanceSummary.distanceMeters.toFixed(1)}m</span>
+              <img alt="Latest attendance selfie" className="summary-image" src={attendanceSummary.image} />
+            </div>
+          ) : null}
         </article>
 
         <article className="panel">
-          <h3>Verify before marking</h3>
+          <h3>Mark attendance with confidence</h3>
+          <div className="step-list">
+            {employeeSteps.map((step, index) => (
+              <div className={`step-card${step.complete ? " complete" : ""}`} key={step.title}>
+                <span className="step-index">{index + 1}</span>
+                <div>
+                  <strong>{step.title}</strong>
+                  <span>{step.detail}</span>
+                </div>
+              </div>
+            ))}
+          </div>
           <div className="action-row">
             <button className="secondary-button" onClick={() => void requestLocation()}>
               Lock GPS
@@ -791,14 +919,23 @@ function EmployeeScreen({
           </div>
           <div className="camera-panel">
             <video autoPlay muted playsInline ref={videoRef} />
-            {selfie ? <img alt="Captured selfie" src={selfie} /> : null}
+            {selfie ? <img alt="Captured selfie" src={selfie} /> : <div className="empty-media">Selfie preview will appear here.</div>}
           </div>
-          <p className="muted">
-            Current GPS:{" "}
-            {coords
-              ? `${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`
-              : "Not locked yet"}
-          </p>
+          <div className="status-card-row">
+            <div className={`status-chip${insideGeofence === false ? " warning" : insideGeofence ? " success" : ""}`}>
+              {insideGeofence === null
+                ? "Lock your location to check branch distance."
+                : insideGeofence
+                  ? `Inside branch area by ${geofenceDistance?.toFixed(1)}m`
+                  : `Outside branch area by ${geofenceDistance?.toFixed(1)}m`}
+            </div>
+            <div className="status-chip">
+              Current GPS:{" "}
+              {coords
+                ? `${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`
+                : "Not locked yet"}
+            </div>
+          </div>
           {status ? <p className="status-text">{status}</p> : null}
           <div className="action-row">
             <button
@@ -821,7 +958,10 @@ function EmployeeScreen({
 
       <section className="panel">
         <h3>Recent attendance</h3>
-        <AttendanceTable records={overview.recentAttendance} />
+        <AttendanceTable
+          records={overview.recentAttendance}
+          emptyMessage="No attendance has been marked yet. Your latest check-ins will appear here."
+        />
       </section>
     </main>
   );
@@ -838,7 +978,7 @@ function AdminScreen({
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [attendance, setAttendance] = useState<AttendanceRow[]>([]);
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [previewImage, setPreviewImage] = useState<AttendancePreview | null>(null);
 
   useEffect(() => {
     async function loadAdminData() {
@@ -859,17 +999,25 @@ function AdminScreen({
   }, []);
 
   if (!dashboard) {
-    return <div className="center-message">Loading admin dashboard...</div>;
+    return <LoadingWorkspace title="Loading your dashboard" lines={5} />;
   }
+
+  const todayKey = formatLocalDateKey(new Date());
+  const todayAttendance = attendance.filter((record) => record.date === todayKey);
+  const todayAttendanceIds = new Set(todayAttendance.map((record) => record.employeeId));
+  const absentEmployees = employees.filter((employee) => !todayAttendanceIds.has(employee.id));
+  const checkedInEmployees = todayAttendance.filter((record) => record.status === "CHECKED_IN");
+  const checkedOutEmployees = todayAttendance.filter((record) => record.status === "COMPLETED");
+  const lateArrivals = todayAttendance.filter((record) => isLateCheckIn(record.checkInTime));
 
   return (
     <main className="workspace">
       <header className="topbar">
         <div>
-          <span className="eyebrow">Vendor admin dashboard</span>
+          <span className="eyebrow">ATTENDIFY admin view</span>
           <h2>{session.user.name}</h2>
           <p className="muted">
-            {session.user.vendorName} attendance operations with server-enforced tenant isolation
+            Track today&apos;s attendance, review proof, and follow up with the teams that still need attention.
           </p>
         </div>
         <button className="ghost-button" onClick={onLogout}>
@@ -888,67 +1036,132 @@ function AdminScreen({
         <article className="panel">
           <h3>Branch coverage</h3>
           <div className="branch-list">
-            {dashboard.branchSnapshots.map((branch) => (
-              <div className="branch-item" key={branch.branchId}>
-                <div>
-                  <strong>{branch.branchName}</strong>
-                  <span>
-                    {branch.present} present / {branch.headcount} assigned
+            {dashboard.branchSnapshots.length ? (
+              dashboard.branchSnapshots.map((branch) => (
+                <div className="branch-item" key={branch.branchId}>
+                  <div>
+                    <strong>{branch.branchName}</strong>
+                    <span>
+                      {branch.present} present / {branch.headcount} assigned
+                    </span>
+                  </div>
+                  <span className="pill">
+                    {Math.round((branch.present / Math.max(branch.headcount, 1)) * 100)}%
                   </span>
                 </div>
-                <span className="pill">
-                  {Math.round((branch.present / Math.max(branch.headcount, 1)) * 100)}%
-                </span>
-              </div>
-            ))}
+              ))
+            ) : (
+              <EmptyState
+                title="No branch activity yet"
+                message="Branch coverage will appear here after your first staff records and attendance entries are added."
+              />
+            )}
           </div>
         </article>
 
         <article className="panel">
           <h3>Configured branches</h3>
           <div className="branch-list">
-            {branches.map((branch) => (
-              <div className="branch-item" key={branch.id}>
-                <div>
-                  <strong>{branch.name}</strong>
-                  <span>{branch.address}</span>
+            {branches.length ? (
+              branches.map((branch) => (
+                <div className="branch-item" key={branch.id}>
+                  <div>
+                    <strong>{branch.name}</strong>
+                    <span>{branch.address}</span>
+                  </div>
+                  <span className="pill">{branch.radiusMeters}m</span>
                 </div>
-                <span className="pill">{branch.radiusMeters}m</span>
-              </div>
-            ))}
+              ))
+            ) : (
+              <EmptyState
+                title="No branches yet"
+                message="Add your first branch to start assigning employees and accepting attendance nearby."
+              />
+            )}
           </div>
+        </article>
+      </section>
+
+      <section className="grid two-column">
+        <article className="panel">
+          <h3>Needs attention today</h3>
+          <ActionList
+            items={absentEmployees.map((employee) => `${employee.name} · ${employee.designation}`)}
+            emptyMessage="Everyone assigned today has already marked attendance."
+          />
+        </article>
+        <article className="panel">
+          <h3>Late arrivals</h3>
+          <ActionList
+            items={lateArrivals.map(
+              (record) => `${record.employeeName} · checked in at ${formatTimeOnly(record.checkInTime)}`
+            )}
+            emptyMessage="No late arrivals so far today."
+          />
+        </article>
+      </section>
+
+      <section className="grid two-column">
+        <article className="panel">
+          <h3>Currently checked in</h3>
+          <ActionList
+            items={checkedInEmployees.map(
+              (record) => `${record.employeeName} · ${record.branchName} · ${formatTimeOnly(record.checkInTime)}`
+            )}
+            emptyMessage="No one is currently marked as checked in."
+          />
+        </article>
+        <article className="panel">
+          <h3>Completed today</h3>
+          <ActionList
+            items={checkedOutEmployees.map(
+              (record) => `${record.employeeName} · ${formatWorkedHours(record.checkInTime, record.checkOutTime)}`
+            )}
+            emptyMessage="Completed shifts will appear here after check-out."
+          />
         </article>
       </section>
 
       <section className="panel">
         <h3>Employees</h3>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Code</th>
-              <th>Designation</th>
-              <th>Email</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {employees.map((employee) => (
-              <tr key={employee.id}>
-                <td>{employee.name}</td>
-                <td>{employee.employeeCode}</td>
-                <td>{employee.designation}</td>
-                <td>{employee.email}</td>
-                <td>{employee.status}</td>
+        {employees.length ? (
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Code</th>
+                <th>Designation</th>
+                <th>Email</th>
+                <th>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {employees.map((employee) => (
+                <tr key={employee.id}>
+                  <td>{employee.name}</td>
+                  <td>{employee.employeeCode}</td>
+                  <td>{employee.designation}</td>
+                  <td>{employee.email}</td>
+                  <td>{employee.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <EmptyState
+            title="No employees added yet"
+            message="Employee records will show up here after you add your first team members."
+          />
+        )}
       </section>
 
       <section className="panel">
         <h3>Attendance evidence report</h3>
-        <AttendanceTable records={attendance} onPreviewImage={setPreviewImage} />
+        <AttendanceTable
+          records={attendance}
+          onPreviewImage={setPreviewImage}
+          emptyMessage="Attendance evidence will appear here once your staff start checking in and out."
+        />
       </section>
       {previewImage ? (
         <div className="image-modal-backdrop" onClick={() => setPreviewImage(null)}>
@@ -956,7 +1169,10 @@ function AdminScreen({
             <button className="ghost-button image-modal-close" onClick={() => setPreviewImage(null)}>
               Close
             </button>
-            <img alt="Attendance evidence preview" src={previewImage} />
+            <strong>{previewImage.label}</strong>
+            <span className="muted">{previewImage.employeeName}</span>
+            <span className="muted">{formatDateTime(previewImage.time)}</span>
+            <img alt="Attendance evidence preview" src={previewImage.image} />
           </div>
         </div>
       ) : null}
@@ -964,7 +1180,7 @@ function AdminScreen({
   );
 }
 
-function MetricCard({ label, value }: { label: string; value: number }) {
+function MetricCard({ label, value }: { label: string; value: number | string }) {
   return (
     <article className="metric-card">
       <span>{label}</span>
@@ -975,63 +1191,168 @@ function MetricCard({ label, value }: { label: string; value: number }) {
 
 function AttendanceTable({
   records,
-  onPreviewImage
+  onPreviewImage,
+  emptyMessage
 }: {
   records: AttendanceRow[];
-  onPreviewImage?: (image: string) => void;
+  onPreviewImage?: (preview: AttendancePreview) => void;
+  emptyMessage?: string;
 }) {
+  if (!records.length) {
+    return (
+      <EmptyState
+        title="Nothing to show yet"
+        message={emptyMessage ?? "Attendance records will appear here once your team starts using ATTENDIFY."}
+      />
+    );
+  }
+
   return (
-    <table className="data-table">
-      <thead>
-        <tr>
-          <th>Employee</th>
-          <th>Date</th>
-          <th>Check-in</th>
-          <th>Check-out</th>
-          <th>Hours worked</th>
-          <th>Status</th>
-          <th>Branch</th>
-          <th>Evidence</th>
-        </tr>
-      </thead>
-      <tbody>
-        {records.map((record) => (
-          <tr key={record.recordId}>
-            <td>{record.employeeName}</td>
-            <td>{record.date}</td>
-            <td>{formatDateTime(record.checkInTime)}</td>
-            <td>{formatDateTime(record.checkOutTime)}</td>
-            <td>{formatWorkedHours(record.checkInTime, record.checkOutTime)}</td>
-            <td>{record.status}</td>
-            <td>{record.branchName}</td>
-            <td>
-              <div className="evidence-stack evidence-thumbnail-stack">
-                {record.checkInPhotoRef ? (
-                  <button
-                    className="evidence-thumb-button"
-                    type="button"
-                    onClick={() => onPreviewImage?.(record.checkInPhotoRef!)}
-                  >
-                    <img alt="Check-in evidence" src={record.checkInPhotoRef} />
-                  </button>
-                ) : (
-                  <span className="muted">No check-in image</span>
-                )}
-                {record.checkOutPhotoRef ? (
-                  <button
-                    className="evidence-thumb-button"
-                    type="button"
-                    onClick={() => onPreviewImage?.(record.checkOutPhotoRef!)}
-                  >
-                    <img alt="Check-out evidence" src={record.checkOutPhotoRef} />
-                  </button>
-                ) : null}
-              </div>
-            </td>
+    <>
+      <table className="data-table desktop-table">
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Date</th>
+            <th>Check-in</th>
+            <th>Check-out</th>
+            <th>Hours worked</th>
+            <th>Status</th>
+            <th>Branch</th>
+            <th>Evidence</th>
           </tr>
+        </thead>
+        <tbody>
+          {records.map((record) => (
+            <tr key={record.recordId}>
+              <td>{record.employeeName}</td>
+              <td>{record.date}</td>
+              <td>{formatDateTime(record.checkInTime)}</td>
+              <td>{formatDateTime(record.checkOutTime)}</td>
+              <td>{formatWorkedHours(record.checkInTime, record.checkOutTime)}</td>
+              <td>{record.status}</td>
+              <td>{record.branchName}</td>
+              <td>{renderEvidence(record, onPreviewImage)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <div className="attendance-card-list">
+        {records.map((record) => (
+          <article className="attendance-card" key={record.recordId}>
+            <div className="attendance-card-header">
+              <strong>{record.employeeName}</strong>
+              <span className="pill">{record.status}</span>
+            </div>
+            <div className="attendance-card-grid">
+              <span>Date</span>
+              <strong>{record.date}</strong>
+              <span>Branch</span>
+              <strong>{record.branchName}</strong>
+              <span>Check-in</span>
+              <strong>{formatDateTime(record.checkInTime)}</strong>
+              <span>Check-out</span>
+              <strong>{formatDateTime(record.checkOutTime)}</strong>
+              <span>Hours worked</span>
+              <strong>{formatWorkedHours(record.checkInTime, record.checkOutTime)}</strong>
+            </div>
+            <div className="attendance-card-evidence">{renderEvidence(record, onPreviewImage)}</div>
+          </article>
         ))}
-      </tbody>
-    </table>
+      </div>
+    </>
+  );
+}
+
+function renderEvidence(
+  record: AttendanceRow,
+  onPreviewImage?: (preview: AttendancePreview) => void
+) {
+  return (
+    <div className="evidence-stack evidence-thumbnail-stack">
+      {record.checkInPhotoRef ? (
+        <div className="evidence-item">
+          <button
+            className="evidence-thumb-button"
+            type="button"
+            onClick={() =>
+              onPreviewImage?.({
+                image: record.checkInPhotoRef!,
+                label: "Check-in proof",
+                time: record.checkInTime,
+                employeeName: record.employeeName
+              })
+            }
+          >
+            <img alt="Check-in evidence" src={record.checkInPhotoRef} />
+          </button>
+          <span>Check-in · {formatTimeOnly(record.checkInTime)}</span>
+        </div>
+      ) : (
+        <span className="muted">No check-in image</span>
+      )}
+      {record.checkOutPhotoRef ? (
+        <div className="evidence-item">
+          <button
+            className="evidence-thumb-button"
+            type="button"
+            onClick={() =>
+              onPreviewImage?.({
+                image: record.checkOutPhotoRef!,
+                label: "Check-out proof",
+                time: record.checkOutTime,
+                employeeName: record.employeeName
+              })
+            }
+          >
+            <img alt="Check-out evidence" src={record.checkOutPhotoRef} />
+          </button>
+          <span>Check-out · {formatTimeOnly(record.checkOutTime)}</span>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function EmptyState({ title, message }: { title: string; message: string }) {
+  return (
+    <div className="empty-state">
+      <strong>{title}</strong>
+      <span>{message}</span>
+    </div>
+  );
+}
+
+function ActionList({ items, emptyMessage }: { items: string[]; emptyMessage: string }) {
+  if (!items.length) {
+    return <EmptyState title="All clear" message={emptyMessage} />;
+  }
+
+  return (
+    <div className="action-list">
+      {items.map((item) => (
+        <div className="action-item" key={item}>
+          {item}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function LoadingWorkspace({ title, lines }: { title: string; lines: number }) {
+  return (
+    <main className="workspace">
+      <section className="panel">
+        <span className="eyebrow">ATTENDIFY</span>
+        <h2>{title}</h2>
+        <div className="loading-stack">
+          {Array.from({ length: lines }, (_, index) => (
+            <div className="loading-skeleton" key={index} />
+          ))}
+        </div>
+      </section>
+    </main>
   );
 }
 
@@ -1069,6 +1390,17 @@ function formatDateTime(value: string | null | undefined) {
   return new Date(value).toLocaleString();
 }
 
+function formatTimeOnly(value: string | null | undefined) {
+  if (!value) {
+    return "Pending";
+  }
+
+  return new Date(value).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
 function formatWorkedHours(checkInTime: string | null | undefined, checkOutTime: string | null | undefined) {
   if (!checkInTime || !checkOutTime) {
     return "In progress";
@@ -1087,6 +1419,43 @@ function formatWorkedHours(checkInTime: string | null | undefined, checkOutTime:
   const minutes = totalMinutes % 60;
 
   return `${hours}h ${minutes}m`;
+}
+
+function getDistanceMeters(
+  latitudeA: number,
+  longitudeA: number,
+  latitudeB: number,
+  longitudeB: number
+) {
+  const toRadians = (value: number) => (value * Math.PI) / 180;
+  const earthRadius = 6371000;
+  const latDiff = toRadians(latitudeB - latitudeA);
+  const lonDiff = toRadians(longitudeB - longitudeA);
+  const startLat = toRadians(latitudeA);
+  const endLat = toRadians(latitudeB);
+
+  const haversine =
+    Math.sin(latDiff / 2) ** 2 +
+    Math.cos(startLat) * Math.cos(endLat) * Math.sin(lonDiff / 2) ** 2;
+
+  return 2 * earthRadius * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+}
+
+function formatLocalDateKey(date: Date) {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getDate()}`.padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function isLateCheckIn(value: string | null | undefined) {
+  if (!value) {
+    return false;
+  }
+
+  const date = new Date(value);
+  const totalMinutes = date.getHours() * 60 + date.getMinutes();
+  return totalMinutes > 9 * 60 + 15;
 }
 
 export default App;

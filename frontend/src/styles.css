@@ -103,6 +103,11 @@ select {
   color: #4f5d75;
 }
 
+.field-hint {
+  color: #6b7280;
+  font-size: 0.88rem;
+}
+
 .feature-list {
   display: grid;
   gap: 14px;
@@ -270,17 +275,49 @@ select {
   gap: 14px;
 }
 
+.step-list,
 .employee-seed-list {
   display: grid;
   gap: 14px;
 }
 
+.step-card,
 .employee-seed-card {
   padding: 16px;
   border-radius: 18px;
   background: rgba(245, 248, 251, 0.85);
   display: grid;
   gap: 12px;
+}
+
+.step-card {
+  grid-template-columns: auto 1fr;
+  align-items: start;
+}
+
+.step-card strong,
+.step-card span {
+  display: block;
+}
+
+.step-card span {
+  color: #4f5d75;
+}
+
+.step-card.complete {
+  background: rgba(216, 243, 220, 0.9);
+  border: 1px solid rgba(27, 67, 50, 0.1);
+}
+
+.step-index {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: #14213d;
+  color: #fff;
+  font-weight: 800;
 }
 
 .branch-item {
@@ -308,6 +345,10 @@ select {
   border-collapse: collapse;
 }
 
+.desktop-table {
+  display: table;
+}
+
 .data-table th,
 .data-table td {
   text-align: left;
@@ -327,6 +368,16 @@ select {
   display: grid;
   gap: 10px;
   min-width: 120px;
+}
+
+.evidence-item {
+  display: grid;
+  gap: 6px;
+}
+
+.evidence-item span {
+  color: #4f5d75;
+  font-size: 0.8rem;
 }
 
 .evidence-thumbnail-stack {
@@ -379,6 +430,136 @@ select {
 
 .image-modal-close {
   justify-self: end;
+}
+
+.info-card,
+.empty-state,
+.action-item,
+.status-chip {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(245, 248, 251, 0.9);
+}
+
+.info-card,
+.empty-state {
+  display: grid;
+  gap: 6px;
+}
+
+.success-card {
+  margin-top: 18px;
+  border: 1px solid rgba(15, 118, 110, 0.14);
+  background: rgba(223, 250, 245, 0.92);
+}
+
+.summary-image {
+  width: min(180px, 100%);
+  border-radius: 16px;
+  border: 1px solid rgba(20, 33, 61, 0.08);
+}
+
+.status-card-row,
+.action-list,
+.loading-stack,
+.attendance-card-list {
+  display: grid;
+  gap: 12px;
+}
+
+.action-list {
+  margin-top: 8px;
+}
+
+.action-item {
+  font-weight: 600;
+}
+
+.status-card-row {
+  margin-top: 14px;
+}
+
+.status-chip {
+  color: #14213d;
+  font-weight: 700;
+}
+
+.status-chip.success {
+  background: rgba(216, 243, 220, 0.92);
+  color: #1b4332;
+}
+
+.status-chip.warning {
+  background: rgba(254, 240, 199, 0.95);
+  color: #9a3412;
+}
+
+.empty-state {
+  color: #4f5d75;
+}
+
+.empty-state strong {
+  color: #14213d;
+}
+
+.empty-media {
+  width: 100%;
+  min-height: 220px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(226, 232, 240, 0.9), rgba(243, 244, 246, 0.95));
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  color: #4f5d75;
+  text-align: center;
+}
+
+.loading-skeleton {
+  height: 18px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(226, 232, 240, 0.95), rgba(255, 255, 255, 0.95), rgba(226, 232, 240, 0.95));
+  background-size: 220px 100%;
+  animation: shimmer 1.3s infinite linear;
+}
+
+.attendance-card-list {
+  display: none;
+}
+
+.attendance-card {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(245, 248, 251, 0.9);
+  display: grid;
+  gap: 14px;
+}
+
+.attendance-card-header,
+.attendance-card-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.attendance-card-header {
+  grid-template-columns: 1fr auto;
+  align-items: start;
+}
+
+.attendance-card-grid {
+  grid-template-columns: 1fr 1fr;
+}
+
+.attendance-card-grid span {
+  color: #4f5d75;
+}
+
+.attendance-card-grid strong {
+  word-break: break-word;
+}
+
+.attendance-card-evidence {
+  display: grid;
+  gap: 10px;
 }
 
 .center-message,
@@ -502,6 +683,14 @@ select {
     grid-template-columns: 1fr;
   }
 
+  .desktop-table {
+    display: none;
+  }
+
+  .attendance-card-list {
+    display: grid;
+  }
+
   .data-table th,
   .data-table td {
     padding: 12px 10px;
@@ -510,6 +699,7 @@ select {
 
   .employee-seed-card,
   .branch-item,
+  .step-card,
   .feature-list div {
     padding: 14px;
   }
@@ -524,5 +714,23 @@ select {
   .center-message {
     padding-left: 0;
     padding-right: 0;
+  }
+
+  .attendance-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .step-card {
+    grid-template-columns: 1fr;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -220px 0;
+  }
+
+  100% {
+    background-position: 220px 0;
   }
 }
