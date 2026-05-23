@@ -281,6 +281,16 @@ select {
   margin-top: 18px;
 }
 
+.stat-row > div {
+  display: grid;
+  gap: 6px;
+  min-width: 180px;
+}
+
+.stat-row strong {
+  line-height: 1.2;
+}
+
 .camera-panel {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -493,6 +503,19 @@ select {
 .attendance-card-list {
   display: grid;
   gap: 12px;
+}
+
+.attendance-action-row {
+  justify-content: flex-start;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.attendance-action-row .primary-button,
+.attendance-action-row .secondary-button,
+.attendance-action-row .ghost-button {
+  width: auto;
+  min-width: 170px;
 }
 
 .tutorial-toolbar {
@@ -775,6 +798,13 @@ select {
   .ghost-button {
     width: 100%;
     justify-content: center;
+  }
+
+  .attendance-action-row .primary-button,
+  .attendance-action-row .secondary-button,
+  .attendance-action-row .ghost-button {
+    width: 100%;
+    min-width: 0;
   }
 
   .tutorial-actions {

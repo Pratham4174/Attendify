@@ -966,7 +966,7 @@ function EmployeeScreen({
               </div>
             ))}
           </div>
-          <div className="action-row">
+          <div className="action-row attendance-action-row">
             <button className="secondary-button" onClick={() => void requestLocation()}>
               Lock GPS
             </button>
@@ -997,7 +997,7 @@ function EmployeeScreen({
             </div>
           </div>
           {status ? <p className="status-text">{status}</p> : null}
-          <div className="action-row">
+          <div className="action-row attendance-action-row">
             <button
               className="primary-button"
               disabled={loading || hasCheckedIn}
