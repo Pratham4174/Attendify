@@ -838,6 +838,7 @@ function AdminScreen({
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [attendance, setAttendance] = useState<AttendanceRow[]>([]);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadAdminData() {
@@ -947,8 +948,18 @@ function AdminScreen({
 
       <section className="panel">
         <h3>Attendance evidence report</h3>
-        <AttendanceTable records={attendance} />
+        <AttendanceTable records={attendance} onPreviewImage={setPreviewImage} />
       </section>
+      {previewImage ? (
+        <div className="image-modal-backdrop" onClick={() => setPreviewImage(null)}>
+          <div className="image-modal-card" onClick={(event) => event.stopPropagation()}>
+            <button className="ghost-button image-modal-close" onClick={() => setPreviewImage(null)}>
+              Close
+            </button>
+            <img alt="Attendance evidence preview" src={previewImage} />
+          </div>
+        </div>
+      ) : null}
     </main>
   );
 }
@@ -962,7 +973,13 @@ function MetricCard({ label, value }: { label: string; value: number }) {
   );
 }
 
-function AttendanceTable({ records }: { records: AttendanceRow[] }) {
+function AttendanceTable({
+  records,
+  onPreviewImage
+}: {
+  records: AttendanceRow[];
+  onPreviewImage?: (image: string) => void;
+}) {
   return (
     <table className="data-table">
       <thead>
@@ -986,14 +1003,26 @@ function AttendanceTable({ records }: { records: AttendanceRow[] }) {
             <td>{record.status}</td>
             <td>{record.branchName}</td>
             <td>
-              <div className="evidence-stack">
+              <div className="evidence-stack evidence-thumbnail-stack">
                 {record.checkInPhotoRef ? (
-                  <img alt="Check-in evidence" src={record.checkInPhotoRef} />
+                  <button
+                    className="evidence-thumb-button"
+                    type="button"
+                    onClick={() => onPreviewImage?.(record.checkInPhotoRef!)}
+                  >
+                    <img alt="Check-in evidence" src={record.checkInPhotoRef} />
+                  </button>
                 ) : (
                   <span className="muted">No check-in image</span>
                 )}
                 {record.checkOutPhotoRef ? (
-                  <img alt="Check-out evidence" src={record.checkOutPhotoRef} />
+                  <button
+                    className="evidence-thumb-button"
+                    type="button"
+                    onClick={() => onPreviewImage?.(record.checkOutPhotoRef!)}
+                  >
+                    <img alt="Check-out evidence" src={record.checkOutPhotoRef} />
+                  </button>
                 ) : null}
               </div>
             </td>
