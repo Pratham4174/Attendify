@@ -988,6 +988,7 @@ function AttendanceTable({
           <th>Date</th>
           <th>Check-in</th>
           <th>Check-out</th>
+          <th>Hours worked</th>
           <th>Status</th>
           <th>Branch</th>
           <th>Evidence</th>
@@ -1000,6 +1001,7 @@ function AttendanceTable({
             <td>{record.date}</td>
             <td>{formatDateTime(record.checkInTime)}</td>
             <td>{formatDateTime(record.checkOutTime)}</td>
+            <td>{formatWorkedHours(record.checkInTime, record.checkOutTime)}</td>
             <td>{record.status}</td>
             <td>{record.branchName}</td>
             <td>
@@ -1065,6 +1067,26 @@ function formatDateTime(value: string | null | undefined) {
   }
 
   return new Date(value).toLocaleString();
+}
+
+function formatWorkedHours(checkInTime: string | null | undefined, checkOutTime: string | null | undefined) {
+  if (!checkInTime || !checkOutTime) {
+    return "In progress";
+  }
+
+  const checkIn = new Date(checkInTime).getTime();
+  const checkOut = new Date(checkOutTime).getTime();
+  const diffMs = checkOut - checkIn;
+
+  if (Number.isNaN(diffMs) || diffMs < 0) {
+    return "Unavailable";
+  }
+
+  const totalMinutes = Math.round(diffMs / 60000);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  return `${hours}h ${minutes}m`;
 }
 
 export default App;
