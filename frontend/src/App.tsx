@@ -327,23 +327,32 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
     <main className="login-layout">
       <section className="hero-panel">
         <span className="eyebrow">ATTENDIFY</span>
-        <h1>Know who checked in, where they checked in, and how the day is moving.</h1>
+        <h1>Attendance that feels simple from the first tap.</h1>
         <p>
-          ATTENDIFY keeps attendance simple for hotels, stores, and field teams with
-          quick check-ins, clear records, and one place to review every workday.
+          Track daily check-ins, keep staff records tidy, and review every shift from one calm workspace.
         </p>
-        <div className="feature-list">
+        <div className="hero-stat-strip">
           <div>
-            <strong>Easy daily tracking</strong>
-            <span>Follow today&apos;s attendance in minutes instead of chasing updates across calls and chats.</span>
+            <strong>Fast check-ins</strong>
+            <span>Location, selfie, done.</span>
           </div>
           <div>
-            <strong>Clear staff records</strong>
-            <span>Keep employee details, branch locations, and attendance history neatly organized.</span>
+            <strong>Clear records</strong>
+            <span>Daily activity in one place.</span>
+          </div>
+        </div>
+        <div className="feature-list simple-feature-list">
+          <div>
+            <strong>For teams with multiple branches</strong>
+            <span>Useful for hotels, stores, clinics, and field teams.</span>
           </div>
           <div>
-            <strong>Reliable proof</strong>
-            <span>Review each check-in with location details and selfie proof whenever needed.</span>
+            <strong>Built for daily use</strong>
+            <span>Employees can check in quickly without guessing the next step.</span>
+          </div>
+          <div>
+            <strong>Easy to review later</strong>
+            <span>Admins can see who is present, late, or still missing.</span>
           </div>
         </div>
       </section>
@@ -368,6 +377,7 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
         {!registrationMode ? (
           <>
             <h2>Sign in</h2>
+            <p className="muted section-intro">Use your work email to open your ATTENDIFY workspace.</p>
             <form onSubmit={handleLogin}>
               <label>
                 Email
@@ -409,7 +419,7 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
           <>
             <h2>Register your property</h2>
             <p className="muted">
-              Set up your property, add your main branch, and create your first employee accounts in one go.
+              Set up your property, add your main branch, and create your first team in one clean flow.
             </p>
             <p className="muted">Fields marked <span className="required-mark">*</span> are required.</p>
             <form onSubmit={handleRegistration}>
@@ -659,6 +669,8 @@ function EmployeeScreen({
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
   const [cameraReady, setCameraReady] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [activeTutorialStep, setActiveTutorialStep] = useState(0);
   const [attendanceSummary, setAttendanceSummary] = useState<{
     mode: "check-in" | "check-out";
     branchName: string;
@@ -683,6 +695,28 @@ function EmployeeScreen({
       streamRef.current?.getTracks().forEach((track) => track.stop());
     };
   }, []);
+
+  useEffect(() => {
+    const tutorialKey = `attendify-tutorial-seen-${session.user.userId}`;
+    const hasSeenTutorial = localStorage.getItem(tutorialKey);
+
+    if (!hasSeenTutorial) {
+      setShowTutorial(true);
+      localStorage.setItem(tutorialKey, "true");
+    }
+  }, [session.user.userId]);
+
+  useEffect(() => {
+    if (!showTutorial) {
+      return;
+    }
+
+    const interval = window.setInterval(() => {
+      setActiveTutorialStep((current) => (current + 1) % 4);
+    }, 1800);
+
+    return () => window.clearInterval(interval);
+  }, [showTutorial]);
 
   async function requestLocation() {
     setStatus("Fetching your current location...");
@@ -832,6 +866,24 @@ function EmployeeScreen({
       complete: canCheckOut ? overview.todayAttendance?.status === "COMPLETED" : hasCheckedIn
     }
   ];
+  const tutorialSteps = [
+    {
+      title: "Allow location",
+      detail: "Tap the location button so ATTENDIFY can check that you are near your branch."
+    },
+    {
+      title: "Start camera",
+      detail: "Open the front camera and get ready for a quick selfie."
+    },
+    {
+      title: "Capture selfie",
+      detail: "Take a clear selfie so the check-in includes attendance proof."
+    },
+    {
+      title: "Check in",
+      detail: "Submit once everything is ready. You will see a confirmation right away."
+    }
+  ];
 
   return (
     <main className="workspace">
@@ -848,6 +900,12 @@ function EmployeeScreen({
         </button>
       </header>
 
+      <div className="action-row tutorial-toolbar">
+        <button className="ghost-button tutorial-button" onClick={() => setShowTutorial(true)}>
+          How to mark attendance
+        </button>
+      </div>
+
       <section className="metric-grid">
         <MetricCard label="Today's status" value={overview.todayAttendance?.status ?? "Not marked"} />
         <MetricCard label="Last activity" value={lastActionTime ? formatTimeOnly(lastActionTime) : "Pending"} />
@@ -858,6 +916,7 @@ function EmployeeScreen({
       <section className="grid two-column">
         <article className="panel">
           <h3>Today's status</h3>
+          <p className="muted section-intro">A quick view of your shift so far.</p>
           <div className="stat-row">
             <div>
               <span className="label">Attendance state</span>
@@ -895,6 +954,7 @@ function EmployeeScreen({
 
         <article className="panel">
           <h3>Mark attendance with confidence</h3>
+          <p className="muted section-intro">Just follow the steps below. We will guide you through it.</p>
           <div className="step-list">
             {employeeSteps.map((step, index) => (
               <div className={`step-card${step.complete ? " complete" : ""}`} key={step.title}>
@@ -958,11 +1018,50 @@ function EmployeeScreen({
 
       <section className="panel">
         <h3>Recent attendance</h3>
+        <p className="muted section-intro">Your latest attendance activity appears here.</p>
         <AttendanceTable
           records={overview.recentAttendance}
           emptyMessage="No attendance has been marked yet. Your latest check-ins will appear here."
         />
       </section>
+      {showTutorial ? (
+        <div className="tutorial-backdrop" onClick={() => setShowTutorial(false)}>
+          <div className="tutorial-modal" onClick={(event) => event.stopPropagation()}>
+            <span className="eyebrow">How it works</span>
+            <h3>Mark attendance in 4 simple steps</h3>
+            <p className="muted">
+              This short guide shows the usual flow your team should follow every day.
+            </p>
+            <div className="tutorial-steps">
+              {tutorialSteps.map((step, index) => (
+                <div
+                  className={`tutorial-step${activeTutorialStep === index ? " active" : ""}`}
+                  key={step.title}
+                >
+                  <span className="tutorial-step-number">{index + 1}</span>
+                  <div>
+                    <strong>{step.title}</strong>
+                    <span>{step.detail}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="tutorial-actions">
+              <button className="ghost-button" onClick={() => setShowTutorial(false)}>
+                Skip
+              </button>
+              <button
+                className="primary-button"
+                onClick={() =>
+                  setActiveTutorialStep((current) => (current + 1) % tutorialSteps.length)
+                }
+              >
+                Next step
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </main>
   );
 }
@@ -1017,7 +1116,7 @@ function AdminScreen({
           <span className="eyebrow">ATTENDIFY admin view</span>
           <h2>{session.user.name}</h2>
           <p className="muted">
-            Track today&apos;s attendance, review proof, and follow up with the teams that still need attention.
+            Track today&apos;s attendance, review proof, and focus on what needs attention first.
           </p>
         </div>
         <button className="ghost-button" onClick={onLogout}>
@@ -1035,6 +1134,7 @@ function AdminScreen({
       <section className="grid two-column">
         <article className="panel">
           <h3>Branch coverage</h3>
+          <p className="muted section-intro">A simple branch-by-branch view of today&apos;s presence.</p>
           <div className="branch-list">
             {dashboard.branchSnapshots.length ? (
               dashboard.branchSnapshots.map((branch) => (
@@ -1061,6 +1161,7 @@ function AdminScreen({
 
         <article className="panel">
           <h3>Configured branches</h3>
+          <p className="muted section-intro">Your attendance zones and branch details.</p>
           <div className="branch-list">
             {branches.length ? (
               branches.map((branch) => (
@@ -1085,6 +1186,7 @@ function AdminScreen({
       <section className="grid two-column">
         <article className="panel">
           <h3>Needs attention today</h3>
+          <p className="muted section-intro">Start here to follow up with missing staff.</p>
           <ActionList
             items={absentEmployees.map((employee) => `${employee.name} · ${employee.designation}`)}
             emptyMessage="Everyone assigned today has already marked attendance."
@@ -1092,6 +1194,7 @@ function AdminScreen({
         </article>
         <article className="panel">
           <h3>Late arrivals</h3>
+          <p className="muted section-intro">Quick reminders for check-ins that happened later than usual.</p>
           <ActionList
             items={lateArrivals.map(
               (record) => `${record.employeeName} · checked in at ${formatTimeOnly(record.checkInTime)}`
@@ -1104,6 +1207,7 @@ function AdminScreen({
       <section className="grid two-column">
         <article className="panel">
           <h3>Currently checked in</h3>
+          <p className="muted section-intro">People who are still marked as on shift.</p>
           <ActionList
             items={checkedInEmployees.map(
               (record) => `${record.employeeName} · ${record.branchName} · ${formatTimeOnly(record.checkInTime)}`
@@ -1113,6 +1217,7 @@ function AdminScreen({
         </article>
         <article className="panel">
           <h3>Completed today</h3>
+          <p className="muted section-intro">Finished shifts with their worked hours.</p>
           <ActionList
             items={checkedOutEmployees.map(
               (record) => `${record.employeeName} · ${formatWorkedHours(record.checkInTime, record.checkOutTime)}`
@@ -1124,6 +1229,7 @@ function AdminScreen({
 
       <section className="panel">
         <h3>Employees</h3>
+        <p className="muted section-intro">A simple staff directory for this property.</p>
         {employees.length ? (
           <table className="data-table">
             <thead>
@@ -1157,6 +1263,7 @@ function AdminScreen({
 
       <section className="panel">
         <h3>Attendance evidence report</h3>
+        <p className="muted section-intro">Review check-in and check-out proof with timestamps.</p>
         <AttendanceTable
           records={attendance}
           onPreviewImage={setPreviewImage}
