@@ -339,6 +339,11 @@ select {
   padding: 0;
 }
 
+.required-mark {
+  color: #b42318;
+  font-weight: 800;
+}
+
 @media (max-width: 1024px) {
   .login-layout,
   .grid.two-column,

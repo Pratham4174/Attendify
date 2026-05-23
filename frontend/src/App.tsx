@@ -108,6 +108,14 @@ type EmployeeSeedForm = {
   designation: string;
 };
 
+function RequiredLabel({ children }: { children: string }) {
+  return (
+    <>
+      {children} <span className="required-mark">*</span>
+    </>
+  );
+}
+
 const demoAccounts = [
   { label: "Hotel One Admin", email: "admin@hotelone.test", password: "password" },
   { label: "Hotel One Employee", email: "ravi@hotelone.test", password: "password" },
@@ -145,7 +153,7 @@ function App() {
 }
 
 function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
-  const [selectedEmail, setSelectedEmail] = useState(demoAccounts[0].email);
+  const [email, setEmail] = useState(demoAccounts[0].email);
   const [password, setPassword] = useState(demoAccounts[0].password);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -175,13 +183,6 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
     }
   ]);
 
-  useEffect(() => {
-    const selected = demoAccounts.find((account) => account.email === selectedEmail);
-    if (selected) {
-      setPassword(selected.password);
-    }
-  }, [selectedEmail]);
-
   async function handleLogin(event: React.FormEvent) {
     event.preventDefault();
     setLoading(true);
@@ -191,7 +192,7 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
       const response = await fetch(`${API_BASE}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: selectedEmail, password })
+        body: JSON.stringify({ email, password })
       });
 
       if (!response.ok) {
@@ -266,7 +267,7 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
         `${data.message} Admin login: ${data.adminEmail}. Starter employee accounts created: ${data.employeesCreated}. Employee password defaults to "password".`
       );
       setRegistrationMode(false);
-      setSelectedEmail(propertyForm.adminEmail);
+      setEmail(propertyForm.adminEmail);
       setPassword(propertyForm.adminPassword);
     } catch (registrationError) {
       setRegistrationStatus(
@@ -277,6 +278,17 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
     } finally {
       setRegistrationLoading(false);
     }
+  }
+
+  function useDemoAccount(accountEmail: string) {
+    const account = demoAccounts.find((item) => item.email === accountEmail);
+    if (!account) {
+      return;
+    }
+    setEmail(account.email);
+    setPassword(account.password);
+    setRegistrationMode(false);
+    setError("");
   }
 
   return (
@@ -324,17 +336,18 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
         {!registrationMode ? (
           <>
             <h2>Sign in</h2>
-            <p className="muted">Use one of the seeded tenant accounts to explore the system.</p>
+            <p className="muted">
+              Sign in with any ATTENDIFY account, or use a demo account to explore the product.
+            </p>
             <form onSubmit={handleLogin}>
               <label>
-                Seeded account
-                <select value={selectedEmail} onChange={(event) => setSelectedEmail(event.target.value)}>
-                  {demoAccounts.map((account) => (
-                    <option key={account.email} value={account.email}>
-                      {account.label}
-                    </option>
-                  ))}
-                </select>
+                Email
+                <input
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  type="email"
+                  placeholder="you@property.com"
+                />
               </label>
               <label>
                 Password
@@ -345,6 +358,21 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
                   placeholder="password"
                 />
               </label>
+              <div className="employee-seed-list">
+                <strong>Quick demo accounts</strong>
+                <div className="grid two-column compact-grid">
+                  {demoAccounts.map((account) => (
+                    <button
+                      key={account.email}
+                      className="ghost-button"
+                      type="button"
+                      onClick={() => useDemoAccount(account.email)}
+                    >
+                      {account.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
               {error ? <p className="error-text">{error}</p> : null}
               {registrationStatus ? <p className="status-text">{registrationStatus}</p> : null}
               <button className="primary-button" disabled={loading} type="submit">
@@ -360,114 +388,125 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
             </p>
             <form onSubmit={handleRegistration}>
               <label>
-                Property code
+                <RequiredLabel>Property code</RequiredLabel>
                 <input
                   value={propertyForm.propertyCode}
                   onChange={(event) =>
                     setPropertyForm((current) => ({ ...current, propertyCode: event.target.value }))
                   }
+                  required
                   placeholder="sunrise-hotel"
                 />
               </label>
               <label>
-                Property name
+                <RequiredLabel>Property name</RequiredLabel>
                 <input
                   value={propertyForm.propertyName}
                   onChange={(event) =>
                     setPropertyForm((current) => ({ ...current, propertyName: event.target.value }))
                   }
+                  required
                   placeholder="Sunrise Hotel"
                 />
               </label>
               <label>
-                Admin name
+                <RequiredLabel>Admin name</RequiredLabel>
                 <input
                   value={propertyForm.adminName}
                   onChange={(event) =>
                     setPropertyForm((current) => ({ ...current, adminName: event.target.value }))
                   }
+                  required
                   placeholder="Owner / HR manager"
                 />
               </label>
               <label>
-                Admin email
+                <RequiredLabel>Admin email</RequiredLabel>
                 <input
                   value={propertyForm.adminEmail}
                   onChange={(event) =>
                     setPropertyForm((current) => ({ ...current, adminEmail: event.target.value }))
                   }
                   type="email"
+                  required
                   placeholder="admin@sunrisehotel.com"
                 />
               </label>
               <label>
-                Admin password
+                <RequiredLabel>Admin password</RequiredLabel>
                 <input
                   value={propertyForm.adminPassword}
                   onChange={(event) =>
                     setPropertyForm((current) => ({ ...current, adminPassword: event.target.value }))
                   }
                   type="password"
+                  required
                   placeholder="Create a password"
                 />
               </label>
               <label>
-                Admin phone
+                <RequiredLabel>Admin phone</RequiredLabel>
                 <input
                   value={propertyForm.adminPhone}
                   onChange={(event) =>
                     setPropertyForm((current) => ({ ...current, adminPhone: event.target.value }))
                   }
+                  required
                   placeholder="+91-98xxxxxxx"
                 />
               </label>
               <label>
-                Branch name
+                <RequiredLabel>Branch name</RequiredLabel>
                 <input
                   value={propertyForm.branchName}
                   onChange={(event) =>
                     setPropertyForm((current) => ({ ...current, branchName: event.target.value }))
                   }
+                  required
                   placeholder="Main Property"
                 />
               </label>
               <label>
-                Branch address
+                <RequiredLabel>Branch address</RequiredLabel>
                 <input
                   value={propertyForm.branchAddress}
                   onChange={(event) =>
                     setPropertyForm((current) => ({ ...current, branchAddress: event.target.value }))
                   }
+                  required
                   placeholder="Full business address"
                 />
               </label>
               <div className="grid two-column compact-grid">
                 <label>
-                  Latitude
+                  <RequiredLabel>Latitude</RequiredLabel>
                   <input
                     value={propertyForm.latitude}
                     onChange={(event) =>
                       setPropertyForm((current) => ({ ...current, latitude: event.target.value }))
                     }
+                    required
                   />
                 </label>
                 <label>
-                  Longitude
+                  <RequiredLabel>Longitude</RequiredLabel>
                   <input
                     value={propertyForm.longitude}
                     onChange={(event) =>
                       setPropertyForm((current) => ({ ...current, longitude: event.target.value }))
                     }
+                    required
                   />
                 </label>
               </div>
               <label>
-                Attendance radius (meters)
+                <RequiredLabel>Attendance radius (meters)</RequiredLabel>
                 <input
                   value={propertyForm.radiusMeters}
                   onChange={(event) =>
                     setPropertyForm((current) => ({ ...current, radiusMeters: event.target.value }))
                   }
+                  required
                 />
               </label>
               <div className="employee-seed-list">
@@ -481,46 +520,51 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
                   <div className="employee-seed-card" key={`${employee.email}-${index}`}>
                     <div className="grid two-column compact-grid">
                       <label>
-                        Employee code
+                        <RequiredLabel>Employee code</RequiredLabel>
                         <input
                           value={employee.employeeCode}
                           onChange={(event) => updateEmployee(index, "employeeCode", event.target.value)}
+                          required
                           placeholder="EMP-001"
                         />
                       </label>
                       <label>
-                        Name
+                        <RequiredLabel>Name</RequiredLabel>
                         <input
                           value={employee.name}
                           onChange={(event) => updateEmployee(index, "name", event.target.value)}
+                          required
                           placeholder="Employee name"
                         />
                       </label>
                     </div>
                     <div className="grid two-column compact-grid">
                       <label>
-                        Email
+                        <RequiredLabel>Email</RequiredLabel>
                         <input
                           value={employee.email}
                           onChange={(event) => updateEmployee(index, "email", event.target.value)}
                           type="email"
+                          required
                           placeholder="employee@property.com"
                         />
                       </label>
                       <label>
-                        Phone
+                        <RequiredLabel>Phone</RequiredLabel>
                         <input
                           value={employee.phone}
                           onChange={(event) => updateEmployee(index, "phone", event.target.value)}
+                          required
                           placeholder="+91-98xxxxxxx"
                         />
                       </label>
                     </div>
                     <label>
-                      Designation
+                      <RequiredLabel>Designation</RequiredLabel>
                       <input
                         value={employee.designation}
                         onChange={(event) => updateEmployee(index, "designation", event.target.value)}
+                        required
                         placeholder="Front desk / Manager / Housekeeping"
                       />
                     </label>
