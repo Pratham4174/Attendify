@@ -233,6 +233,10 @@ select {
   gap: 24px;
 }
 
+.compact-grid {
+  gap: 14px;
+}
+
 .stat-row {
   margin-top: 18px;
 }
@@ -257,6 +261,19 @@ select {
 .branch-list {
   display: grid;
   gap: 14px;
+}
+
+.employee-seed-list {
+  display: grid;
+  gap: 14px;
+}
+
+.employee-seed-card {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(245, 248, 251, 0.85);
+  display: grid;
+  gap: 12px;
 }
 
 .branch-item {

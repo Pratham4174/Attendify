@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: attendance-app
+    name: attendify-app
     runtime: docker
     plan: starter
     dockerfilePath: ./Dockerfile

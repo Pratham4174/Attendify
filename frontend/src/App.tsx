@@ -100,6 +100,14 @@ type ApiError = {
   error?: string;
 };
 
+type EmployeeSeedForm = {
+  employeeCode: string;
+  name: string;
+  email: string;
+  phone: string;
+  designation: string;
+};
+
 const demoAccounts = [
   { label: "Hotel One Admin", email: "admin@hotelone.test", password: "password" },
   { label: "Hotel One Employee", email: "ravi@hotelone.test", password: "password" },
@@ -141,6 +149,31 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
   const [password, setPassword] = useState(demoAccounts[0].password);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [registrationMode, setRegistrationMode] = useState(false);
+  const [registrationLoading, setRegistrationLoading] = useState(false);
+  const [registrationStatus, setRegistrationStatus] = useState("");
+  const [propertyForm, setPropertyForm] = useState({
+    propertyCode: "",
+    propertyName: "",
+    adminName: "",
+    adminEmail: "",
+    adminPassword: "",
+    adminPhone: "",
+    branchName: "",
+    branchAddress: "",
+    latitude: "12.975673",
+    longitude: "77.606415",
+    radiusMeters: "50"
+  });
+  const [employees, setEmployees] = useState<EmployeeSeedForm[]>([
+    {
+      employeeCode: "",
+      name: "",
+      email: "",
+      phone: "",
+      designation: ""
+    }
+  ]);
 
   useEffect(() => {
     const selected = demoAccounts.find((account) => account.email === selectedEmail);
@@ -173,10 +206,83 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
     }
   }
 
+  function updateEmployee(index: number, key: keyof EmployeeSeedForm, value: string) {
+    setEmployees((current) =>
+      current.map((employee, employeeIndex) =>
+        employeeIndex === index ? { ...employee, [key]: value } : employee
+      )
+    );
+  }
+
+  function addEmployeeRow() {
+    setEmployees((current) => [
+      ...current,
+      { employeeCode: "", name: "", email: "", phone: "", designation: "" }
+    ]);
+  }
+
+  function removeEmployeeRow(index: number) {
+    setEmployees((current) => (current.length === 1 ? current : current.filter((_, i) => i !== index)));
+  }
+
+  async function handleRegistration(event: React.FormEvent) {
+    event.preventDefault();
+    setRegistrationLoading(true);
+    setRegistrationStatus("");
+
+    try {
+      const payload = {
+        ...propertyForm,
+        latitude: Number(propertyForm.latitude),
+        longitude: Number(propertyForm.longitude),
+        radiusMeters: Number(propertyForm.radiusMeters),
+        employees: employees.filter(
+          (employee) =>
+            employee.employeeCode ||
+            employee.name ||
+            employee.email ||
+            employee.phone ||
+            employee.designation
+        )
+      };
+
+      const response = await fetch(`${API_BASE}/public/property-registration`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error(await extractError(response));
+      }
+
+      const data = (await response.json()) as {
+        message: string;
+        employeesCreated: number;
+        adminEmail: string;
+      };
+
+      setRegistrationStatus(
+        `${data.message} Admin login: ${data.adminEmail}. Starter employee accounts created: ${data.employeesCreated}. Employee password defaults to "password".`
+      );
+      setRegistrationMode(false);
+      setSelectedEmail(propertyForm.adminEmail);
+      setPassword(propertyForm.adminPassword);
+    } catch (registrationError) {
+      setRegistrationStatus(
+        registrationError instanceof Error
+          ? registrationError.message
+          : "Unable to register property."
+      );
+    } finally {
+      setRegistrationLoading(false);
+    }
+  }
+
   return (
     <main className="login-layout">
       <section className="hero-panel">
-        <span className="eyebrow">Industry-grade attendance SaaS</span>
+        <span className="eyebrow">ATTENDIFY</span>
         <h1>Tenant-safe attendance for hotels, stores, and field teams.</h1>
         <p>
           This version is designed around PostgreSQL persistence, backend-enforced tenant
@@ -199,33 +305,246 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
       </section>
 
       <section className="login-card">
-        <h2>Sign in</h2>
-        <p className="muted">Use one of the seeded tenant accounts to explore the system.</p>
-        <form onSubmit={handleLogin}>
-          <label>
-            Seeded account
-            <select value={selectedEmail} onChange={(event) => setSelectedEmail(event.target.value)}>
-              {demoAccounts.map((account) => (
-                <option key={account.email} value={account.email}>
-                  {account.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Password
-            <input
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              type="password"
-              placeholder="password"
-            />
-          </label>
-          {error ? <p className="error-text">{error}</p> : null}
-          <button className="primary-button" disabled={loading} type="submit">
-            {loading ? "Signing in..." : "Access workspace"}
+        <div className="action-row">
+          <button
+            className={registrationMode ? "ghost-button" : "primary-button"}
+            type="button"
+            onClick={() => setRegistrationMode(false)}
+          >
+            Sign in
           </button>
-        </form>
+          <button
+            className={registrationMode ? "primary-button" : "ghost-button"}
+            type="button"
+            onClick={() => setRegistrationMode(true)}
+          >
+            Register property
+          </button>
+        </div>
+        {!registrationMode ? (
+          <>
+            <h2>Sign in</h2>
+            <p className="muted">Use one of the seeded tenant accounts to explore the system.</p>
+            <form onSubmit={handleLogin}>
+              <label>
+                Seeded account
+                <select value={selectedEmail} onChange={(event) => setSelectedEmail(event.target.value)}>
+                  {demoAccounts.map((account) => (
+                    <option key={account.email} value={account.email}>
+                      {account.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Password
+                <input
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  type="password"
+                  placeholder="password"
+                />
+              </label>
+              {error ? <p className="error-text">{error}</p> : null}
+              {registrationStatus ? <p className="status-text">{registrationStatus}</p> : null}
+              <button className="primary-button" disabled={loading} type="submit">
+                {loading ? "Signing in..." : "Access workspace"}
+              </button>
+            </form>
+          </>
+        ) : (
+          <>
+            <h2>Register your property</h2>
+            <p className="muted">
+              Create your property workspace, first branch, admin account, and initial employees in one flow.
+            </p>
+            <form onSubmit={handleRegistration}>
+              <label>
+                Property code
+                <input
+                  value={propertyForm.propertyCode}
+                  onChange={(event) =>
+                    setPropertyForm((current) => ({ ...current, propertyCode: event.target.value }))
+                  }
+                  placeholder="sunrise-hotel"
+                />
+              </label>
+              <label>
+                Property name
+                <input
+                  value={propertyForm.propertyName}
+                  onChange={(event) =>
+                    setPropertyForm((current) => ({ ...current, propertyName: event.target.value }))
+                  }
+                  placeholder="Sunrise Hotel"
+                />
+              </label>
+              <label>
+                Admin name
+                <input
+                  value={propertyForm.adminName}
+                  onChange={(event) =>
+                    setPropertyForm((current) => ({ ...current, adminName: event.target.value }))
+                  }
+                  placeholder="Owner / HR manager"
+                />
+              </label>
+              <label>
+                Admin email
+                <input
+                  value={propertyForm.adminEmail}
+                  onChange={(event) =>
+                    setPropertyForm((current) => ({ ...current, adminEmail: event.target.value }))
+                  }
+                  type="email"
+                  placeholder="admin@sunrisehotel.com"
+                />
+              </label>
+              <label>
+                Admin password
+                <input
+                  value={propertyForm.adminPassword}
+                  onChange={(event) =>
+                    setPropertyForm((current) => ({ ...current, adminPassword: event.target.value }))
+                  }
+                  type="password"
+                  placeholder="Create a password"
+                />
+              </label>
+              <label>
+                Admin phone
+                <input
+                  value={propertyForm.adminPhone}
+                  onChange={(event) =>
+                    setPropertyForm((current) => ({ ...current, adminPhone: event.target.value }))
+                  }
+                  placeholder="+91-98xxxxxxx"
+                />
+              </label>
+              <label>
+                Branch name
+                <input
+                  value={propertyForm.branchName}
+                  onChange={(event) =>
+                    setPropertyForm((current) => ({ ...current, branchName: event.target.value }))
+                  }
+                  placeholder="Main Property"
+                />
+              </label>
+              <label>
+                Branch address
+                <input
+                  value={propertyForm.branchAddress}
+                  onChange={(event) =>
+                    setPropertyForm((current) => ({ ...current, branchAddress: event.target.value }))
+                  }
+                  placeholder="Full business address"
+                />
+              </label>
+              <div className="grid two-column compact-grid">
+                <label>
+                  Latitude
+                  <input
+                    value={propertyForm.latitude}
+                    onChange={(event) =>
+                      setPropertyForm((current) => ({ ...current, latitude: event.target.value }))
+                    }
+                  />
+                </label>
+                <label>
+                  Longitude
+                  <input
+                    value={propertyForm.longitude}
+                    onChange={(event) =>
+                      setPropertyForm((current) => ({ ...current, longitude: event.target.value }))
+                    }
+                  />
+                </label>
+              </div>
+              <label>
+                Attendance radius (meters)
+                <input
+                  value={propertyForm.radiusMeters}
+                  onChange={(event) =>
+                    setPropertyForm((current) => ({ ...current, radiusMeters: event.target.value }))
+                  }
+                />
+              </label>
+              <div className="employee-seed-list">
+                <div className="action-row">
+                  <strong>Starter employees</strong>
+                  <button className="secondary-button" type="button" onClick={addEmployeeRow}>
+                    Add employee
+                  </button>
+                </div>
+                {employees.map((employee, index) => (
+                  <div className="employee-seed-card" key={`${employee.email}-${index}`}>
+                    <div className="grid two-column compact-grid">
+                      <label>
+                        Employee code
+                        <input
+                          value={employee.employeeCode}
+                          onChange={(event) => updateEmployee(index, "employeeCode", event.target.value)}
+                          placeholder="EMP-001"
+                        />
+                      </label>
+                      <label>
+                        Name
+                        <input
+                          value={employee.name}
+                          onChange={(event) => updateEmployee(index, "name", event.target.value)}
+                          placeholder="Employee name"
+                        />
+                      </label>
+                    </div>
+                    <div className="grid two-column compact-grid">
+                      <label>
+                        Email
+                        <input
+                          value={employee.email}
+                          onChange={(event) => updateEmployee(index, "email", event.target.value)}
+                          type="email"
+                          placeholder="employee@property.com"
+                        />
+                      </label>
+                      <label>
+                        Phone
+                        <input
+                          value={employee.phone}
+                          onChange={(event) => updateEmployee(index, "phone", event.target.value)}
+                          placeholder="+91-98xxxxxxx"
+                        />
+                      </label>
+                    </div>
+                    <label>
+                      Designation
+                      <input
+                        value={employee.designation}
+                        onChange={(event) => updateEmployee(index, "designation", event.target.value)}
+                        placeholder="Front desk / Manager / Housekeeping"
+                      />
+                    </label>
+                    <button
+                      className="ghost-button"
+                      type="button"
+                      onClick={() => removeEmployeeRow(index)}
+                    >
+                      Remove employee
+                    </button>
+                  </div>
+                ))}
+              </div>
+              {registrationStatus ? (
+                <p className={registrationStatus.includes("successfully") ? "status-text" : "error-text"}>
+                  {registrationStatus}
+                </p>
+              ) : null}
+              <button className="primary-button" disabled={registrationLoading} type="submit">
+                {registrationLoading ? "Registering..." : "Register property"}
+              </button>
+            </form>
+          </>
+        )}
       </section>
     </main>
   );

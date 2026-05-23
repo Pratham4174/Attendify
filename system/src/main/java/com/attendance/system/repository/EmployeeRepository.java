@@ -10,4 +10,5 @@ import java.util.UUID;
 public interface EmployeeRepository extends JpaRepository<EmployeeEntity, UUID> {
     List<EmployeeEntity> findByVendor_IdOrderByNameAsc(UUID vendorId);
     Optional<EmployeeEntity> findByIdAndVendor_Id(UUID id, UUID vendorId);
+    boolean existsByEmailIgnoreCase(String email);
 }

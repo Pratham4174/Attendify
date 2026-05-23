@@ -8,4 +8,5 @@ import java.util.UUID;
 
 public interface VendorRepository extends JpaRepository<VendorEntity, UUID> {
     Optional<VendorEntity> findByCode(String code);
+    boolean existsByCode(String code);
 }
