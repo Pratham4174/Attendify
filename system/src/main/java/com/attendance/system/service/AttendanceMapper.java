@@ -1,0 +1,79 @@
+package com.attendance.system.service;
+
+import com.attendance.system.dto.AttendanceRowResponse;
+import com.attendance.system.dto.BranchResponse;
+import com.attendance.system.dto.EmployeeResponse;
+import com.attendance.system.dto.EmployeeOverviewResponse;
+import com.attendance.system.model.AttendanceRecordEntity;
+import com.attendance.system.model.BranchEntity;
+import com.attendance.system.model.EmployeeEntity;
+import org.springframework.stereotype.Component;
+
+@Component
+public class AttendanceMapper {
+    public AttendanceRowResponse toAttendanceRow(AttendanceRecordEntity record) {
+        return new AttendanceRowResponse(
+                record.getId().toString(),
+                record.getEmployee().getId().toString(),
+                record.getEmployee().getName(),
+                record.getBranch().getId().toString(),
+                record.getBranch().getName(),
+                record.getAttendanceDate().toString(),
+                record.getCheckInTime().toString(),
+                record.getCheckOutTime() == null ? null : record.getCheckOutTime().toString(),
+                record.getStatus().name(),
+                record.getCheckInDistanceMeters().doubleValue(),
+                record.getCheckOutDistanceMeters() == null ? null : record.getCheckOutDistanceMeters().doubleValue(),
+                record.getCheckInPhotoRef(),
+                record.getCheckOutPhotoRef()
+        );
+    }
+
+    public EmployeeOverviewResponse.EmployeeSummary toEmployeeSummary(EmployeeEntity employee) {
+        return new EmployeeOverviewResponse.EmployeeSummary(
+                employee.getId().toString(),
+                employee.getBranch().getId().toString(),
+                employee.getEmployeeCode(),
+                employee.getName(),
+                employee.getEmail(),
+                employee.getPhone(),
+                employee.getStatus(),
+                employee.getDesignation()
+        );
+    }
+
+    public EmployeeOverviewResponse.BranchSummary toBranchSummary(BranchEntity branch) {
+        return new EmployeeOverviewResponse.BranchSummary(
+                branch.getId().toString(),
+                branch.getName(),
+                branch.getAddress(),
+                branch.getLatitude().doubleValue(),
+                branch.getLongitude().doubleValue(),
+                branch.getRadiusMeters().doubleValue()
+        );
+    }
+
+    public EmployeeResponse toEmployeeResponse(EmployeeEntity employee) {
+        return new EmployeeResponse(
+                employee.getId().toString(),
+                employee.getEmployeeCode(),
+                employee.getName(),
+                employee.getDesignation(),
+                employee.getEmail(),
+                employee.getPhone(),
+                employee.getStatus(),
+                employee.getBranch().getId().toString()
+        );
+    }
+
+    public BranchResponse toBranchResponse(BranchEntity branch) {
+        return new BranchResponse(
+                branch.getId().toString(),
+                branch.getName(),
+                branch.getAddress(),
+                branch.getLatitude().doubleValue(),
+                branch.getLongitude().doubleValue(),
+                branch.getRadiusMeters().doubleValue()
+        );
+    }
+}
