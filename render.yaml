@@ -6,18 +6,24 @@ services:
     dockerfilePath: ./Dockerfile
     dockerContext: .
     autoDeploy: true
+    disk:
+      name: attendance-mariadb-data
+      mountPath: /var/lib/mysql
+      sizeGB: 5
     envVars:
       - key: PORT
         value: 10000
-      - key: DB_HOST
-        sync: false
-      - key: DB_PORT
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: MYSQL_PORT
         value: "3306"
-      - key: DB_NAME
+      - key: MYSQL_DATABASE
         value: attendance_system
-      - key: DB_USERNAME
+      - key: MYSQL_USER
+        value: attendance
+      - key: MYSQL_PASSWORD
         sync: false
-      - key: DB_PASSWORD
+      - key: MYSQL_ROOT_PASSWORD
         sync: false
       - key: JWT_SECRET
         generateValue: true

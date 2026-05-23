@@ -1,5 +1,5 @@
 services:
-  app:
+  attendance-system:
     build:
       context: .
       dockerfile: Dockerfile
@@ -7,32 +7,15 @@ services:
       - "8080:8080"
     environment:
       PORT: 8080
-      DB_HOST: mariadb
-      DB_PORT: 3306
-      DB_NAME: attendance_system
-      DB_USERNAME: attendance
-      DB_PASSWORD: attendance_password
+      SPRING_PROFILES_ACTIVE: prod
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: attendance_system
+      MYSQL_USER: attendance
+      MYSQL_PASSWORD: attendance_password
+      MYSQL_ROOT_PASSWORD: root_password
       JWT_SECRET: ZmFrZS1kZXZlbG9wbWVudC1qd3Qtc2VjcmV0LW11c3QtYmUtYXQtbGVhc3QtMzItYnl0ZXM=
-    depends_on:
-      mariadb:
-        condition: service_healthy
-
-  mariadb:
-    image: mariadb:11.8
-    environment:
-      MARIADB_DATABASE: attendance_system
-      MARIADB_USER: attendance
-      MARIADB_PASSWORD: attendance_password
-      MARIADB_ROOT_PASSWORD: root_password
-    ports:
-      - "3306:3306"
     volumes:
       - mariadb-data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-uroot", "-proot_password"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
 
 volumes:
   mariadb-data:

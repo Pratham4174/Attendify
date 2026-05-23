@@ -2,17 +2,13 @@
 
 ## Architecture
 
-For Render, the proper setup is:
-
-- one Docker web service for the app
-- one separate MariaDB service with persistent storage
-
-The app container already includes:
+This repo now supports a true single-container deployment:
 
 - React frontend build output
 - Spring Boot backend API
+- MariaDB running inside the same container
 
-The database should not run inside the same Render web container because web containers are not the right place for durable database storage.
+For Render, attach a persistent disk to the web service at `/var/lib/mysql`.
 
 ## Local Run
 
@@ -28,17 +24,26 @@ Open:
 
 ## Render
 
-This repo includes `render.yaml` for the app service.
+This repo includes `render.yaml` for the app service with a disk mount.
 
 Set these environment variables on Render:
 
-- `DB_HOST`
-- `DB_PORT`
-- `DB_NAME`
-- `DB_USERNAME`
-- `DB_PASSWORD`
+- `MYSQL_PORT`
+- `MYSQL_DATABASE`
+- `MYSQL_USER`
+- `MYSQL_PASSWORD`
+- `MYSQL_ROOT_PASSWORD`
 - `JWT_SECRET`
+- `PORT`
 
-Point them at your MariaDB instance.
+Recommended values:
 
-If you also want MariaDB on Render, create a separate private service from the official `mariadb` image and attach a persistent disk, or use an external MariaDB provider.
+- `MYSQL_PORT=3306`
+- `MYSQL_DATABASE=attendance_system`
+- `MYSQL_USER=attendance`
+- `MYSQL_PASSWORD=<your password>`
+- `MYSQL_ROOT_PASSWORD=<your root password>`
+- `JWT_SECRET=<random secret>`
+- `PORT=10000`
+
+The container initializes MariaDB on first boot and stores data on the attached disk.
