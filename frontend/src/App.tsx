@@ -280,38 +280,57 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
     }
   }
 
-  function useDemoAccount(accountEmail: string) {
-    const account = demoAccounts.find((item) => item.email === accountEmail);
-    if (!account) {
-      return;
+  async function useCurrentBranchLocation() {
+    setRegistrationStatus("");
+    try {
+      const coords = await new Promise<{ latitude: number; longitude: number }>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+          (position) =>
+            resolve({
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude
+            }),
+          () => reject(new Error("Location permission was denied.")),
+          { enableHighAccuracy: true, timeout: 10000 }
+        );
+      });
+
+      setPropertyForm((current) => ({
+        ...current,
+        latitude: coords.latitude.toFixed(6),
+        longitude: coords.longitude.toFixed(6)
+      }));
+      setRegistrationStatus("Current location added. You can still edit the coordinates if needed.");
+    } catch (locationError) {
+      setRegistrationStatus(
+        locationError instanceof Error
+          ? locationError.message
+          : "Unable to fetch current location."
+      );
     }
-    setEmail(account.email);
-    setPassword(account.password);
-    setRegistrationMode(false);
-    setError("");
   }
 
   return (
     <main className="login-layout">
       <section className="hero-panel">
         <span className="eyebrow">ATTENDIFY</span>
-        <h1>Tenant-safe attendance for hotels, stores, and field teams.</h1>
+        <h1>Simple attendance tracking for teams that work across properties and branches.</h1>
         <p>
-          This version is designed around PostgreSQL persistence, backend-enforced tenant
-          isolation, JWT sessions, geofence checks, and evidence-backed attendance.
+          ATTENDIFY helps you mark attendance quickly, keep staff records organized,
+          and review check-ins with confidence from one easy dashboard.
         </p>
         <div className="feature-list">
           <div>
-            <strong>Vendor isolation</strong>
-            <span>Every query is scoped to the authenticated tenant on the backend.</span>
+            <strong>Easy daily tracking</strong>
+            <span>See who checked in, who checked out, and who still needs attention.</span>
           </div>
           <div>
-            <strong>Persistent records</strong>
-            <span>Attendance, employees, branches, and users are modeled for PostgreSQL.</span>
+            <strong>Clear staff records</strong>
+            <span>Keep employee details, branch locations, and attendance history in one place.</span>
           </div>
           <div>
-            <strong>Production auth</strong>
-            <span>JWT-backed sessions replace the old client-supplied vendor context.</span>
+            <strong>Reliable proof</strong>
+            <span>Use location and live selfie capture to make attendance more trustworthy.</span>
           </div>
         </div>
       </section>
@@ -336,9 +355,6 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
         {!registrationMode ? (
           <>
             <h2>Sign in</h2>
-            <p className="muted">
-              Sign in with any ATTENDIFY account, or use a demo account to explore the product.
-            </p>
             <form onSubmit={handleLogin}>
               <label>
                 Email
@@ -358,21 +374,6 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
                   placeholder="password"
                 />
               </label>
-              <div className="employee-seed-list">
-                <strong>Quick demo accounts</strong>
-                <div className="grid two-column compact-grid">
-                  {demoAccounts.map((account) => (
-                    <button
-                      key={account.email}
-                      className="ghost-button"
-                      type="button"
-                      onClick={() => useDemoAccount(account.email)}
-                    >
-                      {account.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
               {error ? <p className="error-text">{error}</p> : null}
               {registrationStatus ? <p className="status-text">{registrationStatus}</p> : null}
               <button className="primary-button" disabled={loading} type="submit">
@@ -384,8 +385,9 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
           <>
             <h2>Register your property</h2>
             <p className="muted">
-              Create your property workspace, first branch, admin account, and initial employees in one flow.
+              Set up your property, add your main branch, and create your first employee accounts in one go.
             </p>
+            <p className="muted">Fields marked <span className="required-mark">*</span> are required.</p>
             <form onSubmit={handleRegistration}>
               <label>
                 <RequiredLabel>Property code</RequiredLabel>
@@ -498,6 +500,16 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
                     required
                   />
                 </label>
+              </div>
+              <div className="action-row">
+                <button
+                  className="secondary-button"
+                  type="button"
+                  onClick={() => void useCurrentBranchLocation()}
+                >
+                  Use current location
+                </button>
+                <span className="muted">You can edit the coordinates after using your current location.</span>
               </div>
               <label>
                 <RequiredLabel>Attendance radius (meters)</RequiredLabel>
