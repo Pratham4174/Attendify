@@ -43,6 +43,7 @@ type EmployeeOverview = {
   todayAttendance: AttendanceRow | null;
   recentAttendance: AttendanceRow[];
   tracking: {
+    available: boolean;
     active: boolean;
     lastTrackedAt: string | null;
     pointsCapturedToday: number;
@@ -102,6 +103,7 @@ type Branch = {
 };
 
 type AdminTracking = {
+  enabled: boolean;
   date: string;
   employees: Array<{
     employeeId: string;
@@ -745,7 +747,11 @@ function EmployeeScreen({
   }, [showTutorial]);
 
   useEffect(() => {
-    if (!overview?.tracking.active || overview.todayAttendance?.status !== "CHECKED_IN") {
+    if (
+      !overview?.tracking.available ||
+      !overview.tracking.active ||
+      overview.todayAttendance?.status !== "CHECKED_IN"
+    ) {
       return;
     }
 
@@ -809,7 +815,7 @@ function EmployeeScreen({
       cancelled = true;
       window.clearInterval(interval);
     };
-  }, [overview?.tracking.active, overview?.todayAttendance?.status, session]);
+  }, [overview?.tracking.available, overview?.tracking.active, overview?.todayAttendance?.status, session]);
 
   async function requestLocation() {
     setStatus("Fetching your current location...");
@@ -1031,23 +1037,38 @@ function EmployeeScreen({
             </div>
           </div>
           <div className="stat-row">
-            <div>
-              <span className="label">Tracking status</span>
-              <strong>{overview.tracking.active ? "Tracking live" : "Tracking off"}</strong>
-            </div>
-            <div>
-              <span className="label">Location updates today</span>
-              <strong>{overview.tracking.pointsCapturedToday}</strong>
-            </div>
+            {overview.tracking.available ? (
+              <>
+                <div>
+                  <span className="label">Tracking status</span>
+                  <strong>{overview.tracking.active ? "Tracking live" : "Tracking off"}</strong>
+                </div>
+                <div>
+                  <span className="label">Location updates today</span>
+                  <strong>{overview.tracking.pointsCapturedToday}</strong>
+                </div>
+              </>
+            ) : (
+              <div>
+                <span className="label">Tracking add-on</span>
+                <strong>Not enabled</strong>
+              </div>
+            )}
           </div>
           <p className="muted">
             Branch target coordinate: {overview.branch.latitude.toFixed(5)},{" "}
             {overview.branch.longitude.toFixed(5)}
           </p>
-          {overview.tracking.lastTrackedAt ? (
+          {overview.tracking.available && overview.tracking.lastTrackedAt ? (
             <p className="muted">Last tracked location: {formatDateTime(overview.tracking.lastTrackedAt)}</p>
           ) : null}
-          {trackingMessage ? <p className="muted">{trackingMessage}</p> : null}
+          {overview.tracking.available ? (
+            trackingMessage ? <p className="muted">{trackingMessage}</p> : null
+          ) : (
+            <p className="muted">
+              Live movement tracking is a separate add-on and is currently turned off for this workspace.
+            </p>
+          )}
           {attendanceSummary ? (
             <div className="info-card success-card">
               <strong>{attendanceSummary.mode === "check-in" ? "Check-in saved" : "Check-out saved"}</strong>
@@ -1390,67 +1411,76 @@ function AdminScreen({
               View the places employees visited after check-in and before checkout.
             </p>
           </div>
-          <label className="date-filter">
-            Tracking date
-            <input
-              type="date"
-              value={trackingDate}
-              onChange={(event) => setTrackingDate(event.target.value)}
-            />
-          </label>
+          {tracking?.enabled ? (
+            <label className="date-filter">
+              Tracking date
+              <input
+                type="date"
+                value={trackingDate}
+                onChange={(event) => setTrackingDate(event.target.value)}
+              />
+            </label>
+          ) : null}
         </div>
-        {tracking?.employees.length ? (
-          <div className="tracking-card-list">
-            {tracking.employees.map((employeeRoute) => (
-              <article className="tracking-card" key={employeeRoute.employeeId}>
-                <div className="tracking-card-header">
-                  <div>
-                    <strong>{employeeRoute.employeeName}</strong>
-                    <span className="muted">
-                      {employeeRoute.branchName} · {employeeRoute.attendanceStatus}
+        {tracking?.enabled ? (
+          tracking.employees.length ? (
+            <div className="tracking-card-list">
+              {tracking.employees.map((employeeRoute) => (
+                <article className="tracking-card" key={employeeRoute.employeeId}>
+                  <div className="tracking-card-header">
+                    <div>
+                      <strong>{employeeRoute.employeeName}</strong>
+                      <span className="muted">
+                        {employeeRoute.branchName} · {employeeRoute.attendanceStatus}
+                      </span>
+                    </div>
+                    <span className="pill">{employeeRoute.totalPings} updates</span>
+                  </div>
+                  <div className="tracking-card-summary">
+                    <span>Check-in: {formatDateTime(employeeRoute.checkInTime)}</span>
+                    <span>
+                      {employeeRoute.checkOutTime
+                        ? `Check-out: ${formatDateTime(employeeRoute.checkOutTime)}`
+                        : "Still on duty"}
                     </span>
                   </div>
-                  <span className="pill">{employeeRoute.totalPings} updates</span>
-                </div>
-                <div className="tracking-card-summary">
-                  <span>Check-in: {formatDateTime(employeeRoute.checkInTime)}</span>
-                  <span>
-                    {employeeRoute.checkOutTime
-                      ? `Check-out: ${formatDateTime(employeeRoute.checkOutTime)}`
-                      : "Still on duty"}
-                  </span>
-                </div>
-                <div className="tracking-point-list">
-                  {employeeRoute.points.map((point, index) => (
-                    <a
-                      className="tracking-point"
-                      href={buildMapsUrl(point.latitude, point.longitude)}
-                      key={`${employeeRoute.employeeId}-${point.capturedAt}`}
-                      rel="noreferrer"
-                      target="_blank"
-                    >
-                      <span className="tracking-point-order">{index + 1}</span>
-                      <div>
-                        <strong>{formatDateTime(point.capturedAt)}</strong>
-                        <span>
-                          {point.latitude.toFixed(5)}, {point.longitude.toFixed(5)}
-                        </span>
-                        <span>
-                          {point.accuracyMeters !== null
-                            ? `Accuracy ${point.accuracyMeters.toFixed(0)}m`
-                            : "Accuracy unavailable"}
-                        </span>
-                      </div>
-                    </a>
-                  ))}
-                </div>
-              </article>
-            ))}
-          </div>
+                  <div className="tracking-point-list">
+                    {employeeRoute.points.map((point, index) => (
+                      <a
+                        className="tracking-point"
+                        href={buildMapsUrl(point.latitude, point.longitude)}
+                        key={`${employeeRoute.employeeId}-${point.capturedAt}`}
+                        rel="noreferrer"
+                        target="_blank"
+                      >
+                        <span className="tracking-point-order">{index + 1}</span>
+                        <div>
+                          <strong>{formatDateTime(point.capturedAt)}</strong>
+                          <span>
+                            {point.latitude.toFixed(5)}, {point.longitude.toFixed(5)}
+                          </span>
+                          <span>
+                            {point.accuracyMeters !== null
+                              ? `Accuracy ${point.accuracyMeters.toFixed(0)}m`
+                              : "Accuracy unavailable"}
+                          </span>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              title="No tracked routes for this date"
+              message="Location updates will appear here after employees check in and keep the portal open during their shift."
+            />
+          )
         ) : (
           <EmptyState
-            title="No tracked routes for this date"
-            message="Location updates will appear here after employees check in and keep the portal open during their shift."
+            title="Tracking add-on is off"
+            message="This is a separate optional feature. Turn on TRACKING_FEATURE_ENABLED in the backend when you want to offer on-duty live movement tracking."
           />
         )}
       </section>

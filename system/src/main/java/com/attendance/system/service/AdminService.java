@@ -1,5 +1,6 @@
 package com.attendance.system.service;
 
+import com.attendance.system.config.TrackingProperties;
 import com.attendance.system.dto.AttendanceRowResponse;
 import com.attendance.system.dto.AdminTrackingResponse;
 import com.attendance.system.dto.BranchResponse;
@@ -14,6 +15,7 @@ import com.attendance.system.repository.AttendanceRecordRepository;
 import com.attendance.system.repository.BranchRepository;
 import com.attendance.system.repository.EmployeeRepository;
 import com.attendance.system.security.AuthenticatedUser;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,19 +37,22 @@ public class AdminService {
     private final AttendanceRecordRepository attendanceRecordRepository;
     private final AttendanceLocationLogRepository attendanceLocationLogRepository;
     private final AttendanceMapper mapper;
+    private final TrackingProperties trackingProperties;
 
     public AdminService(
             EmployeeRepository employeeRepository,
             BranchRepository branchRepository,
             AttendanceRecordRepository attendanceRecordRepository,
             AttendanceLocationLogRepository attendanceLocationLogRepository,
-            AttendanceMapper mapper
+            AttendanceMapper mapper,
+            TrackingProperties trackingProperties
     ) {
         this.employeeRepository = employeeRepository;
         this.branchRepository = branchRepository;
         this.attendanceRecordRepository = attendanceRecordRepository;
         this.attendanceLocationLogRepository = attendanceLocationLogRepository;
         this.mapper = mapper;
+        this.trackingProperties = trackingProperties;
     }
 
     @Transactional(readOnly = true)
@@ -114,8 +119,17 @@ public class AdminService {
     public AdminTrackingResponse tracking(AuthenticatedUser user, String date) {
         requireAdmin(user);
         LocalDate trackingDate = parseDate(date);
-        List<AttendanceLocationLogEntity> logs = attendanceLocationLogRepository
-                .findByVendor_IdAndAttendanceRecord_AttendanceDateOrderByEmployee_NameAscCapturedAtAsc(user.vendorId(), trackingDate);
+        if (!trackingProperties.enabled()) {
+            return new AdminTrackingResponse(false, trackingDate.toString(), List.of());
+        }
+
+        List<AttendanceLocationLogEntity> logs;
+        try {
+            logs = attendanceLocationLogRepository
+                    .findByVendor_IdAndAttendanceRecord_AttendanceDateOrderByEmployee_NameAscCapturedAtAsc(user.vendorId(), trackingDate);
+        } catch (DataAccessException exception) {
+            return new AdminTrackingResponse(true, trackingDate.toString(), List.of());
+        }
 
         Map<UUID, AdminTrackingResponse.EmployeeDayRoute> routeMap = new LinkedHashMap<>();
         for (AttendanceLocationLogEntity log : logs) {
@@ -143,7 +157,7 @@ public class AdminService {
             ));
         }
 
-        return new AdminTrackingResponse(trackingDate.toString(), List.copyOf(routeMap.values()));
+        return new AdminTrackingResponse(true, trackingDate.toString(), List.copyOf(routeMap.values()));
     }
 
     private void requireAdmin(AuthenticatedUser user) {

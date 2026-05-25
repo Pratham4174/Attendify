@@ -3,6 +3,7 @@ package com.attendance.system.dto;
 import java.util.List;
 
 public record AdminTrackingResponse(
+        boolean enabled,
         String date,
         List<EmployeeDayRoute> employees
 ) {

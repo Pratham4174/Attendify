@@ -32,6 +32,7 @@ public record EmployeeOverviewResponse(
     }
 
     public record TrackingSummary(
+            boolean available,
             boolean active,
             String lastTrackedAt,
             int pointsCapturedToday
