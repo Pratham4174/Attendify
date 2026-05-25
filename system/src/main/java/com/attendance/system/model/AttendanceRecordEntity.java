@@ -67,10 +67,10 @@ public class AttendanceRecordEntity {
     @Column(name = "check_out_distance_meters", precision = 8, scale = 2)
     private BigDecimal checkOutDistanceMeters;
 
-    @Column(name = "check_in_photo_ref", columnDefinition = "TEXT")
+    @Column(name = "check_in_photo_ref", columnDefinition = "LONGTEXT")
     private String checkInPhotoRef;
 
-    @Column(name = "check_out_photo_ref", columnDefinition = "TEXT")
+    @Column(name = "check_out_photo_ref", columnDefinition = "LONGTEXT")
     private String checkOutPhotoRef;
 
     @Enumerated(EnumType.STRING)

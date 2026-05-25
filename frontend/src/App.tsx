@@ -856,15 +856,20 @@ function EmployeeScreen({
     }
 
     const canvas = document.createElement("canvas");
-    canvas.width = videoRef.current.videoWidth || 640;
-    canvas.height = videoRef.current.videoHeight || 480;
+    const sourceWidth = videoRef.current.videoWidth || 640;
+    const sourceHeight = videoRef.current.videoHeight || 480;
+    const targetWidth = Math.min(sourceWidth, 480);
+    const scaleRatio = targetWidth / sourceWidth;
+    const targetHeight = Math.max(Math.round(sourceHeight * scaleRatio), 360);
+    canvas.width = targetWidth;
+    canvas.height = targetHeight;
     const ctx = canvas.getContext("2d");
     if (!ctx) {
       return;
     }
 
     ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-    setSelfie(canvas.toDataURL("image/jpeg", 0.9));
+    setSelfie(canvas.toDataURL("image/jpeg", 0.72));
     setStatus("Selfie captured. You can submit attendance now.");
   }
 
