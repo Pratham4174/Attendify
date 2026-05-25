@@ -115,11 +115,15 @@ public class AttendanceService {
         EmployeeEntity employee = requireEmployeeUser(user);
         List<AttendanceRecordEntity> history = attendanceRecordRepository.findByEmployee_IdOrderByAttendanceDateDescCheckInTimeDesc(employee.getId());
         AttendanceRecordEntity latestRecord = history.isEmpty() ? null : history.get(0);
-        EmployeeOverviewResponse.TrackingSummary trackingSummary = resolveTrackingSummary(latestRecord);
+        AttendanceRecordEntity todayRecord = history.stream()
+                .filter(record -> LocalDate.now(ZoneOffset.UTC).equals(record.getAttendanceDate()))
+                .findFirst()
+                .orElse(null);
+        EmployeeOverviewResponse.TrackingSummary trackingSummary = resolveTrackingSummary(todayRecord);
         return new EmployeeOverviewResponse(
                 mapper.toEmployeeSummary(employee),
                 mapper.toBranchSummary(employee.getBranch()),
-                latestRecord == null ? null : mapper.toAttendanceRow(latestRecord),
+                todayRecord == null ? null : mapper.toAttendanceRow(todayRecord),
                 history.stream().limit(7).map(mapper::toAttendanceRow).toList(),
                 trackingSummary
         );
