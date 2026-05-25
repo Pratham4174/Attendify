@@ -52,8 +52,8 @@ CREATE TABLE attendance_records (
     check_out_longitude NUMERIC(10,7),
     check_in_distance_meters NUMERIC(8,2) NOT NULL,
     check_out_distance_meters NUMERIC(8,2),
-    check_in_photo_ref LONGTEXT,
-    check_out_photo_ref LONGTEXT,
+    check_in_photo_ref TEXT,
+    check_out_photo_ref TEXT,
     status VARCHAR(20) NOT NULL
 );
 
