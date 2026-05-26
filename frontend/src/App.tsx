@@ -362,7 +362,7 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
 
   return (
     <main className="login-layout">
-      <section className="hero-panel">
+      <section className="hero-panel login-hero">
         <span className="eyebrow">ATTENDIFY</span>
         <h1>Attendance that feels simple from the first tap.</h1>
         <p>
@@ -394,7 +394,7 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
         </div>
       </section>
 
-      <section className="login-card">
+      <section className="login-card login-auth-card">
         <div className="action-row">
           <button
             className={registrationMode ? "ghost-button" : "primary-button"}
@@ -992,22 +992,22 @@ function EmployeeScreen({
   const employeeSteps = [
     {
       title: "Allow location",
-      detail: coords ? `Locked at ${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}` : "We use your live location to confirm you are at the branch.",
+      detail: coords ? `Locked at ${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}` : "Lock your live location.",
       complete: !!coords
     },
     {
       title: "Start camera",
-      detail: cameraReady ? "Camera is ready for a fresh selfie." : "Turn on the front camera before capturing attendance proof.",
+      detail: cameraReady ? "Camera ready." : "Turn on the front camera.",
       complete: cameraReady
     },
     {
       title: "Capture selfie",
-      detail: selfie ? "Selfie captured and ready to attach." : "Take a clear selfie before you check in or check out.",
+      detail: selfie ? "Selfie ready." : "Capture a clear selfie.",
       complete: !!selfie
     },
     {
       title: canCheckOut ? "Check out" : "Check in",
-      detail: canCheckOut ? "Finish your day once your work is complete." : "Submit your attendance once location and selfie are ready.",
+      detail: canCheckOut ? "Finish your shift." : "Submit attendance.",
       complete: canCheckOut ? overview.todayAttendance?.status === "COMPLETED" : hasCheckedIn
     }
   ];
@@ -1060,75 +1060,7 @@ function EmployeeScreen({
 
       <section className="grid two-column">
         <article className="panel">
-          <h3>Today's status</h3>
-          <p className="muted section-intro">A quick view of your shift so far.</p>
-          <div className="stat-row">
-            <div>
-              <span className="label">Attendance state</span>
-              <strong>{overview.todayAttendance?.status ?? "NOT MARKED"}</strong>
-            </div>
-            <div>
-              <span className="label">Geofence</span>
-              <strong>{overview.branch.radiusMeters}m radius</strong>
-            </div>
-          </div>
-          <div className="stat-row">
-            <div>
-              <span className="label">Check-in</span>
-              <strong>{formatDateTime(overview.todayAttendance?.checkInTime)}</strong>
-            </div>
-            <div>
-              <span className="label">Check-out</span>
-              <strong>{formatDateTime(overview.todayAttendance?.checkOutTime)}</strong>
-            </div>
-          </div>
-          <div className="stat-row">
-            {overview.tracking.available ? (
-              <>
-                <div>
-                  <span className="label">Tracking status</span>
-                  <strong>{overview.tracking.active ? "Tracking live" : "Tracking off"}</strong>
-                </div>
-                <div>
-                  <span className="label">Location updates today</span>
-                  <strong>{overview.tracking.pointsCapturedToday}</strong>
-                </div>
-              </>
-            ) : (
-              <div>
-                <span className="label">Tracking add-on</span>
-                <strong>Not enabled</strong>
-              </div>
-            )}
-          </div>
-          <p className="muted">
-            Branch target coordinate: {overview.branch.latitude.toFixed(5)},{" "}
-            {overview.branch.longitude.toFixed(5)}
-          </p>
-          {overview.tracking.available && overview.tracking.lastTrackedAt ? (
-            <p className="muted">Last tracked location: {formatDateTime(overview.tracking.lastTrackedAt)}</p>
-          ) : null}
-          {overview.tracking.available ? (
-            trackingMessage ? <p className="muted">{trackingMessage}</p> : null
-          ) : (
-            <p className="muted">
-              Live movement tracking is a separate add-on and is currently turned off for this workspace.
-            </p>
-          )}
-          {attendanceSummary ? (
-            <div className="info-card success-card">
-              <strong>{attendanceSummary.mode === "check-in" ? "Check-in saved" : "Check-out saved"}</strong>
-              <span>{attendanceSummary.branchName}</span>
-              <span>{formatDateTime(attendanceSummary.time)}</span>
-              <span>Distance from branch: {attendanceSummary.distanceMeters.toFixed(1)}m</span>
-              <img alt="Latest attendance selfie" className="summary-image" src={attendanceSummary.image} />
-            </div>
-          ) : null}
-        </article>
-
-        <article className="panel">
-          <h3>Mark attendance with confidence</h3>
-          <p className="muted section-intro">Just follow the steps below. We will guide you through it.</p>
+          <h3>Mark attendance</h3>
           <div className="step-list">
             {employeeSteps.map((step, index) => (
               <div className={`step-card${step.complete ? " complete" : ""}`} key={step.title}>
@@ -1140,16 +1072,27 @@ function EmployeeScreen({
               </div>
             ))}
           </div>
-          <div className="action-row attendance-action-row">
-            <button className="secondary-button" onClick={() => void requestLocation()}>
-              Lock GPS
-            </button>
-            <button className="secondary-button" onClick={() => void startCamera()}>
-              Start camera
-            </button>
-            <button className="secondary-button" onClick={captureSelfie}>
-              Capture selfie
-            </button>
+          <div className="action-row attendance-action-row attendance-control-grid">
+            <div className="attendance-control-stack">
+              <button className="secondary-button" onClick={() => void requestLocation()}>
+                Lock GPS
+              </button>
+              <span className="field-hint">
+                {coords
+                  ? `${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`
+                  : "Location not locked yet"}
+              </span>
+            </div>
+            <div className="attendance-control-stack">
+              <button className="secondary-button" onClick={() => void startCamera()}>
+                Start camera
+              </button>
+            </div>
+            <div className="attendance-control-stack">
+              <button className="secondary-button" onClick={captureSelfie}>
+                Capture selfie
+              </button>
+            </div>
           </div>
           <div className="camera-panel">
             <video autoPlay muted playsInline ref={videoRef} />
@@ -1162,12 +1105,6 @@ function EmployeeScreen({
                 : insideGeofence
                   ? `Inside branch area by ${geofenceDistance?.toFixed(1)}m`
                   : `Outside branch area by ${geofenceDistance?.toFixed(1)}m`}
-            </div>
-            <div className="status-chip">
-              Current GPS:{" "}
-              {coords
-                ? `${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`
-                : "Not locked yet"}
             </div>
           </div>
           {status ? <p className="status-text">{status}</p> : null}
@@ -1187,6 +1124,57 @@ function EmployeeScreen({
               {loading ? "Saving..." : "Check out"}
             </button>
           </div>
+        </article>
+
+        <article className="panel compact-status-panel">
+          <h3>Today's status</h3>
+          <div className="status-summary-grid">
+            <div className="status-summary-item">
+              <span className="label">State</span>
+              <strong>{overview.todayAttendance?.status ?? "NOT MARKED"}</strong>
+            </div>
+            <div className="status-summary-item">
+              <span className="label">Radius</span>
+              <strong>{overview.branch.radiusMeters}m</strong>
+            </div>
+            <div className="status-summary-item">
+              <span className="label">Check-in</span>
+              <strong>{formatDateTime(overview.todayAttendance?.checkInTime)}</strong>
+            </div>
+            <div className="status-summary-item">
+              <span className="label">Check-out</span>
+              <strong>{formatDateTime(overview.todayAttendance?.checkOutTime)}</strong>
+            </div>
+            {overview.tracking.available ? (
+              <>
+                <div className="status-summary-item">
+                  <span className="label">Tracking</span>
+                  <strong>{overview.tracking.active ? "Live" : "Off"}</strong>
+                </div>
+                <div className="status-summary-item">
+                  <span className="label">Updates</span>
+                  <strong>{overview.tracking.pointsCapturedToday}</strong>
+                </div>
+              </>
+            ) : null}
+          </div>
+          {overview.tracking.available && overview.tracking.lastTrackedAt ? (
+            <p className="muted compact-note">Last tracked: {formatDateTime(overview.tracking.lastTrackedAt)}</p>
+          ) : null}
+          {overview.tracking.available ? (
+            trackingMessage ? <p className="muted compact-note">{trackingMessage}</p> : null
+          ) : (
+            <p className="muted compact-note">Tracking add-on is off.</p>
+          )}
+          {attendanceSummary ? (
+            <div className="info-card success-card">
+              <strong>{attendanceSummary.mode === "check-in" ? "Check-in saved" : "Check-out saved"}</strong>
+              <span>{attendanceSummary.branchName}</span>
+              <span>{formatDateTime(attendanceSummary.time)}</span>
+              <span>{attendanceSummary.distanceMeters.toFixed(1)}m from branch</span>
+              <img alt="Latest attendance selfie" className="summary-image" src={attendanceSummary.image} />
+            </div>
+          ) : null}
         </article>
       </section>
 
