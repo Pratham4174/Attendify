@@ -580,47 +580,11 @@ select {
   gap: 12px;
 }
 
-.attendance-control-grid {
-  align-items: start;
-}
-
-.attendance-control-stack {
-  display: grid;
-  gap: 8px;
-}
-
 .attendance-action-row .primary-button,
 .attendance-action-row .secondary-button,
 .attendance-action-row .ghost-button {
   width: auto;
   min-width: 170px;
-}
-
-.compact-status-panel {
-  align-content: start;
-}
-
-.status-summary-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.status-summary-item {
-  padding: 14px;
-  border-radius: 14px;
-  background: rgba(247, 249, 251, 0.94);
-  display: grid;
-  gap: 6px;
-}
-
-.status-summary-item strong {
-  line-height: 1.25;
-  word-break: break-word;
-}
-
-.compact-note {
-  margin: 10px 0 0;
 }
 
 .tutorial-toolbar {
@@ -851,14 +815,6 @@ select {
     padding: 18px;
   }
 
-  .login-auth-card {
-    order: -1;
-  }
-
-  .login-hero {
-    order: 2;
-  }
-
   .hero-panel,
   .login-card,
   .panel,
@@ -921,14 +877,6 @@ select {
   .attendance-action-row .ghost-button {
     width: 100%;
     min-width: 0;
-  }
-
-  .status-summary-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .attendance-control-grid {
-    gap: 10px;
   }
 
   .tutorial-actions {
@@ -1006,10 +954,6 @@ select {
     grid-template-columns: 1fr;
   }
 
-  .status-summary-grid {
-    grid-template-columns: 1fr;
-  }
-
   .desktop-table {
     display: none;
   }
@@ -1027,7 +971,6 @@ select {
   .employee-seed-card,
   .branch-item,
   .step-card,
-  .status-summary-item,
   .feature-list div {
     padding: 14px;
   }
