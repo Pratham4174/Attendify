@@ -149,6 +149,16 @@ type AttendancePreview = {
   employeeName: string;
 };
 
+class ApiRequestError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiRequestError";
+    this.status = status;
+  }
+}
+
 function RequiredLabel({ children }: { children: string }) {
   return (
     <>
@@ -691,6 +701,7 @@ function EmployeeScreen({
   onLogout: () => void;
 }) {
   const [overview, setOverview] = useState<EmployeeOverview | null>(null);
+  const [loadError, setLoadError] = useState("");
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [selfie, setSelfie] = useState<string>("");
   const [status, setStatus] = useState("");
@@ -710,8 +721,18 @@ function EmployeeScreen({
   const streamRef = useRef<MediaStream | null>(null);
 
   async function loadOverview() {
-    const data = await apiFetch<EmployeeOverview>(session, "/employee/overview");
-    setOverview(data);
+    try {
+      setLoadError("");
+      const data = await apiFetch<EmployeeOverview>(session, "/employee/overview");
+      setOverview(data);
+    } catch (error) {
+      if (error instanceof ApiRequestError && (error.status === 401 || error.status === 403)) {
+        onLogout();
+        return;
+      }
+
+      setLoadError(error instanceof Error ? error.message : "Unable to load your workspace.");
+    }
   }
 
   useEffect(() => {
@@ -921,6 +942,26 @@ function EmployeeScreen({
   }
 
   if (!overview) {
+    if (loadError) {
+      return (
+        <main className="workspace">
+          <section className="panel">
+            <span className="eyebrow">ATTENDIFY</span>
+            <h2>Unable to open your workspace</h2>
+            <p className="error-text">{loadError}</p>
+            <div className="action-row">
+              <button className="primary-button" onClick={() => void loadOverview()}>
+                Try again
+              </button>
+              <button className="ghost-button" onClick={onLogout}>
+                Back to sign in
+              </button>
+            </div>
+          </section>
+        </main>
+      );
+    }
+
     return <LoadingWorkspace title="Preparing your workspace" lines={4} />;
   }
 
@@ -1207,6 +1248,7 @@ function AdminScreen({
   onLogout: () => void;
 }) {
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
+  const [loadError, setLoadError] = useState("");
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [attendance, setAttendance] = useState<AttendanceRow[]>([]);
@@ -1216,25 +1258,55 @@ function AdminScreen({
 
   useEffect(() => {
     async function loadAdminData() {
-      const [dashboardData, employeeData, branchData, attendanceData, trackingData] = await Promise.all([
-        apiFetch<Dashboard>(session, "/admin/dashboard"),
-        apiFetch<Employee[]>(session, "/admin/employees"),
-        apiFetch<Branch[]>(session, "/admin/branches"),
-        apiFetch<AttendanceRow[]>(session, "/admin/attendance"),
-        apiFetch<AdminTracking>(session, `/admin/tracking?date=${trackingDate}`)
-      ]);
+      try {
+        setLoadError("");
+        const [dashboardData, employeeData, branchData, attendanceData, trackingData] = await Promise.all([
+          apiFetch<Dashboard>(session, "/admin/dashboard"),
+          apiFetch<Employee[]>(session, "/admin/employees"),
+          apiFetch<Branch[]>(session, "/admin/branches"),
+          apiFetch<AttendanceRow[]>(session, "/admin/attendance"),
+          apiFetch<AdminTracking>(session, `/admin/tracking?date=${trackingDate}`)
+        ]);
 
-      setDashboard(dashboardData);
-      setEmployees(employeeData);
-      setBranches(branchData);
-      setAttendance(attendanceData);
-      setTracking(trackingData);
+        setDashboard(dashboardData);
+        setEmployees(employeeData);
+        setBranches(branchData);
+        setAttendance(attendanceData);
+        setTracking(trackingData);
+      } catch (error) {
+        if (error instanceof ApiRequestError && (error.status === 401 || error.status === 403)) {
+          onLogout();
+          return;
+        }
+
+        setLoadError(error instanceof Error ? error.message : "Unable to load your dashboard.");
+      }
     }
 
     void loadAdminData();
-  }, [session, trackingDate]);
+  }, [session, trackingDate, onLogout]);
 
   if (!dashboard) {
+    if (loadError) {
+      return (
+        <main className="workspace">
+          <section className="panel">
+            <span className="eyebrow">ATTENDIFY</span>
+            <h2>Unable to open your dashboard</h2>
+            <p className="error-text">{loadError}</p>
+            <div className="action-row">
+              <button className="primary-button" onClick={() => window.location.reload()}>
+                Try again
+              </button>
+              <button className="ghost-button" onClick={onLogout}>
+                Back to sign in
+              </button>
+            </div>
+          </section>
+        </main>
+      );
+    }
+
     return <LoadingWorkspace title="Loading your dashboard" lines={5} />;
   }
 
@@ -1693,7 +1765,7 @@ async function apiFetch<T>(session: Session, path: string, init?: RequestInit): 
   });
 
   if (!response.ok) {
-    throw new Error(await extractError(response));
+    throw new ApiRequestError(await extractError(response), response.status);
   }
 
   return (await response.json()) as T;
