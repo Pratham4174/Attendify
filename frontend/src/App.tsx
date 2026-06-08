@@ -364,34 +364,6 @@ function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }) {
     <main className="login-layout">
       <section className="hero-panel">
         <span className="eyebrow">ATTENDIFY</span>
-        <h1>Attendance that feels simple from the first tap.</h1>
-        <p>
-          Track daily check-ins, keep staff records tidy, and review every shift from one calm workspace.
-        </p>
-        <div className="hero-stat-strip">
-          <div>
-            <strong>Fast check-ins</strong>
-            <span>Location, selfie, done.</span>
-          </div>
-          <div>
-            <strong>Clear records</strong>
-            <span>Daily activity in one place.</span>
-          </div>
-        </div>
-        <div className="feature-list simple-feature-list">
-          <div>
-            <strong>For teams with multiple branches</strong>
-            <span>Useful for hotels, stores, clinics, and field teams.</span>
-          </div>
-          <div>
-            <strong>Built for daily use</strong>
-            <span>Employees can check in quickly without guessing the next step.</span>
-          </div>
-          <div>
-            <strong>Easy to review later</strong>
-            <span>Admins can see who is present, late, or still missing.</span>
-          </div>
-        </div>
       </section>
 
       <section className="login-card">
