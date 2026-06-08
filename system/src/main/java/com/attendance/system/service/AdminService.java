@@ -168,14 +168,14 @@ public class AdminService {
         }
 
         populateEmployee(employee, branch, request, employeeCode, email);
-        employee = employeeRepository.save(employee);
-        userRepository.findByEmployee_Id(employee.getId()).ifPresent(employeeUser -> {
-            employeeUser.setName(employee.getName());
-            employeeUser.setEmail(employee.getEmail());
-            employeeUser.setActive("ACTIVE".equalsIgnoreCase(employee.getStatus()));
+        EmployeeEntity savedEmployee = employeeRepository.save(employee);
+        userRepository.findByEmployee_Id(savedEmployee.getId()).ifPresent(employeeUser -> {
+            employeeUser.setName(savedEmployee.getName());
+            employeeUser.setEmail(savedEmployee.getEmail());
+            employeeUser.setActive("ACTIVE".equalsIgnoreCase(savedEmployee.getStatus()));
             userRepository.save(employeeUser);
         });
-        return mapper.toEmployeeResponse(employee);
+        return mapper.toEmployeeResponse(savedEmployee);
     }
 
     @Transactional
@@ -187,12 +187,12 @@ public class AdminService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Employee status must be ACTIVE or INACTIVE.");
         }
         employee.setStatus(status);
-        employee = employeeRepository.save(employee);
-        userRepository.findByEmployee_Id(employee.getId()).ifPresent(employeeUser -> {
+        EmployeeEntity savedEmployee = employeeRepository.save(employee);
+        userRepository.findByEmployee_Id(savedEmployee.getId()).ifPresent(employeeUser -> {
             employeeUser.setActive("ACTIVE".equals(status));
             userRepository.save(employeeUser);
         });
-        return mapper.toEmployeeResponse(employee);
+        return mapper.toEmployeeResponse(savedEmployee);
     }
 
     @Transactional
