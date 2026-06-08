@@ -276,13 +276,22 @@ public class AdminService {
         LocalDate startDate = targetMonth.atDay(1);
         LocalDate endDate = targetMonth.atEndOfMonth();
         LocalDate today = LocalDate.now(ZoneOffset.UTC);
-        int daysCounted = targetMonth.equals(YearMonth.from(today))
-                ? Math.min(today.getDayOfMonth(), targetMonth.lengthOfMonth())
-                : targetMonth.lengthOfMonth();
+        LocalDate completedThrough;
+        int daysCounted;
+        if (targetMonth.isAfter(YearMonth.from(today))) {
+            completedThrough = startDate.minusDays(1);
+            daysCounted = 0;
+        } else if (targetMonth.equals(YearMonth.from(today))) {
+            completedThrough = today.minusDays(1);
+            daysCounted = Math.max(Math.min(today.getDayOfMonth() - 1, targetMonth.lengthOfMonth()), 0);
+        } else {
+            completedThrough = endDate;
+            daysCounted = targetMonth.lengthOfMonth();
+        }
 
         List<PayrollSummaryResponse.EmployeePayrollRow> rows = employeeRepository.findByVendor_IdOrderByNameAsc(user.vendorId()).stream()
                 .filter(employee -> !"REMOVED".equalsIgnoreCase(employee.getStatus()))
-                .map(employee -> buildPayrollRow(employee, startDate, endDate, daysCounted))
+                .map(employee -> buildPayrollRow(employee, startDate, completedThrough, endDate, daysCounted))
                 .toList();
         return new PayrollSummaryResponse(targetMonth.toString(), rows);
     }
@@ -352,13 +361,18 @@ public class AdminService {
     private PayrollSummaryResponse.EmployeePayrollRow buildPayrollRow(
             EmployeeEntity employee,
             LocalDate startDate,
+            LocalDate completedThrough,
             LocalDate endDate,
             int daysCounted
     ) {
-        long workedDays = attendanceRecordRepository.countByEmployee_IdAndAttendanceDateBetween(employee.getId(), startDate, endDate);
+        long workedDays = daysCounted == 0
+                ? 0
+                : attendanceRecordRepository.countByEmployee_IdAndAttendanceDateBetween(employee.getId(), startDate, completedThrough);
         int allowedLeaves = employee.getMonthlyLeaveAllowance() == null ? 0 : employee.getMonthlyLeaveAllowance();
-        int unpaidLeaveDays = Math.max(daysCounted - (int) workedDays - allowedLeaves, 0);
-        int payableDays = Math.max(daysCounted - unpaidLeaveDays, 0);
+        int absencesOnCompletedDays = Math.max(daysCounted - (int) workedDays, 0);
+        int paidLeaveDays = Math.min(absencesOnCompletedDays, allowedLeaves);
+        int unpaidLeaveDays = Math.max(absencesOnCompletedDays - paidLeaveDays, 0);
+        int payableDays = (int) workedDays + paidLeaveDays;
         BigDecimal monthlySalary = safeMoney(employee.getMonthlySalary());
         BigDecimal dailyRate = daysCounted == 0
                 ? BigDecimal.ZERO
@@ -376,6 +390,7 @@ public class AdminService {
                 daysCounted,
                 (int) workedDays,
                 allowedLeaves,
+                paidLeaveDays,
                 unpaidLeaveDays,
                 payableDays,
                 moneyValue(dailyRate),

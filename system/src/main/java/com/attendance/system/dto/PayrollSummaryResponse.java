@@ -15,6 +15,7 @@ public record PayrollSummaryResponse(
             int daysCounted,
             int workedDays,
             int allowedLeaves,
+            int paidLeaveDays,
             int unpaidLeaveDays,
             int payableDays,
             BigDecimalValue dailyRate,

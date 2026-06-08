@@ -13,6 +13,7 @@ export function AttendancePayrollTable({ payroll }: { payroll: PayrollSummary })
             <th>Monthly salary</th>
             <th>Worked days</th>
             <th>Allowed leaves</th>
+            <th>Paid leaves used</th>
             <th>Unpaid leaves</th>
             <th>Payable days</th>
             <th>Advance</th>
@@ -29,6 +30,7 @@ export function AttendancePayrollTable({ payroll }: { payroll: PayrollSummary })
               <td>{formatMoney(employee.monthlySalary.value)}</td>
               <td>{employee.workedDays}</td>
               <td>{employee.allowedLeaves}</td>
+              <td>{employee.paidLeaveDays}</td>
               <td>{employee.unpaidLeaveDays}</td>
               <td>{employee.payableDays}</td>
               <td>{formatMoney(employee.advancePaid.value)}</td>
@@ -52,6 +54,8 @@ export function AttendancePayrollTable({ payroll }: { payroll: PayrollSummary })
               <strong>{employee.workedDays}</strong>
               <span>Allowed leaves</span>
               <strong>{employee.allowedLeaves}</strong>
+              <span>Paid leaves used</span>
+              <strong>{employee.paidLeaveDays}</strong>
               <span>Unpaid leaves</span>
               <strong>{employee.unpaidLeaveDays}</strong>
               <span>Payable days</span>

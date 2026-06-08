@@ -3,6 +3,74 @@
   border-collapse: collapse;
 }
 
+.admin-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-shell {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.admin-sidebar {
+  position: sticky;
+  top: 20px;
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(37, 99, 235, 0.1);
+  box-shadow: 0 20px 45px rgba(37, 99, 235, 0.08);
+}
+
+.admin-sidebar-header {
+  display: grid;
+  gap: 6px;
+}
+
+.admin-nav {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-nav-button {
+  width: 100%;
+  border: 1px solid transparent;
+  background: rgba(239, 246, 255, 0.95);
+  color: var(--text-main);
+  border-radius: 16px;
+  padding: 12px 14px;
+  text-align: left;
+  font-weight: 700;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.admin-nav-button:hover {
+  border-color: rgba(37, 99, 235, 0.18);
+  transform: translateY(-1px);
+}
+
+.admin-nav-button.active {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.18), rgba(59, 130, 246, 0.1));
+  border-color: rgba(37, 99, 235, 0.26);
+  color: var(--primary-strong);
+}
+
+.admin-content {
+  min-width: 0;
+  display: grid;
+  gap: 24px;
+}
+
+.admin-drawer-button {
+  display: none;
+}
+
 .desktop-table {
   display: table;
 }
@@ -250,12 +318,38 @@
 }
 
 @media (max-width: 1024px) {
+  .admin-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-sidebar {
+    display: none;
+    position: static;
+    margin-top: -8px;
+  }
+
+  .admin-sidebar.open {
+    display: grid;
+  }
+
+  .admin-drawer-button {
+    display: inline-flex;
+  }
+
   .payroll-summary-grid {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 720px) {
+  .admin-header-actions {
+    width: 100%;
+  }
+
+  .admin-header-actions .ghost-button {
+    flex: 1;
+  }
+
   .topbar,
   .table-action-row,
   .tracking-card-header,
@@ -278,6 +372,15 @@
 }
 
 @media (max-width: 560px) {
+  .admin-shell {
+    gap: 16px;
+  }
+
+  .admin-sidebar {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
   .desktop-table {
     display: none;
   }

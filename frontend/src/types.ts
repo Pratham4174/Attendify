@@ -134,6 +134,7 @@ export type PayrollSummary = {
     daysCounted: number;
     workedDays: number;
     allowedLeaves: number;
+    paidLeaveDays: number;
     unpaidLeaveDays: number;
     payableDays: number;
     dailyRate: { value: string };
