@@ -183,31 +183,55 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
 
   return (
     <main className="login-layout">
-      <section className="hero-panel">
-        <span className="eyebrow">ATTENDIFY</span>
+      <section className="hero-panel auth-brand-panel">
+        <div className="auth-brand-stack">
+          <span className="eyebrow">ATTENDIFY</span>
+          <div className="auth-brand-mark">
+            <span className="auth-brand-dot auth-brand-dot-one" />
+            <span className="auth-brand-dot auth-brand-dot-two" />
+            <span className="auth-brand-dot auth-brand-dot-three" />
+          </div>
+        </div>
+        <div className="auth-feature-grid">
+          <div className="auth-feature-card">
+            <strong>Check in</strong>
+            <span>Fast mobile flow</span>
+          </div>
+          <div className="auth-feature-card">
+            <strong>Proof</strong>
+            <span>GPS and selfie</span>
+          </div>
+          <div className="auth-feature-card">
+            <strong>Review</strong>
+            <span>Clear owner view</span>
+          </div>
+        </div>
       </section>
 
-      <section className="login-card">
-        <div className="action-row">
-          <button
-            className={registrationMode ? "ghost-button" : "primary-button"}
-            type="button"
-            onClick={() => setRegistrationMode(false)}
-          >
-            Sign in
-          </button>
-          <button
-            className={registrationMode ? "primary-button" : "ghost-button"}
-            type="button"
-            onClick={() => setRegistrationMode(true)}
-          >
-            Register property
-          </button>
+      <section className="login-card auth-panel">
+        <div className="auth-panel-header">
+          <span className="eyebrow">Workspace access</span>
+          <div className="auth-toggle">
+            <button
+              className={registrationMode ? "auth-toggle-button" : "auth-toggle-button active"}
+              type="button"
+              onClick={() => setRegistrationMode(false)}
+            >
+              Sign in
+            </button>
+            <button
+              className={registrationMode ? "auth-toggle-button active" : "auth-toggle-button"}
+              type="button"
+              onClick={() => setRegistrationMode(true)}
+            >
+              Register property
+            </button>
+          </div>
         </div>
         {!registrationMode ? (
           <>
             <h2>Sign in</h2>
-            <p className="muted section-intro">Use your work email to open your ATTENDIFY workspace.</p>
+            <p className="muted section-intro auth-section-intro">Use your work email to open your ATTENDIFY workspace.</p>
             <form onSubmit={handleLogin}>
               <label>
                 Email
@@ -248,11 +272,16 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
         ) : (
           <>
             <h2>Register your property</h2>
-            <p className="muted">
+            <p className="muted auth-section-intro">
               Set up your property, add your main branch, and create your first team in one clean flow.
             </p>
-            <p className="muted">Fields marked <span className="required-mark">*</span> are required.</p>
+            <p className="muted auth-form-note">Fields marked <span className="required-mark">*</span> are required.</p>
             <form onSubmit={handleRegistration}>
+              <div className="auth-section">
+                <div className="auth-section-title">
+                  <strong>Property details</strong>
+                  <span className="muted">Set up your business and main admin account.</span>
+                </div>
               <label>
                 <RequiredLabel>Property code</RequiredLabel>
                 <input
@@ -327,6 +356,13 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
                 />
                 <span className="field-hint">Used for quick contact if your team needs help with account setup.</span>
               </label>
+              </div>
+
+              <div className="auth-section">
+                <div className="auth-section-title">
+                  <strong>Main branch</strong>
+                  <span className="muted">Add the place where your team will mark attendance first.</span>
+                </div>
               <label>
                 <RequiredLabel>Branch name</RequiredLabel>
                 <input
@@ -383,7 +419,7 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
                 >
                   Use current location
                 </button>
-                <span className="muted">You can edit the coordinates after using your current location.</span>
+                <span className="muted auth-inline-note">You can edit the coordinates after using your current location.</span>
               </div>
               <label>
                 <RequiredLabel>Attendance radius (meters)</RequiredLabel>
@@ -396,13 +432,19 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
                 />
                 <span className="field-hint">A smaller radius works best when staff should mark attendance close to the property gate or desk.</span>
               </label>
-              <div className="employee-seed-list">
-                <div className="action-row">
-                  <strong>Starter employees</strong>
+              </div>
+
+              <div className="auth-section">
+                <div className="action-row auth-section-heading">
+                  <div className="auth-section-title">
+                    <strong>Starter employees</strong>
+                    <span className="muted">Add your first team members now. You can add more later.</span>
+                  </div>
                   <button className="secondary-button" type="button" onClick={addEmployeeRow}>
                     Add employee
                   </button>
                 </div>
+              <div className="employee-seed-list">
                 {employees.map((employee, index) => (
                   <div className="employee-seed-card" key={`${employee.email}-${index}`}>
                     <div className="grid two-column compact-grid">
@@ -469,6 +511,7 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
                     </button>
                   </div>
                 ))}
+              </div>
               </div>
               {registrationStatus ? (
                 <p className={registrationStatus.includes("successfully") ? "status-text" : "error-text"}>
