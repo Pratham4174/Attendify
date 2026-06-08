@@ -1,8 +1,97 @@
+.employee-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.employee-shell {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.employee-sidebar {
+  position: sticky;
+  top: 20px;
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(37, 99, 235, 0.1);
+  box-shadow: 0 20px 45px rgba(37, 99, 235, 0.08);
+}
+
+.employee-sidebar-header {
+  display: grid;
+  gap: 6px;
+}
+
+.employee-nav {
+  display: grid;
+  gap: 10px;
+}
+
+.employee-nav-button {
+  width: 100%;
+  border: 1px solid transparent;
+  background: rgba(239, 246, 255, 0.95);
+  color: var(--text-main);
+  border-radius: 16px;
+  padding: 12px 14px;
+  text-align: left;
+  font-weight: 700;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.employee-nav-button:hover {
+  border-color: rgba(37, 99, 235, 0.18);
+  transform: translateY(-1px);
+}
+
+.employee-nav-button.active {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.18), rgba(59, 130, 246, 0.1));
+  border-color: rgba(37, 99, 235, 0.26);
+  color: var(--primary-strong);
+}
+
+.employee-content {
+  min-width: 0;
+  display: grid;
+  gap: 24px;
+}
+
+.employee-drawer-button {
+  display: none;
+}
+
+.employee-metric-grid {
+  margin-bottom: 0;
+}
+
+.mark-attendance-panel {
+  display: grid;
+  gap: 18px;
+}
+
+.mark-attendance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.compact-step-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .camera-panel {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
-  margin: 18px 0;
+  margin: 0;
 }
 
 .camera-panel video,
@@ -117,6 +206,54 @@
   width: auto;
 }
 
+.prep-card-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.prep-card {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(239, 246, 255, 0.92);
+  border: 1px solid rgba(37, 99, 235, 0.1);
+  display: grid;
+  gap: 10px;
+}
+
+.prep-button {
+  width: 100%;
+}
+
+.prep-value {
+  color: var(--text-soft);
+  font-size: 0.92rem;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.attendance-insight-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.highlight-chip {
+  border: 1px solid rgba(37, 99, 235, 0.08);
+  background: rgba(239, 246, 255, 0.92);
+}
+
+.submit-attendance-card {
+  padding: 18px;
+  border-radius: 20px;
+  background: rgba(239, 246, 255, 0.94);
+  border: 1px solid rgba(37, 99, 235, 0.1);
+  display: grid;
+  gap: 14px;
+}
+
+.employee-help-steps {
+  margin-top: 0;
+}
+
 .empty-media {
   width: 100%;
   min-height: 220px;
@@ -192,12 +329,49 @@
 }
 
 @media (max-width: 1024px) {
+  .employee-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .employee-sidebar {
+    display: none;
+    position: static;
+    margin-top: -8px;
+  }
+
+  .employee-sidebar.open {
+    display: grid;
+  }
+
+  .employee-drawer-button {
+    display: inline-flex;
+  }
+
+  .compact-step-list,
+  .prep-card-grid,
+  .attendance-insight-row {
+    grid-template-columns: 1fr;
+  }
+
   .camera-panel {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 720px) {
+  .employee-header-actions {
+    width: 100%;
+  }
+
+  .employee-header-actions .ghost-button {
+    flex: 1;
+  }
+
+  .mark-attendance-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
   .camera-panel video,
   .camera-panel img,
   .evidence-stack img {
@@ -234,6 +408,15 @@
 }
 
 @media (max-width: 560px) {
+  .employee-shell {
+    gap: 16px;
+  }
+
+  .employee-sidebar {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
   .tutorial-backdrop {
     padding: 12px;
   }
@@ -269,5 +452,10 @@
 
   .step-card {
     grid-template-columns: 1fr;
+  }
+
+  .prep-card,
+  .submit-attendance-card {
+    padding: 14px;
   }
 }

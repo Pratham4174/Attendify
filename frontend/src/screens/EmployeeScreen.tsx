@@ -10,6 +10,8 @@ import { AttendanceTable } from "../components/AttendanceTable";
 import { LoadingWorkspace, MetricCard } from "../components/shared";
 import type { EmployeeOverview, Session } from "../types";
 
+type EmployeeTab = "mark" | "today" | "history" | "help";
+
 export function EmployeeScreen({
   session,
   onLogout
@@ -27,6 +29,8 @@ export function EmployeeScreen({
   const [showTutorial, setShowTutorial] = useState(false);
   const [activeTutorialStep, setActiveTutorialStep] = useState(0);
   const [trackingMessage, setTrackingMessage] = useState("");
+  const [activeTab, setActiveTab] = useState<EmployeeTab>("mark");
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [attendanceSummary, setAttendanceSummary] = useState<{
     mode: "check-in" | "check-out";
     branchName: string;
@@ -306,6 +310,12 @@ export function EmployeeScreen({
   }).length;
   const lastActionTime =
     overview.todayAttendance?.checkOutTime ?? overview.todayAttendance?.checkInTime ?? null;
+  const employeeTabs: Array<{ id: EmployeeTab; label: string }> = [
+    { id: "mark", label: "Mark attendance" },
+    { id: "today", label: "Today's status" },
+    { id: "history", label: "Attendance history" },
+    { id: "help", label: "How it works" }
+  ];
   const employeeSteps = [
     {
       title: "Allow location",
@@ -357,164 +367,267 @@ export function EmployeeScreen({
             {overview.employee.designation} at {overview.branch.name} for {session.user.vendorName}
           </p>
         </div>
-        <button className="ghost-button" onClick={onLogout}>
-          Log out
-        </button>
+        <div className="employee-header-actions">
+          <button
+            className="ghost-button employee-drawer-button"
+            onClick={() => setDrawerOpen((current) => !current)}
+            type="button"
+          >
+            Menu
+          </button>
+          <button className="ghost-button" onClick={onLogout} type="button">
+            Log out
+          </button>
+        </div>
       </header>
 
-      <div className="action-row tutorial-toolbar">
-        <button className="ghost-button tutorial-button" onClick={() => setShowTutorial(true)}>
-          How to mark attendance
-        </button>
+      <div className="employee-shell">
+        <aside className={`employee-sidebar${drawerOpen ? " open" : ""}`}>
+          <div className="employee-sidebar-header">
+            <span className="eyebrow">My workspace</span>
+            <strong>{overview.branch.name}</strong>
+            <span className="muted">{overview.branch.radiusMeters}m attendance zone</span>
+          </div>
+          <nav className="employee-nav">
+            {employeeTabs.map((tab) => (
+              <button
+                key={tab.id}
+                className={`employee-nav-button${activeTab === tab.id ? " active" : ""}`}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  setDrawerOpen(false);
+                }}
+                type="button"
+              >
+                {tab.label}
+              </button>
+            ))}
+          </nav>
+        </aside>
+
+        <section className="employee-content">
+          {activeTab === "mark" ? (
+            <>
+              <section className="metric-grid employee-metric-grid">
+                <MetricCard label="Today's status" value={overview.todayAttendance?.status ?? "Not marked"} />
+                <MetricCard label="Last activity" value={lastActionTime ? formatTimeOnly(lastActionTime) : "Pending"} />
+                <MetricCard label="Completed this month" value={completedThisMonth} />
+                <MetricCard label="Branch" value={overview.branch.name} />
+              </section>
+
+              <section className="panel mark-attendance-panel">
+                <div className="mark-attendance-header">
+                  <div>
+                    <h3>Mark attendance</h3>
+                    <p className="muted section-intro">Complete the 3 quick steps, then submit your attendance.</p>
+                  </div>
+                  <button className="ghost-button tutorial-button" onClick={() => setShowTutorial(true)} type="button">
+                    How it works
+                  </button>
+                </div>
+
+                <div className="step-list compact-step-list">
+                  {employeeSteps.map((step, index) => (
+                    <div className={`step-card${step.complete ? " complete" : ""}`} key={step.title}>
+                      <span className="step-index">{index + 1}</span>
+                      <div>
+                        <strong>{step.title}</strong>
+                        <span>{step.detail}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="prep-card-grid">
+                  <div className="prep-card">
+                    <button className="secondary-button prep-button" onClick={() => void requestLocation()} type="button">
+                      Lock GPS
+                    </button>
+                    <span className="prep-value">
+                      {coords ? `${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}` : "Current coordinates will appear here"}
+                    </span>
+                  </div>
+                  <div className="prep-card">
+                    <button className="secondary-button prep-button" onClick={() => void startCamera()} type="button">
+                      Start camera
+                    </button>
+                    <span className="prep-value">{cameraReady ? "Camera ready for a fresh selfie" : "Open the front camera"}</span>
+                  </div>
+                  <div className="prep-card">
+                    <button className="secondary-button prep-button" onClick={captureSelfie} type="button">
+                      Capture selfie
+                    </button>
+                    <span className="prep-value">{selfie ? "Selfie captured and attached" : "Take a clear selfie"}</span>
+                  </div>
+                </div>
+
+                <div className="camera-panel">
+                  <video autoPlay muted playsInline ref={videoRef} />
+                  {selfie ? (
+                    <img alt="Captured selfie" src={selfie} />
+                  ) : (
+                    <div className="empty-media">Selfie preview will appear here.</div>
+                  )}
+                </div>
+
+                <div className="status-card-row attendance-insight-row">
+                  <div className={`status-chip highlight-chip${insideGeofence === false ? " warning" : insideGeofence ? " success" : ""}`}>
+                    {insideGeofence === null
+                      ? "Lock your location to check branch distance"
+                      : insideGeofence
+                        ? `Inside branch area · ${geofenceDistance?.toFixed(1)}m`
+                        : `Outside branch area · ${geofenceDistance?.toFixed(1)}m`}
+                  </div>
+                  <div className="status-chip">
+                    Branch target · {overview.branch.latitude.toFixed(5)}, {overview.branch.longitude.toFixed(5)}
+                  </div>
+                </div>
+
+                {status ? <p className="status-text">{status}</p> : null}
+
+                <div className="submit-attendance-card">
+                  <div>
+                    <strong>{canCheckOut ? "Ready to check out?" : "Ready to check in?"}</strong>
+                    <span className="muted">
+                      {canCheckOut
+                        ? "Finish your shift once your work is complete."
+                        : "Submit once your location and selfie are ready."}
+                    </span>
+                  </div>
+                  <div className="action-row attendance-action-row">
+                    <button
+                      className="primary-button"
+                      disabled={loading || hasCheckedIn}
+                      onClick={() => void submitAttendance("check-in")}
+                      type="button"
+                    >
+                      {loading ? "Saving..." : "Check in"}
+                    </button>
+                    <button
+                      className="ghost-button"
+                      disabled={loading || !canCheckOut}
+                      onClick={() => void submitAttendance("check-out")}
+                      type="button"
+                    >
+                      {loading ? "Saving..." : "Check out"}
+                    </button>
+                  </div>
+                </div>
+              </section>
+            </>
+          ) : null}
+
+          {activeTab === "today" ? (
+            <section className="grid two-column">
+              <article className="panel">
+                <h3>Today's status</h3>
+                <p className="muted section-intro">A compact view of your shift today.</p>
+                <div className="stat-row">
+                  <div>
+                    <span className="label">Attendance</span>
+                    <strong>{overview.todayAttendance?.status ?? "NOT MARKED"}</strong>
+                  </div>
+                  <div>
+                    <span className="label">Geofence</span>
+                    <strong>{overview.branch.radiusMeters}m radius</strong>
+                  </div>
+                </div>
+                <div className="stat-row">
+                  <div>
+                    <span className="label">Check-in</span>
+                    <strong>{formatDateTime(overview.todayAttendance?.checkInTime)}</strong>
+                  </div>
+                  <div>
+                    <span className="label">Check-out</span>
+                    <strong>{formatDateTime(overview.todayAttendance?.checkOutTime)}</strong>
+                  </div>
+                </div>
+                <div className="stat-row">
+                  {overview.tracking.available ? (
+                    <>
+                      <div>
+                        <span className="label">Tracking</span>
+                        <strong>{overview.tracking.active ? "Live" : "Off"}</strong>
+                      </div>
+                      <div>
+                        <span className="label">Updates today</span>
+                        <strong>{overview.tracking.pointsCapturedToday}</strong>
+                      </div>
+                    </>
+                  ) : (
+                    <div>
+                      <span className="label">Tracking add-on</span>
+                      <strong>Not enabled</strong>
+                    </div>
+                  )}
+                </div>
+                {overview.tracking.available && overview.tracking.lastTrackedAt ? (
+                  <p className="muted">Last tracked location: {formatDateTime(overview.tracking.lastTrackedAt)}</p>
+                ) : null}
+                {overview.tracking.available ? trackingMessage ? <p className="muted">{trackingMessage}</p> : null : (
+                  <p className="muted">Live movement tracking is an optional add-on for this workspace.</p>
+                )}
+              </article>
+
+              <article className="panel">
+                <h3>Latest confirmation</h3>
+                <p className="muted section-intro">See the latest saved attendance proof and distance.</p>
+                {attendanceSummary ? (
+                  <div className="info-card success-card">
+                    <strong>{attendanceSummary.mode === "check-in" ? "Check-in saved" : "Check-out saved"}</strong>
+                    <span>{attendanceSummary.branchName}</span>
+                    <span>{formatDateTime(attendanceSummary.time)}</span>
+                    <span>Distance from branch: {attendanceSummary.distanceMeters.toFixed(1)}m</span>
+                    <img alt="Latest attendance selfie" className="summary-image" src={attendanceSummary.image} />
+                  </div>
+                ) : (
+                  <div className="info-card">
+                    <strong>No new attendance saved in this session</strong>
+                    <span className="muted">Your latest successful check-in or check-out will appear here.</span>
+                  </div>
+                )}
+              </article>
+            </section>
+          ) : null}
+
+          {activeTab === "history" ? (
+            <section className="panel">
+              <h3>Recent attendance</h3>
+              <p className="muted section-intro">Your latest attendance activity appears here.</p>
+              <AttendanceTable
+                records={overview.recentAttendance}
+                emptyMessage="No attendance has been marked yet. Your latest check-ins will appear here."
+              />
+            </section>
+          ) : null}
+
+          {activeTab === "help" ? (
+            <section className="panel">
+              <div className="mark-attendance-header">
+                <div>
+                  <h3>How attendance works</h3>
+                  <p className="muted section-intro">Reopen the guided animation or review the daily flow below.</p>
+                </div>
+                <button className="primary-button" onClick={() => setShowTutorial(true)} type="button">
+                  Play walkthrough
+                </button>
+              </div>
+              <div className="tutorial-steps employee-help-steps">
+                {tutorialSteps.map((step, index) => (
+                  <div className="tutorial-step" key={step.title}>
+                    <span className="tutorial-step-number">{index + 1}</span>
+                    <div>
+                      <strong>{step.title}</strong>
+                      <span>{step.detail}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null}
+        </section>
       </div>
 
-      <section className="metric-grid">
-        <MetricCard label="Today's status" value={overview.todayAttendance?.status ?? "Not marked"} />
-        <MetricCard label="Last activity" value={lastActionTime ? formatTimeOnly(lastActionTime) : "Pending"} />
-        <MetricCard label="Completed this month" value={completedThisMonth} />
-        <MetricCard label="Assigned branch" value={overview.branch.name} />
-      </section>
-
-      <section className="grid two-column">
-        <article className="panel">
-          <h3>Today's status</h3>
-          <p className="muted section-intro">A quick view of your shift so far.</p>
-          <div className="stat-row">
-            <div>
-              <span className="label">Attendance state</span>
-              <strong>{overview.todayAttendance?.status ?? "NOT MARKED"}</strong>
-            </div>
-            <div>
-              <span className="label">Geofence</span>
-              <strong>{overview.branch.radiusMeters}m radius</strong>
-            </div>
-          </div>
-          <div className="stat-row">
-            <div>
-              <span className="label">Check-in</span>
-              <strong>{formatDateTime(overview.todayAttendance?.checkInTime)}</strong>
-            </div>
-            <div>
-              <span className="label">Check-out</span>
-              <strong>{formatDateTime(overview.todayAttendance?.checkOutTime)}</strong>
-            </div>
-          </div>
-          <div className="stat-row">
-            {overview.tracking.available ? (
-              <>
-                <div>
-                  <span className="label">Tracking status</span>
-                  <strong>{overview.tracking.active ? "Tracking live" : "Tracking off"}</strong>
-                </div>
-                <div>
-                  <span className="label">Location updates today</span>
-                  <strong>{overview.tracking.pointsCapturedToday}</strong>
-                </div>
-              </>
-            ) : (
-              <div>
-                <span className="label">Tracking add-on</span>
-                <strong>Not enabled</strong>
-              </div>
-            )}
-          </div>
-          <p className="muted">
-            Branch target coordinate: {overview.branch.latitude.toFixed(5)},{" "}
-            {overview.branch.longitude.toFixed(5)}
-          </p>
-          {overview.tracking.available && overview.tracking.lastTrackedAt ? (
-            <p className="muted">Last tracked location: {formatDateTime(overview.tracking.lastTrackedAt)}</p>
-          ) : null}
-          {overview.tracking.available ? (
-            trackingMessage ? <p className="muted">{trackingMessage}</p> : null
-          ) : (
-            <p className="muted">
-              Live movement tracking is a separate add-on and is currently turned off for this workspace.
-            </p>
-          )}
-          {attendanceSummary ? (
-            <div className="info-card success-card">
-              <strong>{attendanceSummary.mode === "check-in" ? "Check-in saved" : "Check-out saved"}</strong>
-              <span>{attendanceSummary.branchName}</span>
-              <span>{formatDateTime(attendanceSummary.time)}</span>
-              <span>Distance from branch: {attendanceSummary.distanceMeters.toFixed(1)}m</span>
-              <img alt="Latest attendance selfie" className="summary-image" src={attendanceSummary.image} />
-            </div>
-          ) : null}
-        </article>
-
-        <article className="panel">
-          <h3>Mark attendance with confidence</h3>
-          <p className="muted section-intro">Just follow the steps below. We will guide you through it.</p>
-          <div className="step-list">
-            {employeeSteps.map((step, index) => (
-              <div className={`step-card${step.complete ? " complete" : ""}`} key={step.title}>
-                <span className="step-index">{index + 1}</span>
-                <div>
-                  <strong>{step.title}</strong>
-                  <span>{step.detail}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="action-row attendance-action-row">
-            <button className="secondary-button" onClick={() => void requestLocation()}>
-              Lock GPS
-            </button>
-            <button className="secondary-button" onClick={() => void startCamera()}>
-              Start camera
-            </button>
-            <button className="secondary-button" onClick={captureSelfie}>
-              Capture selfie
-            </button>
-          </div>
-          <div className="camera-panel">
-            <video autoPlay muted playsInline ref={videoRef} />
-            {selfie ? <img alt="Captured selfie" src={selfie} /> : <div className="empty-media">Selfie preview will appear here.</div>}
-          </div>
-          <div className="status-card-row">
-            <div className={`status-chip${insideGeofence === false ? " warning" : insideGeofence ? " success" : ""}`}>
-              {insideGeofence === null
-                ? "Lock your location to check branch distance."
-                : insideGeofence
-                  ? `Inside branch area by ${geofenceDistance?.toFixed(1)}m`
-                  : `Outside branch area by ${geofenceDistance?.toFixed(1)}m`}
-            </div>
-            <div className="status-chip">
-              Current GPS:{" "}
-              {coords
-                ? `${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`
-                : "Not locked yet"}
-            </div>
-          </div>
-          {status ? <p className="status-text">{status}</p> : null}
-          <div className="action-row attendance-action-row">
-            <button
-              className="primary-button"
-              disabled={loading || hasCheckedIn}
-              onClick={() => void submitAttendance("check-in")}
-            >
-              {loading ? "Saving..." : "Check in"}
-            </button>
-            <button
-              className="ghost-button"
-              disabled={loading || !canCheckOut}
-              onClick={() => void submitAttendance("check-out")}
-            >
-              {loading ? "Saving..." : "Check out"}
-            </button>
-          </div>
-        </article>
-      </section>
-
-      <section className="panel">
-        <h3>Recent attendance</h3>
-        <p className="muted section-intro">Your latest attendance activity appears here.</p>
-        <AttendanceTable
-          records={overview.recentAttendance}
-          emptyMessage="No attendance has been marked yet. Your latest check-ins will appear here."
-        />
-      </section>
       {showTutorial ? (
         <div className="tutorial-backdrop" onClick={() => setShowTutorial(false)}>
           <div className="tutorial-modal" onClick={(event) => event.stopPropagation()}>
@@ -538,7 +651,7 @@ export function EmployeeScreen({
               ))}
             </div>
             <div className="tutorial-actions">
-              <button className="ghost-button" onClick={() => setShowTutorial(false)}>
+              <button className="ghost-button" onClick={() => setShowTutorial(false)} type="button">
                 Skip
               </button>
               <button
@@ -546,6 +659,7 @@ export function EmployeeScreen({
                 onClick={() =>
                   setActiveTutorialStep((current) => (current + 1) % tutorialSteps.length)
                 }
+                type="button"
               >
                 Next step
               </button>
