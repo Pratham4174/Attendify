@@ -16,4 +16,5 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
     long countByVendor_IdAndAttendanceDate(UUID vendorId, LocalDate attendanceDate);
     long countByVendor_IdAndAttendanceDateAndCheckOutTimeIsNotNull(UUID vendorId, LocalDate attendanceDate);
     long countByVendor_IdAndBranch_IdAndAttendanceDate(UUID vendorId, UUID branchId, LocalDate attendanceDate);
+    long countByEmployee_IdAndAttendanceDateBetween(UUID employeeId, LocalDate startDate, LocalDate endDate);
 }

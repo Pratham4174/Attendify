@@ -62,7 +62,11 @@ public class AttendanceMapper {
                 employee.getEmail(),
                 employee.getPhone(),
                 employee.getStatus(),
-                employee.getBranch().getId().toString()
+                employee.getBranch().getId().toString(),
+                employee.getBranch().getName(),
+                employee.getMonthlySalary().toPlainString(),
+                employee.getMonthlyLeaveAllowance(),
+                employee.getAdvancePaid().toPlainString()
         );
     }
 

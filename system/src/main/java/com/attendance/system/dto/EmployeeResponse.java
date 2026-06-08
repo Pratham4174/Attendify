@@ -8,6 +8,10 @@ public record EmployeeResponse(
         String email,
         String phone,
         String status,
-        String branchId
+        String branchId,
+        String branchName,
+        String monthlySalary,
+        int monthlyLeaveAllowance,
+        String advancePaid
 ) {
 }

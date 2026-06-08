@@ -6,27 +6,38 @@ import com.attendance.system.dto.AdminTrackingResponse;
 import com.attendance.system.dto.BranchResponse;
 import com.attendance.system.dto.DashboardSummaryResponse;
 import com.attendance.system.dto.EmployeeResponse;
+import com.attendance.system.dto.EmployeeStatusRequest;
+import com.attendance.system.dto.EmployeeUpsertRequest;
+import com.attendance.system.dto.PayrollSummaryResponse;
 import com.attendance.system.model.AttendanceLocationLogEntity;
 import com.attendance.system.model.AttendanceRecordEntity;
 import com.attendance.system.model.BranchEntity;
+import com.attendance.system.model.EmployeeEntity;
+import com.attendance.system.model.UserEntity;
 import com.attendance.system.model.UserRole;
 import com.attendance.system.repository.AttendanceLocationLogRepository;
 import com.attendance.system.repository.AttendanceRecordRepository;
 import com.attendance.system.repository.BranchRepository;
 import com.attendance.system.repository.EmployeeRepository;
+import com.attendance.system.repository.UserRepository;
 import com.attendance.system.security.AuthenticatedUser;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -36,23 +47,29 @@ public class AdminService {
     private final BranchRepository branchRepository;
     private final AttendanceRecordRepository attendanceRecordRepository;
     private final AttendanceLocationLogRepository attendanceLocationLogRepository;
+    private final UserRepository userRepository;
     private final AttendanceMapper mapper;
     private final TrackingProperties trackingProperties;
+    private final PasswordEncoder passwordEncoder;
 
     public AdminService(
             EmployeeRepository employeeRepository,
             BranchRepository branchRepository,
             AttendanceRecordRepository attendanceRecordRepository,
             AttendanceLocationLogRepository attendanceLocationLogRepository,
+            UserRepository userRepository,
             AttendanceMapper mapper,
-            TrackingProperties trackingProperties
+            TrackingProperties trackingProperties,
+            PasswordEncoder passwordEncoder
     ) {
         this.employeeRepository = employeeRepository;
         this.branchRepository = branchRepository;
         this.attendanceRecordRepository = attendanceRecordRepository;
         this.attendanceLocationLogRepository = attendanceLocationLogRepository;
+        this.userRepository = userRepository;
         this.mapper = mapper;
         this.trackingProperties = trackingProperties;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional(readOnly = true)
@@ -97,7 +114,99 @@ public class AdminService {
     @Transactional(readOnly = true)
     public List<EmployeeResponse> employees(AuthenticatedUser user) {
         requireAdmin(user);
-        return employeeRepository.findByVendor_IdOrderByNameAsc(user.vendorId()).stream().map(mapper::toEmployeeResponse).toList();
+        return employeeRepository.findByVendor_IdOrderByNameAsc(user.vendorId()).stream()
+                .filter(employee -> !"REMOVED".equalsIgnoreCase(employee.getStatus()))
+                .map(mapper::toEmployeeResponse)
+                .toList();
+    }
+
+    @Transactional
+    public EmployeeResponse createEmployee(AuthenticatedUser user, EmployeeUpsertRequest request) {
+        requireAdmin(user);
+        String email = request.email().trim().toLowerCase(Locale.ROOT);
+        String employeeCode = request.employeeCode().trim().toUpperCase(Locale.ROOT);
+        if (employeeRepository.existsByEmailIgnoreCase(email) || userRepository.existsByEmailIgnoreCase(email)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Employee email is already registered.");
+        }
+        if (employeeRepository.existsByEmployeeCodeIgnoreCaseAndVendor_Id(employeeCode, user.vendorId())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Employee code is already in use.");
+        }
+
+        BranchEntity branch = loadBranch(user.vendorId(), request.branchId());
+        EmployeeEntity employee = new EmployeeEntity();
+        populateEmployee(employee, branch, request, employeeCode, email);
+        employee.setStatus("ACTIVE");
+        employee = employeeRepository.save(employee);
+
+        UserEntity employeeUser = new UserEntity();
+        employeeUser.setVendor(branch.getVendor());
+        employeeUser.setEmployee(employee);
+        employeeUser.setName(employee.getName());
+        employeeUser.setEmail(employee.getEmail());
+        employeeUser.setPasswordHash(passwordEncoder.encode("password"));
+        employeeUser.setRole(UserRole.EMPLOYEE);
+        employeeUser.setActive(true);
+        userRepository.save(employeeUser);
+        return mapper.toEmployeeResponse(employee);
+    }
+
+    @Transactional
+    public EmployeeResponse updateEmployee(AuthenticatedUser user, String employeeId, EmployeeUpsertRequest request) {
+        requireAdmin(user);
+        EmployeeEntity employee = loadEmployee(user.vendorId(), employeeId);
+        BranchEntity branch = loadBranch(user.vendorId(), request.branchId());
+        String email = request.email().trim().toLowerCase(Locale.ROOT);
+        String employeeCode = request.employeeCode().trim().toUpperCase(Locale.ROOT);
+
+        if (!employee.getEmail().equalsIgnoreCase(email)
+                && (employeeRepository.existsByEmailIgnoreCase(email) || userRepository.existsByEmailIgnoreCase(email))) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Employee email is already registered.");
+        }
+        if (!employee.getEmployeeCode().equalsIgnoreCase(employeeCode)
+                && employeeRepository.existsByEmployeeCodeIgnoreCaseAndVendor_Id(employeeCode, user.vendorId())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Employee code is already in use.");
+        }
+
+        populateEmployee(employee, branch, request, employeeCode, email);
+        employee = employeeRepository.save(employee);
+        userRepository.findByEmployee_Id(employee.getId()).ifPresent(employeeUser -> {
+            employeeUser.setName(employee.getName());
+            employeeUser.setEmail(employee.getEmail());
+            employeeUser.setActive("ACTIVE".equalsIgnoreCase(employee.getStatus()));
+            userRepository.save(employeeUser);
+        });
+        return mapper.toEmployeeResponse(employee);
+    }
+
+    @Transactional
+    public EmployeeResponse updateEmployeeStatus(AuthenticatedUser user, String employeeId, EmployeeStatusRequest request) {
+        requireAdmin(user);
+        EmployeeEntity employee = loadEmployee(user.vendorId(), employeeId);
+        String status = request.status().trim().toUpperCase(Locale.ROOT);
+        if (!List.of("ACTIVE", "INACTIVE").contains(status)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Employee status must be ACTIVE or INACTIVE.");
+        }
+        employee.setStatus(status);
+        employee = employeeRepository.save(employee);
+        userRepository.findByEmployee_Id(employee.getId()).ifPresent(employeeUser -> {
+            employeeUser.setActive("ACTIVE".equals(status));
+            userRepository.save(employeeUser);
+        });
+        return mapper.toEmployeeResponse(employee);
+    }
+
+    @Transactional
+    public void removeEmployee(AuthenticatedUser user, String employeeId) {
+        requireAdmin(user);
+        EmployeeEntity employee = loadEmployee(user.vendorId(), employeeId);
+        employee.setStatus("REMOVED");
+        employee.setEmail("removed-" + employee.getId() + "@archived.local");
+        employeeRepository.save(employee);
+        userRepository.findByEmployee_Id(employee.getId()).ifPresent(employeeUser -> {
+            employeeUser.setActive(false);
+            employeeUser.setEmail("removed-user-" + employee.getId() + "@archived.local");
+            userRepository.save(employeeUser);
+        });
     }
 
     @Transactional(readOnly = true)
@@ -160,6 +269,24 @@ public class AdminService {
         return new AdminTrackingResponse(true, trackingDate.toString(), List.copyOf(routeMap.values()));
     }
 
+    @Transactional(readOnly = true)
+    public PayrollSummaryResponse payroll(AuthenticatedUser user, String month) {
+        requireAdmin(user);
+        YearMonth targetMonth = parseMonth(month);
+        LocalDate startDate = targetMonth.atDay(1);
+        LocalDate endDate = targetMonth.atEndOfMonth();
+        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+        int daysCounted = targetMonth.equals(YearMonth.from(today))
+                ? Math.min(today.getDayOfMonth(), targetMonth.lengthOfMonth())
+                : targetMonth.lengthOfMonth();
+
+        List<PayrollSummaryResponse.EmployeePayrollRow> rows = employeeRepository.findByVendor_IdOrderByNameAsc(user.vendorId()).stream()
+                .filter(employee -> !"REMOVED".equalsIgnoreCase(employee.getStatus()))
+                .map(employee -> buildPayrollRow(employee, startDate, endDate, daysCounted))
+                .toList();
+        return new PayrollSummaryResponse(targetMonth.toString(), rows);
+    }
+
     private void requireAdmin(AuthenticatedUser user) {
         if (user.role() != UserRole.VENDOR_ADMIN && user.role() != UserRole.SUPER_ADMIN) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Admin access is required.");
@@ -176,5 +303,97 @@ public class AdminService {
         } catch (DateTimeParseException exception) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tracking date must use YYYY-MM-DD format.");
         }
+    }
+
+    private YearMonth parseMonth(String month) {
+        if (month == null || month.isBlank()) {
+            return YearMonth.now(ZoneOffset.UTC);
+        }
+
+        try {
+            return YearMonth.parse(month);
+        } catch (DateTimeParseException exception) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Payroll month must use YYYY-MM format.");
+        }
+    }
+
+    private BranchEntity loadBranch(UUID vendorId, String branchId) {
+        return branchRepository.findByIdAndVendor_Id(UUID.fromString(branchId), vendorId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Branch not found."));
+    }
+
+    private EmployeeEntity loadEmployee(UUID vendorId, String employeeId) {
+        return employeeRepository.findByIdAndVendor_Id(UUID.fromString(employeeId), vendorId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Employee not found."));
+    }
+
+    private void populateEmployee(
+            EmployeeEntity employee,
+            BranchEntity branch,
+            EmployeeUpsertRequest request,
+            String employeeCode,
+            String email
+    ) {
+        employee.setVendor(branch.getVendor());
+        employee.setBranch(branch);
+        employee.setEmployeeCode(employeeCode);
+        employee.setName(request.name().trim());
+        employee.setDesignation(request.designation().trim());
+        employee.setEmail(email);
+        employee.setPhone(request.phone().trim());
+        employee.setMonthlySalary(scaleMoney(request.monthlySalary()));
+        employee.setMonthlyLeaveAllowance(request.monthlyLeaveAllowance());
+        employee.setAdvancePaid(scaleMoney(request.advancePaid()));
+        if (employee.getStatus() == null || employee.getStatus().isBlank()) {
+            employee.setStatus("ACTIVE");
+        }
+    }
+
+    private PayrollSummaryResponse.EmployeePayrollRow buildPayrollRow(
+            EmployeeEntity employee,
+            LocalDate startDate,
+            LocalDate endDate,
+            int daysCounted
+    ) {
+        long workedDays = attendanceRecordRepository.countByEmployee_IdAndAttendanceDateBetween(employee.getId(), startDate, endDate);
+        int allowedLeaves = employee.getMonthlyLeaveAllowance() == null ? 0 : employee.getMonthlyLeaveAllowance();
+        int unpaidLeaveDays = Math.max(daysCounted - (int) workedDays - allowedLeaves, 0);
+        int payableDays = Math.max(daysCounted - unpaidLeaveDays, 0);
+        BigDecimal monthlySalary = safeMoney(employee.getMonthlySalary());
+        BigDecimal dailyRate = daysCounted == 0
+                ? BigDecimal.ZERO
+                : monthlySalary.divide(BigDecimal.valueOf(endDate.lengthOfMonth()), 2, RoundingMode.HALF_UP);
+        BigDecimal grossPayable = dailyRate.multiply(BigDecimal.valueOf(payableDays)).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal advancePaid = safeMoney(employee.getAdvancePaid());
+        BigDecimal netPayable = grossPayable.subtract(advancePaid).max(BigDecimal.ZERO).setScale(2, RoundingMode.HALF_UP);
+
+        return new PayrollSummaryResponse.EmployeePayrollRow(
+                employee.getId().toString(),
+                employee.getName(),
+                employee.getDesignation(),
+                employee.getStatus(),
+                moneyValue(monthlySalary),
+                daysCounted,
+                (int) workedDays,
+                allowedLeaves,
+                unpaidLeaveDays,
+                payableDays,
+                moneyValue(dailyRate),
+                moneyValue(grossPayable),
+                moneyValue(advancePaid),
+                moneyValue(netPayable)
+        );
+    }
+
+    private PayrollSummaryResponse.BigDecimalValue moneyValue(BigDecimal amount) {
+        return new PayrollSummaryResponse.BigDecimalValue(scaleMoney(amount).toPlainString());
+    }
+
+    private BigDecimal safeMoney(BigDecimal amount) {
+        return amount == null ? BigDecimal.ZERO : scaleMoney(amount);
+    }
+
+    private BigDecimal scaleMoney(BigDecimal amount) {
+        return amount.setScale(2, RoundingMode.HALF_UP);
     }
 }

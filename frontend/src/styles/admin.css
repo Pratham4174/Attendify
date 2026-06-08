@@ -1,0 +1,298 @@
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.desktop-table {
+  display: table;
+}
+
+.data-table th,
+.data-table td {
+  text-align: left;
+  padding: 14px 12px;
+  border-bottom: 1px solid rgba(20, 33, 61, 0.08);
+  vertical-align: top;
+}
+
+.data-table th {
+  color: #4f5d75;
+  font-size: 0.86rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.table-subtext {
+  color: #4f5d75;
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.table-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.compact-button {
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 0.88rem;
+}
+
+.danger-button {
+  color: #b42318;
+  background: rgba(180, 35, 24, 0.08);
+}
+
+.evidence-stack {
+  display: grid;
+  gap: 10px;
+  min-width: 120px;
+}
+
+.evidence-item {
+  display: grid;
+  gap: 6px;
+}
+
+.evidence-item span {
+  color: #4f5d75;
+  font-size: 0.8rem;
+}
+
+.evidence-thumbnail-stack {
+  grid-template-columns: repeat(2, minmax(56px, 72px));
+}
+
+.evidence-thumb-button {
+  border: none;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.evidence-thumb-button img {
+  width: 68px;
+  height: 68px;
+  min-height: 68px;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 1px solid rgba(20, 33, 61, 0.08);
+}
+
+.attendance-card-list {
+  display: none;
+  gap: 12px;
+}
+
+.attendance-card {
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(247, 249, 251, 0.94);
+  display: grid;
+  gap: 14px;
+}
+
+.attendance-card-header,
+.attendance-card-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.attendance-card-header {
+  grid-template-columns: 1fr auto;
+  align-items: start;
+}
+
+.attendance-card-grid {
+  grid-template-columns: 1fr 1fr;
+}
+
+.attendance-card-grid span {
+  color: #4f5d75;
+}
+
+.attendance-card-grid strong {
+  word-break: break-word;
+}
+
+.attendance-card-evidence {
+  display: grid;
+  gap: 10px;
+}
+
+.tracking-card-list,
+.tracking-point-list {
+  display: grid;
+  gap: 14px;
+}
+
+.tracking-card {
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(247, 249, 251, 0.94);
+  display: grid;
+  gap: 14px;
+}
+
+.tracking-card-header,
+.tracking-card-summary,
+.tracking-point {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.tracking-card-summary {
+  color: #4f5d75;
+}
+
+.tracking-point {
+  text-decoration: none;
+  color: inherit;
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid rgba(20, 33, 61, 0.08);
+}
+
+.tracking-point div {
+  display: grid;
+  gap: 4px;
+}
+
+.tracking-point span {
+  color: #4f5d75;
+}
+
+.tracking-point-order {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: #14213d;
+  color: #fff !important;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.date-filter {
+  display: grid;
+  gap: 8px;
+  min-width: 180px;
+}
+
+.date-filter input {
+  width: auto;
+  min-width: 180px;
+}
+
+.action-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.action-item {
+  font-weight: 600;
+}
+
+.payroll-summary-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 18px;
+}
+
+.employee-card-list,
+.payroll-card-list {
+  gap: 14px;
+}
+
+.card-action-row {
+  margin-top: 6px;
+}
+
+.image-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 33, 61, 0.58);
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  z-index: 20;
+}
+
+.image-modal-card {
+  width: min(92vw, 720px);
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 24px;
+  padding: 18px;
+  display: grid;
+  gap: 12px;
+  box-shadow: 0 24px 60px rgba(17, 24, 39, 0.18);
+}
+
+.image-modal-card img {
+  width: 100%;
+  max-height: 78vh;
+  object-fit: contain;
+  border-radius: 18px;
+  background: #eef2f4;
+}
+
+.image-modal-close {
+  justify-self: end;
+}
+
+@media (max-width: 1024px) {
+  .payroll-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .topbar,
+  .table-action-row,
+  .tracking-card-header,
+  .tracking-card-summary,
+  .tracking-point {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .data-table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .evidence-thumb-button img {
+    width: 60px;
+    height: 60px;
+    min-height: 60px;
+  }
+}
+
+@media (max-width: 560px) {
+  .desktop-table {
+    display: none;
+  }
+
+  .attendance-card-list {
+    display: grid;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 12px 10px;
+    font-size: 0.92rem;
+  }
+
+  .attendance-card-grid {
+    grid-template-columns: 1fr;
+  }
+}

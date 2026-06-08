@@ -273,6 +273,12 @@ select {
   gap: 24px;
 }
 
+.grid.three-column {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
 .compact-grid {
   gap: 14px;
 }
@@ -317,6 +323,11 @@ select {
 .employee-seed-list {
   display: grid;
   gap: 14px;
+}
+
+.admin-form-grid {
+  display: grid;
+  gap: 18px;
 }
 
 .step-card,
@@ -400,6 +411,29 @@ select {
   font-size: 0.86rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+}
+
+.table-subtext {
+  color: #4f5d75;
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.table-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.compact-button {
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 0.88rem;
+}
+
+.danger-button {
+  color: #b42318;
+  background: rgba(180, 35, 24, 0.08);
 }
 
 .evidence-stack {
@@ -509,6 +543,22 @@ select {
 .tracking-point-list {
   display: grid;
   gap: 14px;
+}
+
+.payroll-summary-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 18px;
+}
+
+.employee-card-list,
+.payroll-card-list {
+  gap: 14px;
+}
+
+.card-action-row {
+  margin-top: 6px;
 }
 
 .tracking-card {
@@ -793,9 +843,11 @@ select {
 @media (max-width: 1024px) {
   .login-layout,
   .grid.two-column,
+  .grid.three-column,
   .metric-grid,
   .camera-panel,
-  .hero-stat-strip {
+  .hero-stat-strip,
+  .payroll-summary-grid {
     grid-template-columns: 1fr;
   }
 
@@ -837,6 +889,7 @@ select {
   .stat-row,
   .action-row,
   .branch-item,
+  .table-action-row,
   .tracking-card-header,
   .tracking-card-summary,
   .tracking-point {

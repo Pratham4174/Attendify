@@ -12,6 +12,7 @@ import jakarta.persistence.Table;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
@@ -48,6 +49,15 @@ public class EmployeeEntity {
 
     @Column(nullable = false, length = 100)
     private String designation;
+
+    @Column(name = "monthly_salary", nullable = false, precision = 12, scale = 2)
+    private BigDecimal monthlySalary = BigDecimal.ZERO;
+
+    @Column(name = "monthly_leave_allowance", nullable = false)
+    private Integer monthlyLeaveAllowance = 0;
+
+    @Column(name = "advance_paid", nullable = false, precision = 12, scale = 2)
+    private BigDecimal advancePaid = BigDecimal.ZERO;
 
     public UUID getId() {
         return id;
@@ -115,5 +125,29 @@ public class EmployeeEntity {
 
     public void setDesignation(String designation) {
         this.designation = designation;
+    }
+
+    public BigDecimal getMonthlySalary() {
+        return monthlySalary;
+    }
+
+    public void setMonthlySalary(BigDecimal monthlySalary) {
+        this.monthlySalary = monthlySalary;
+    }
+
+    public Integer getMonthlyLeaveAllowance() {
+        return monthlyLeaveAllowance;
+    }
+
+    public void setMonthlyLeaveAllowance(Integer monthlyLeaveAllowance) {
+        this.monthlyLeaveAllowance = monthlyLeaveAllowance;
+    }
+
+    public BigDecimal getAdvancePaid() {
+        return advancePaid;
+    }
+
+    public void setAdvancePaid(BigDecimal advancePaid) {
+        this.advancePaid = advancePaid;
     }
 }

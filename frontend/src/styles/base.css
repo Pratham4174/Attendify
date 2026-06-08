@@ -1,0 +1,433 @@
+:root {
+  font-family: "Manrope", "Segoe UI", sans-serif;
+  color: #14213d;
+  background:
+    radial-gradient(circle at top left, rgba(255, 196, 61, 0.18), transparent 26%),
+    linear-gradient(135deg, #f8f5ee 0%, #eef4f7 52%, #f7f1df 100%);
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+.app-shell {
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.background-orb {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(26px);
+  opacity: 0.35;
+}
+
+.background-orb-one {
+  width: 280px;
+  height: 280px;
+  background: rgba(231, 111, 81, 0.14);
+  top: -120px;
+  right: -60px;
+}
+
+.background-orb-two {
+  width: 320px;
+  height: 320px;
+  background: rgba(42, 157, 143, 0.14);
+  left: -100px;
+  bottom: -120px;
+}
+
+.login-layout,
+.workspace {
+  position: relative;
+  z-index: 1;
+  padding: 32px;
+}
+
+.workspace {
+  display: block;
+}
+
+.login-layout {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 28px;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.login-card {
+  width: 100%;
+}
+
+.hero-panel,
+.login-card,
+.panel,
+.metric-card {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(20, 33, 61, 0.08);
+  backdrop-filter: blur(10px);
+  border-radius: 22px;
+  box-shadow: 0 18px 42px rgba(17, 24, 39, 0.06);
+}
+
+.hero-panel,
+.login-card,
+.panel {
+  padding: 28px;
+}
+
+.hero-panel p,
+.muted {
+  color: #4f5d75;
+}
+
+.field-hint {
+  color: #6b7280;
+  font-size: 0.88rem;
+}
+
+.section-intro {
+  margin: 0 0 16px;
+  max-width: 56ch;
+}
+
+.eyebrow {
+  display: inline-flex;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.75rem;
+  color: #0f766e;
+  font-weight: 800;
+}
+
+.login-card h2,
+.panel h3,
+.topbar h2 {
+  margin: 0 0 8px;
+}
+
+.login-card form,
+label {
+  display: grid;
+  gap: 8px;
+}
+
+.login-card form {
+  margin-top: 18px;
+  gap: 18px;
+}
+
+input,
+select {
+  width: 100%;
+  border: 1px solid rgba(20, 33, 61, 0.15);
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.primary-button,
+.secondary-button,
+.ghost-button {
+  border: none;
+  border-radius: 14px;
+  padding: 14px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 140ms ease, opacity 140ms ease;
+  white-space: normal;
+}
+
+.primary-button:hover,
+.secondary-button:hover,
+.ghost-button:hover {
+  transform: translateY(-1px);
+}
+
+.primary-button:disabled,
+.ghost-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.primary-button {
+  background: #f4a261;
+  color: #14213d;
+  box-shadow: inset 0 -1px 0 rgba(20, 33, 61, 0.12);
+}
+
+.secondary-button {
+  background: #d8f3dc;
+  color: #1b4332;
+}
+
+.ghost-button {
+  background: rgba(20, 33, 61, 0.06);
+  color: #14213d;
+}
+
+.topbar,
+.stat-row,
+.action-row,
+.branch-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.topbar,
+.metric-grid,
+.grid,
+.panel {
+  margin-bottom: 24px;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.metric-card {
+  padding: 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.metric-card span,
+.label {
+  color: #4f5d75;
+  font-size: 0.92rem;
+}
+
+.metric-card strong {
+  font-size: 1.7rem;
+}
+
+.grid.two-column {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.grid.three-column {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.compact-grid {
+  gap: 14px;
+}
+
+.stat-row {
+  margin-top: 18px;
+}
+
+.stat-row > div {
+  display: grid;
+  gap: 6px;
+  min-width: 180px;
+}
+
+.stat-row strong {
+  line-height: 1.2;
+}
+
+.branch-list {
+  display: grid;
+  gap: 14px;
+}
+
+.branch-item {
+  align-items: center;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(247, 249, 251, 0.92);
+}
+
+.branch-item span {
+  color: #4f5d75;
+}
+
+.pill {
+  background: #edf2f7;
+  color: #14213d;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.info-card,
+.empty-state,
+.action-item,
+.status-chip {
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(247, 249, 251, 0.94);
+}
+
+.info-card,
+.empty-state {
+  display: grid;
+  gap: 6px;
+}
+
+.center-message,
+.status-text,
+.error-text {
+  padding: 32px;
+}
+
+.status-text {
+  color: #0f766e;
+  font-weight: 700;
+}
+
+.error-text {
+  color: #b42318;
+  font-weight: 700;
+  padding: 0;
+}
+
+.required-mark {
+  color: #b42318;
+  font-weight: 800;
+}
+
+.empty-state {
+  color: #4f5d75;
+}
+
+.empty-state strong {
+  color: #14213d;
+}
+
+.loading-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.loading-skeleton {
+  height: 18px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(226, 232, 240, 0.95), rgba(255, 255, 255, 0.95), rgba(226, 232, 240, 0.95));
+  background-size: 220px 100%;
+  animation: shimmer 1.3s infinite linear;
+}
+
+@media (max-width: 1024px) {
+  .login-layout,
+  .grid.two-column,
+  .grid.three-column,
+  .metric-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .login-layout {
+    min-height: auto;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 720px) {
+  .login-layout,
+  .workspace {
+    padding: 18px;
+  }
+
+  .hero-panel,
+  .login-card,
+  .panel,
+  .metric-card {
+    border-radius: 20px;
+  }
+
+  .hero-panel,
+  .login-card,
+  .panel {
+    padding: 20px;
+  }
+
+  .topbar,
+  .stat-row,
+  .action-row,
+  .branch-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .metric-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .primary-button,
+  .secondary-button,
+  .ghost-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 560px) {
+  .login-layout,
+  .workspace {
+    padding: 14px;
+  }
+
+  .login-layout {
+    gap: 18px;
+  }
+
+  .hero-panel,
+  .login-card,
+  .panel {
+    padding: 16px;
+  }
+
+  .metric-grid {
+    grid-template-columns: 1fr;
+  }
+
+  input,
+  select {
+    padding: 13px 14px;
+  }
+
+  .status-text,
+  .error-text,
+  .center-message {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -220px 0;
+  }
+
+  100% {
+    background-position: 220px 0;
+  }
+}
