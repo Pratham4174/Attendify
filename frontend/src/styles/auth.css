@@ -21,7 +21,7 @@
   gap: 12px;
   padding: 16px;
   border-radius: 16px;
-  background: rgba(247, 249, 251, 0.92);
+  background: rgba(239, 246, 255, 0.92);
 }
 
 @media (max-width: 1024px) {

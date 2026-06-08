@@ -10,7 +10,7 @@
 .evidence-stack img {
   width: 100%;
   border-radius: 18px;
-  background: #dfe7ec;
+  background: #eaf2fb;
   min-height: 220px;
   object-fit: cover;
 }
@@ -23,7 +23,7 @@
 .step-card {
   padding: 16px;
   border-radius: 16px;
-  background: rgba(247, 249, 251, 0.92);
+  background: rgba(239, 246, 255, 0.92);
   display: grid;
   gap: 12px;
   grid-template-columns: auto 1fr;
@@ -39,12 +39,12 @@
 
 .step-card span,
 .tutorial-step span {
-  color: #4f5d75;
+  color: var(--text-soft);
 }
 
 .step-card.complete {
-  background: rgba(216, 243, 220, 0.9);
-  border: 1px solid rgba(27, 67, 50, 0.1);
+  background: rgba(219, 234, 254, 0.96);
+  border: 1px solid rgba(37, 99, 235, 0.14);
 }
 
 .step-index,
@@ -64,14 +64,14 @@
 
 .success-card {
   margin-top: 18px;
-  border: 1px solid rgba(15, 118, 110, 0.14);
-  background: rgba(223, 250, 245, 0.92);
+  border: 1px solid rgba(37, 99, 235, 0.16);
+  background: rgba(239, 246, 255, 0.96);
 }
 
 .summary-image {
   width: min(180px, 100%);
   border-radius: 16px;
-  border: 1px solid rgba(20, 33, 61, 0.08);
+  border: 1px solid rgba(37, 99, 235, 0.1);
 }
 
 .status-card-row {
@@ -86,13 +86,13 @@
 }
 
 .status-chip.success {
-  background: rgba(216, 243, 220, 0.92);
-  color: #1b4332;
+  background: rgba(219, 234, 254, 0.98);
+  color: var(--primary-strong);
 }
 
 .status-chip.warning {
-  background: rgba(254, 240, 199, 0.95);
-  color: #9a3412;
+  background: rgba(219, 234, 254, 0.98);
+  color: var(--primary-strong);
 }
 
 .attendance-action-row {
@@ -121,11 +121,11 @@
   width: 100%;
   min-height: 220px;
   border-radius: 18px;
-  background: linear-gradient(135deg, rgba(226, 232, 240, 0.9), rgba(243, 244, 246, 0.95));
+  background: linear-gradient(135deg, rgba(219, 234, 254, 0.92), rgba(239, 246, 255, 0.97));
   display: grid;
   place-items: center;
   padding: 18px;
-  color: #4f5d75;
+  color: var(--text-soft);
   text-align: center;
 }
 
@@ -136,7 +136,7 @@
   display: grid;
   place-items: center;
   padding: 18px;
-  background: rgba(20, 33, 61, 0.48);
+  background: rgba(22, 48, 85, 0.44);
   backdrop-filter: blur(6px);
 }
 
@@ -166,15 +166,15 @@
   gap: 14px;
   padding: 16px;
   border-radius: 18px;
-  background: rgba(247, 249, 251, 0.96);
+  background: rgba(239, 246, 255, 0.96);
   border: 1px solid transparent;
   transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
 }
 
 .tutorial-step.active {
-  background: rgba(254, 243, 199, 0.85);
-  border-color: rgba(244, 162, 97, 0.34);
-  box-shadow: 0 10px 24px rgba(244, 162, 97, 0.14);
+  background: rgba(219, 234, 254, 0.95);
+  border-color: rgba(37, 99, 235, 0.22);
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.14);
   transform: translateY(-1px);
 }
 

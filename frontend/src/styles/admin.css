@@ -16,14 +16,14 @@
 }
 
 .data-table th {
-  color: #4f5d75;
+  color: var(--text-soft);
   font-size: 0.86rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
 
 .table-subtext {
-  color: #4f5d75;
+  color: var(--text-soft);
   font-size: 0.85rem;
   margin-top: 4px;
 }
@@ -41,8 +41,8 @@
 }
 
 .danger-button {
-  color: #b42318;
-  background: rgba(180, 35, 24, 0.08);
+  color: var(--primary-strong);
+  background: rgba(37, 99, 235, 0.1);
 }
 
 .evidence-stack {
@@ -57,7 +57,7 @@
 }
 
 .evidence-item span {
-  color: #4f5d75;
+  color: var(--text-soft);
   font-size: 0.8rem;
 }
 
@@ -78,7 +78,7 @@
   min-height: 68px;
   object-fit: cover;
   border-radius: 14px;
-  border: 1px solid rgba(20, 33, 61, 0.08);
+  border: 1px solid rgba(37, 99, 235, 0.1);
 }
 
 .attendance-card-list {
@@ -89,7 +89,7 @@
 .attendance-card {
   padding: 16px;
   border-radius: 16px;
-  background: rgba(247, 249, 251, 0.94);
+  background: rgba(239, 246, 255, 0.94);
   display: grid;
   gap: 14px;
 }
@@ -110,7 +110,7 @@
 }
 
 .attendance-card-grid span {
-  color: #4f5d75;
+  color: var(--text-soft);
 }
 
 .attendance-card-grid strong {
@@ -131,7 +131,7 @@
 .tracking-card {
   padding: 16px;
   border-radius: 16px;
-  background: rgba(247, 249, 251, 0.94);
+  background: rgba(239, 246, 255, 0.94);
   display: grid;
   gap: 14px;
 }
@@ -147,7 +147,7 @@
 }
 
 .tracking-card-summary {
-  color: #4f5d75;
+  color: var(--text-soft);
 }
 
 .tracking-point {
@@ -155,8 +155,8 @@
   color: inherit;
   padding: 14px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.84);
-  border: 1px solid rgba(20, 33, 61, 0.08);
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(37, 99, 235, 0.1);
 }
 
 .tracking-point div {
@@ -165,7 +165,7 @@
 }
 
 .tracking-point span {
-  color: #4f5d75;
+  color: var(--text-soft);
 }
 
 .tracking-point-order {
@@ -220,7 +220,7 @@
 .image-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(20, 33, 61, 0.58);
+  background: rgba(22, 48, 85, 0.5);
   display: grid;
   place-items: center;
   padding: 18px;
@@ -242,7 +242,7 @@
   max-height: 78vh;
   object-fit: contain;
   border-radius: 18px;
-  background: #eef2f4;
+  background: #eef6ff;
 }
 
 .image-modal-close {
