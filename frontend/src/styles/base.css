@@ -160,6 +160,13 @@ select {
   color: var(--text-main);
 }
 
+input[type="date"],
+input[type="month"],
+input[type="time"] {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .profile-avatar {
   width: 52px;
   height: 52px;

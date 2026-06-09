@@ -252,11 +252,15 @@
   display: grid;
   gap: 8px;
   min-width: 180px;
+  width: min(100%, 260px);
 }
 
 .date-filter input {
-  width: auto;
-  min-width: 180px;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .payroll-period-filter {
