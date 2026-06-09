@@ -61,6 +61,15 @@ export function EmployeeScreen({
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
+  function stopCameraStream() {
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    setCameraReady(false);
+  }
+
   async function loadOverview() {
     try {
       setLoadError("");
@@ -88,7 +97,7 @@ export function EmployeeScreen({
 
   useEffect(() => {
     return () => {
-      streamRef.current?.getTracks().forEach((track) => track.stop());
+      stopCameraStream();
     };
   }, []);
 
@@ -209,7 +218,7 @@ export function EmployeeScreen({
       video: { facingMode: "user" },
       audio: false
     });
-    streamRef.current?.getTracks().forEach((track) => track.stop());
+    stopCameraStream();
     streamRef.current = stream;
     if (videoRef.current) {
       videoRef.current.srcObject = stream;
@@ -277,6 +286,7 @@ export function EmployeeScreen({
         distanceMeters: data.distanceMeters,
         image: selfie
       });
+      stopCameraStream();
       setSelfie("");
       await loadOverview();
     } catch (submitError) {
@@ -529,7 +539,32 @@ export function EmployeeScreen({
 
                 <div className="prep-card-grid">
                   <div className="prep-card">
-                    <button className="secondary-button prep-button" onClick={() => void requestLocation()} type="button">
+                    <span
+                      className={`gps-badge${
+                        insideGeofence === true
+                          ? " inside"
+                          : insideGeofence === false
+                            ? " outside"
+                            : ""
+                      }`}
+                    >
+                      {insideGeofence === null
+                        ? "Check branch distance"
+                        : insideGeofence
+                          ? "Inside branch area"
+                          : "Outside branch area"}
+                    </span>
+                    <button
+                      className={`prep-button gps-lock-button${
+                        insideGeofence === true
+                          ? " inside"
+                          : insideGeofence === false
+                            ? " outside"
+                            : ""
+                      }`}
+                      onClick={() => void requestLocation()}
+                      type="button"
+                    >
                       Lock GPS
                     </button>
                     <span className="prep-value">
