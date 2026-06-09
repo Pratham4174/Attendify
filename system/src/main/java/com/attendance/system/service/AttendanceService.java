@@ -40,6 +40,7 @@ public class AttendanceService {
     private final BranchRepository branchRepository;
     private final AttendanceMapper mapper;
     private final TrackingProperties trackingProperties;
+    private final AttendanceImageStorageService attendanceImageStorageService;
 
     public AttendanceService(
             AttendanceRecordRepository attendanceRecordRepository,
@@ -47,7 +48,8 @@ public class AttendanceService {
             EmployeeRepository employeeRepository,
             BranchRepository branchRepository,
             AttendanceMapper mapper,
-            TrackingProperties trackingProperties
+            TrackingProperties trackingProperties,
+            AttendanceImageStorageService attendanceImageStorageService
     ) {
         this.attendanceRecordRepository = attendanceRecordRepository;
         this.attendanceLocationLogRepository = attendanceLocationLogRepository;
@@ -55,6 +57,7 @@ public class AttendanceService {
         this.branchRepository = branchRepository;
         this.mapper = mapper;
         this.trackingProperties = trackingProperties;
+        this.attendanceImageStorageService = attendanceImageStorageService;
     }
 
     @Transactional
@@ -78,8 +81,8 @@ public class AttendanceService {
         record.setCheckInLatitude(scale(request.latitude()));
         record.setCheckInLongitude(scale(request.longitude()));
         record.setCheckInDistanceMeters(distanceMeters);
-        record.setCheckInPhotoRef(request.imageDataUrl());
         record.setStatus(AttendanceStatus.CHECKED_IN);
+        record.setCheckInPhotoRef(attendanceImageStorageService.storeCheckInImage(record, request.imageDataUrl()));
 
         AttendanceRecordEntity saved = attendanceRecordRepository.save(record);
         if (trackingProperties.enabled()) {
@@ -103,8 +106,8 @@ public class AttendanceService {
         record.setCheckOutLatitude(scale(request.latitude()));
         record.setCheckOutLongitude(scale(request.longitude()));
         record.setCheckOutDistanceMeters(distanceMeters);
-        record.setCheckOutPhotoRef(request.imageDataUrl());
         record.setStatus(AttendanceStatus.COMPLETED);
+        record.setCheckOutPhotoRef(attendanceImageStorageService.storeCheckOutImage(record, request.imageDataUrl()));
 
         AttendanceRecordEntity saved = attendanceRecordRepository.save(record);
         return new AttendanceActionResponse("Checked out successfully.", distanceMeters.doubleValue(), true, mapper.toAttendanceRow(saved));

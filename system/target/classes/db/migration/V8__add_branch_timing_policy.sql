@@ -1,0 +1,4 @@
+ALTER TABLE branches
+    ADD COLUMN shift_start_time TIME NOT NULL DEFAULT '09:00:00',
+    ADD COLUMN shift_end_time TIME NOT NULL DEFAULT '18:00:00',
+    ADD COLUMN grace_minutes INT NOT NULL DEFAULT 15;
