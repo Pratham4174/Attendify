@@ -275,166 +275,203 @@ export function EmployeeDirectory({
               </div>
             </div>
 
-            <div className="employee-detail-grid employee-detail-grid-compact">
-              <span>Employee code</span>
-              <strong>{selectedEmployee.employeeCode}</strong>
-              <span>Branch</span>
-              <strong>{selectedEmployee.branchName}</strong>
-              <span>Monthly salary</span>
-              <strong>{formatMoney(selectedEmployee.monthlySalary)}</strong>
-              <span>Allowed leaves</span>
-              <strong>{selectedEmployee.monthlyLeaveAllowance}</strong>
-              <span>Login</span>
-              <strong>{selectedEmployee.loginEnabled ? "Enabled" : "Disabled"}</strong>
-              <span>Email</span>
-              <strong>{selectedEmployee.email}</strong>
-              <span>Phone</span>
-              <strong>{selectedEmployee.phone}</strong>
-            </div>
-
-            <div className="employee-detail-sections">
-              <section className="employee-mini-panel">
-                <div className="employee-mini-panel-head">
-                  <strong>Attendance</strong>
-                  <span className="muted">Latest 5 records</span>
-                </div>
-                {recentAttendance.length ? (
-                  <div className="employee-mini-list">
-                    {recentAttendance.map((record) => (
-                      <div className="employee-mini-item" key={record.recordId}>
-                        <div>
-                          <strong>{record.date}</strong>
-                          <span>{record.branchName}</span>
-                        </div>
-                        <div>
-                          <strong>{record.status}</strong>
-                          <span>{formatAttendanceProgress(record)}</span>
-                        </div>
-                      </div>
-                    ))}
+            <div className="employee-collapsible-list">
+              <details className="employee-collapsible" open>
+                <summary className="employee-collapsible-summary">
+                  <div>
+                    <strong>Profile</strong>
+                    <span className="muted">Basic employee details and access status</span>
                   </div>
-                ) : (
-                  <span className="muted">No attendance records yet.</span>
-                )}
-              </section>
-
-              <section className="employee-mini-panel">
-                <div className="employee-mini-panel-head">
-                  <strong>Payments</strong>
-                  <span className="muted">This payroll month</span>
-                </div>
-                {monthAdvancePayments.length ? (
-                  <div className="employee-mini-list">
-                    {monthAdvancePayments.slice(0, 5).map((payment) => (
-                      <div className="employee-mini-item" key={payment.id}>
-                        <div>
-                          <strong>{payment.paymentDate}</strong>
-                          <span>{payment.note ?? "Advance payment"}</span>
-                        </div>
-                        <div>
-                          <strong>{formatMoney(payment.amount.value)}</strong>
-                        </div>
-                      </div>
-                    ))}
+                  <span className="employee-collapsible-icon">+</span>
+                </summary>
+                <div className="employee-collapsible-content">
+                  <div className="employee-detail-grid employee-detail-grid-compact">
+                    <span>Employee code</span>
+                    <strong>{selectedEmployee.employeeCode}</strong>
+                    <span>Branch</span>
+                    <strong>{selectedEmployee.branchName}</strong>
+                    <span>Monthly salary</span>
+                    <strong>{formatMoney(selectedEmployee.monthlySalary)}</strong>
+                    <span>Allowed leaves</span>
+                    <strong>{selectedEmployee.monthlyLeaveAllowance}</strong>
+                    <span>Login</span>
+                    <strong>{selectedEmployee.loginEnabled ? "Enabled" : "Disabled"}</strong>
+                    <span>Email</span>
+                    <strong>{selectedEmployee.email}</strong>
+                    <span>Phone</span>
+                    <strong>{selectedEmployee.phone}</strong>
                   </div>
-                ) : (
-                  <span className="muted">No payments recorded this month.</span>
-                )}
-              </section>
-
-              <section className="employee-mini-panel">
-                <div className="employee-mini-panel-head">
-                  <strong>Payroll snapshot</strong>
-                  <span className="muted">Current month</span>
                 </div>
-                {selectedPayroll ? (
-                  <div className="employee-mini-list employee-payroll-list">
-                    <div className="employee-mini-item">
-                      <div>
-                        <strong>Worked days</strong>
-                        <span>{selectedPayroll.workedDays} full + {selectedPayroll.halfDays} half</span>
+              </details>
+
+              <details className="employee-collapsible">
+                <summary className="employee-collapsible-summary">
+                  <div>
+                    <strong>Attendance</strong>
+                    <span className="muted">Latest 5 records</span>
+                  </div>
+                  <span className="employee-collapsible-icon">+</span>
+                </summary>
+                <div className="employee-collapsible-content">
+                  {recentAttendance.length ? (
+                    <div className="employee-mini-list">
+                      {recentAttendance.map((record) => (
+                        <div className="employee-mini-item" key={record.recordId}>
+                          <div>
+                            <strong>{record.date}</strong>
+                            <span>{record.branchName}</span>
+                          </div>
+                          <div>
+                            <strong>{record.status}</strong>
+                            <span>{formatAttendanceProgress(record)}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="muted">No attendance records yet.</span>
+                  )}
+                </div>
+              </details>
+
+              <details className="employee-collapsible">
+                <summary className="employee-collapsible-summary">
+                  <div>
+                    <strong>Payments</strong>
+                    <span className="muted">This payroll month</span>
+                  </div>
+                  <span className="employee-collapsible-icon">+</span>
+                </summary>
+                <div className="employee-collapsible-content">
+                  {monthAdvancePayments.length ? (
+                    <div className="employee-mini-list">
+                      {monthAdvancePayments.slice(0, 5).map((payment) => (
+                        <div className="employee-mini-item" key={payment.id}>
+                          <div>
+                            <strong>{payment.paymentDate}</strong>
+                            <span>{payment.note ?? "Advance payment"}</span>
+                          </div>
+                          <div>
+                            <strong>{formatMoney(payment.amount.value)}</strong>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="muted">No payments recorded this month.</span>
+                  )}
+                </div>
+              </details>
+
+              <details className="employee-collapsible">
+                <summary className="employee-collapsible-summary">
+                  <div>
+                    <strong>Payroll snapshot</strong>
+                    <span className="muted">Current month</span>
+                  </div>
+                  <span className="employee-collapsible-icon">+</span>
+                </summary>
+                <div className="employee-collapsible-content">
+                  {selectedPayroll ? (
+                    <div className="employee-mini-list employee-payroll-list">
+                      <div className="employee-mini-item">
+                        <div>
+                          <strong>Worked days</strong>
+                          <span>{selectedPayroll.workedDays} full + {selectedPayroll.halfDays} half</span>
+                        </div>
+                        <div>
+                          <strong>{selectedPayroll.payableDays.value}</strong>
+                          <span>payable days</span>
+                        </div>
                       </div>
-                      <div>
-                        <strong>{selectedPayroll.payableDays.value}</strong>
-                        <span>payable days</span>
+                      <div className="employee-mini-item">
+                        <div>
+                          <strong>Leave breakup</strong>
+                          <span>{selectedPayroll.paidLeaveDays} paid · {selectedPayroll.unpaidLeaveDays} unpaid</span>
+                        </div>
+                        <div>
+                          <strong>{selectedPayroll.allowedLeaves}</strong>
+                          <span>allowed</span>
+                        </div>
+                      </div>
+                      <div className="employee-mini-item">
+                        <div>
+                          <strong>Advance deduction</strong>
+                          <span>Opening + month advances</span>
+                        </div>
+                        <div>
+                          <strong>{formatMoney(selectedPayroll.totalAdvanceDeducted.value)}</strong>
+                        </div>
                       </div>
                     </div>
-                    <div className="employee-mini-item">
-                      <div>
-                        <strong>Leave breakup</strong>
-                        <span>{selectedPayroll.paidLeaveDays} paid · {selectedPayroll.unpaidLeaveDays} unpaid</span>
-                      </div>
-                      <div>
-                        <strong>{selectedPayroll.allowedLeaves}</strong>
-                        <span>allowed</span>
-                      </div>
-                    </div>
-                    <div className="employee-mini-item">
-                      <div>
-                        <strong>Advance deduction</strong>
-                        <span>Opening + month advances</span>
-                      </div>
-                      <div>
-                        <strong>{formatMoney(selectedPayroll.totalAdvanceDeducted.value)}</strong>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <span className="muted">Payroll details will appear after the month is calculated.</span>
-                )}
-              </section>
-            </div>
+                  ) : (
+                    <span className="muted">Payroll details will appear after the month is calculated.</span>
+                  )}
+                </div>
+              </details>
 
-            <div className="employee-detail-actions">
-              <button className="ghost-button compact-button" onClick={() => onEditEmployee(selectedEmployee)} type="button">
-                Edit
-              </button>
-              <button
-                className="ghost-button compact-button"
-                onClick={() => void updateEmployeeStatus(selectedEmployee.id, selectedEmployee.status === "ACTIVE" ? "INACTIVE" : "ACTIVE")}
-                type="button"
-                disabled={working}
-              >
-                {selectedEmployee.status === "ACTIVE" ? "Make inactive" : "Make active"}
-              </button>
-              <button
-                className="ghost-button compact-button"
-                onClick={() => void updateLoginStatus(selectedEmployee.id, !selectedEmployee.loginEnabled)}
-                type="button"
-                disabled={working}
-              >
-                {selectedEmployee.loginEnabled ? "Disable login" : "Enable login"}
-              </button>
-              <button
-                className="ghost-button compact-button"
-                onClick={() => {
-                  setTransferTargetId(selectedEmployee.id);
-                  setTransferBranchId(selectedEmployee.branchId);
-                  setPasswordTargetId(null);
-                }}
-                type="button"
-              >
-                Transfer
-              </button>
-              <button
-                className="ghost-button compact-button"
-                onClick={() => {
-                  setPasswordTargetId(selectedEmployee.id);
-                  setNewPassword("");
-                  setTransferTargetId(null);
-                }}
-                type="button"
-              >
-                Reset password
-              </button>
-              <button
-                className="ghost-button compact-button danger-button"
-                onClick={() => void removeEmployee(selectedEmployee.id, selectedEmployee.name)}
-                type="button"
-                disabled={working}
-              >
-                Remove
-              </button>
+              <details className="employee-collapsible">
+                <summary className="employee-collapsible-summary">
+                  <div>
+                    <strong>Actions</strong>
+                    <span className="muted">Edit employee, access, transfer, and removal</span>
+                  </div>
+                  <span className="employee-collapsible-icon">+</span>
+                </summary>
+                <div className="employee-collapsible-content">
+                  <div className="employee-detail-actions">
+                    <button className="ghost-button compact-button" onClick={() => onEditEmployee(selectedEmployee)} type="button">
+                      Edit
+                    </button>
+                    <button
+                      className="ghost-button compact-button"
+                      onClick={() => void updateEmployeeStatus(selectedEmployee.id, selectedEmployee.status === "ACTIVE" ? "INACTIVE" : "ACTIVE")}
+                      type="button"
+                      disabled={working}
+                    >
+                      {selectedEmployee.status === "ACTIVE" ? "Make inactive" : "Make active"}
+                    </button>
+                    <button
+                      className="ghost-button compact-button"
+                      onClick={() => void updateLoginStatus(selectedEmployee.id, !selectedEmployee.loginEnabled)}
+                      type="button"
+                      disabled={working}
+                    >
+                      {selectedEmployee.loginEnabled ? "Disable login" : "Enable login"}
+                    </button>
+                    <button
+                      className="ghost-button compact-button"
+                      onClick={() => {
+                        setTransferTargetId(selectedEmployee.id);
+                        setTransferBranchId(selectedEmployee.branchId);
+                        setPasswordTargetId(null);
+                      }}
+                      type="button"
+                    >
+                      Transfer
+                    </button>
+                    <button
+                      className="ghost-button compact-button"
+                      onClick={() => {
+                        setPasswordTargetId(selectedEmployee.id);
+                        setNewPassword("");
+                        setTransferTargetId(null);
+                      }}
+                      type="button"
+                    >
+                      Reset password
+                    </button>
+                    <button
+                      className="ghost-button compact-button danger-button"
+                      onClick={() => void removeEmployee(selectedEmployee.id, selectedEmployee.name)}
+                      type="button"
+                      disabled={working}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              </details>
             </div>
           </div>
         ) : null}
