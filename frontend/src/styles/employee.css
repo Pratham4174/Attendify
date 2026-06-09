@@ -365,6 +365,21 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.leave-form-grid .grid,
+.leave-form-grid label {
+  min-width: 0;
+}
+
+.leave-form-grid input[type="date"],
+.leave-form-grid input[type="month"],
+.leave-form-grid input[type="time"],
+.leave-form-grid select,
+.leave-form-grid input {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
 .tutorial-modal h3 {
   margin: 0;
 }
@@ -445,6 +460,11 @@
 }
 
 @media (max-width: 720px) {
+  .leave-form-grid .grid.two-column,
+  .leave-form-grid .grid.three-column {
+    grid-template-columns: 1fr;
+  }
+
   .employee-header-actions {
     width: 100%;
   }
