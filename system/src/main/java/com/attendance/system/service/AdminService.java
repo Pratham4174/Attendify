@@ -13,12 +13,18 @@ import com.attendance.system.model.AttendanceLocationLogEntity;
 import com.attendance.system.model.AttendanceRecordEntity;
 import com.attendance.system.model.BranchEntity;
 import com.attendance.system.model.EmployeeEntity;
+import com.attendance.system.model.HolidayEntity;
+import com.attendance.system.model.LeaveRequestEntity;
+import com.attendance.system.model.LeaveStatus;
+import com.attendance.system.model.LeaveType;
 import com.attendance.system.model.UserEntity;
 import com.attendance.system.model.UserRole;
 import com.attendance.system.repository.AttendanceLocationLogRepository;
 import com.attendance.system.repository.AttendanceRecordRepository;
 import com.attendance.system.repository.BranchRepository;
 import com.attendance.system.repository.EmployeeRepository;
+import com.attendance.system.repository.HolidayRepository;
+import com.attendance.system.repository.LeaveRequestRepository;
 import com.attendance.system.repository.UserRepository;
 import com.attendance.system.security.AuthenticatedUser;
 import org.springframework.dao.DataAccessException;
@@ -35,10 +41,12 @@ import java.time.ZoneOffset;
 import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -48,6 +56,8 @@ public class AdminService {
     private final AttendanceRecordRepository attendanceRecordRepository;
     private final AttendanceLocationLogRepository attendanceLocationLogRepository;
     private final UserRepository userRepository;
+    private final LeaveRequestRepository leaveRequestRepository;
+    private final HolidayRepository holidayRepository;
     private final AttendanceMapper mapper;
     private final TrackingProperties trackingProperties;
     private final PasswordEncoder passwordEncoder;
@@ -58,6 +68,8 @@ public class AdminService {
             AttendanceRecordRepository attendanceRecordRepository,
             AttendanceLocationLogRepository attendanceLocationLogRepository,
             UserRepository userRepository,
+            LeaveRequestRepository leaveRequestRepository,
+            HolidayRepository holidayRepository,
             AttendanceMapper mapper,
             TrackingProperties trackingProperties,
             PasswordEncoder passwordEncoder
@@ -67,6 +79,8 @@ public class AdminService {
         this.attendanceRecordRepository = attendanceRecordRepository;
         this.attendanceLocationLogRepository = attendanceLocationLogRepository;
         this.userRepository = userRepository;
+        this.leaveRequestRepository = leaveRequestRepository;
+        this.holidayRepository = holidayRepository;
         this.mapper = mapper;
         this.trackingProperties = trackingProperties;
         this.passwordEncoder = passwordEncoder;
@@ -365,14 +379,86 @@ public class AdminService {
             LocalDate endDate,
             int daysCounted
     ) {
-        long workedDays = daysCounted == 0
-                ? 0
-                : attendanceRecordRepository.countByEmployee_IdAndAttendanceDateBetween(employee.getId(), startDate, completedThrough);
+        if (daysCounted == 0 || completedThrough.isBefore(startDate)) {
+            BigDecimal monthlySalary = safeMoney(employee.getMonthlySalary());
+            BigDecimal advancePaid = safeMoney(employee.getAdvancePaid());
+            return new PayrollSummaryResponse.EmployeePayrollRow(
+                    employee.getId().toString(),
+                    employee.getName(),
+                    employee.getDesignation(),
+                    employee.getStatus(),
+                    moneyValue(monthlySalary),
+                    0,
+                    0,
+                    employee.getMonthlyLeaveAllowance() == null ? 0 : employee.getMonthlyLeaveAllowance(),
+                    0,
+                    0,
+                    0,
+                    moneyValue(BigDecimal.ZERO),
+                    moneyValue(BigDecimal.ZERO),
+                    moneyValue(advancePaid),
+                    moneyValue(BigDecimal.ZERO)
+            );
+        }
+
+        Set<LocalDate> workedDates = attendanceRecordRepository
+                .findByEmployee_IdAndAttendanceDateBetweenOrderByAttendanceDateAsc(employee.getId(), startDate, completedThrough)
+                .stream()
+                .map(AttendanceRecordEntity::getAttendanceDate)
+                .collect(java.util.stream.Collectors.toCollection(HashSet::new));
+
+        Set<LocalDate> holidayDates = holidayRepository
+                .findByVendor_IdAndHolidayDateBetweenOrderByHolidayDateAsc(employee.getVendor().getId(), startDate, completedThrough)
+                .stream()
+                .map(HolidayEntity::getHolidayDate)
+                .collect(java.util.stream.Collectors.toCollection(HashSet::new));
+
+        List<LeaveRequestEntity> approvedLeaves = leaveRequestRepository
+                .findByEmployee_IdAndStatusAndEndDateGreaterThanEqualAndStartDateLessThanEqual(
+                        employee.getId(),
+                        LeaveStatus.APPROVED,
+                        startDate,
+                        completedThrough
+                );
+
+        Set<LocalDate> requestedPaidLeaveDates = new HashSet<>();
+        Set<LocalDate> requestedUnpaidLeaveDates = new HashSet<>();
+        for (LeaveRequestEntity leaveRequest : approvedLeaves) {
+            Set<LocalDate> targetSet = leaveRequest.getLeaveType() == LeaveType.PAID
+                    ? requestedPaidLeaveDates
+                    : requestedUnpaidLeaveDates;
+            expandDates(leaveRequest.getStartDate(), leaveRequest.getEndDate(), startDate, completedThrough).stream()
+                    .filter(date -> !holidayDates.contains(date) && !workedDates.contains(date))
+                    .forEach(targetSet::add);
+        }
+
+        int workedDays = 0;
+        int holidayDays = 0;
+        int requestedPaidLeaveDays = 0;
+        int requestedUnpaidLeaveDays = 0;
+        int absenceDays = 0;
+        for (LocalDate date = startDate; !date.isAfter(completedThrough); date = date.plusDays(1)) {
+            if (holidayDates.contains(date)) {
+                holidayDays++;
+            } else if (workedDates.contains(date)) {
+                workedDays++;
+            } else if (requestedPaidLeaveDates.contains(date)) {
+                requestedPaidLeaveDays++;
+            } else if (requestedUnpaidLeaveDates.contains(date)) {
+                requestedUnpaidLeaveDays++;
+            } else {
+                absenceDays++;
+            }
+        }
+
         int allowedLeaves = employee.getMonthlyLeaveAllowance() == null ? 0 : employee.getMonthlyLeaveAllowance();
-        int absencesOnCompletedDays = Math.max(daysCounted - (int) workedDays, 0);
-        int paidLeaveDays = Math.min(absencesOnCompletedDays, allowedLeaves);
-        int unpaidLeaveDays = Math.max(absencesOnCompletedDays - paidLeaveDays, 0);
-        int payableDays = (int) workedDays + paidLeaveDays;
+        int approvedPaidLeavesCounted = Math.min(requestedPaidLeaveDays, allowedLeaves);
+        int overflowApprovedPaidLeaves = Math.max(requestedPaidLeaveDays - approvedPaidLeavesCounted, 0);
+        int remainingAllowance = Math.max(allowedLeaves - approvedPaidLeavesCounted, 0);
+        int autoPaidAbsenceDays = Math.min(absenceDays, remainingAllowance);
+        int paidLeaveDays = approvedPaidLeavesCounted + autoPaidAbsenceDays;
+        int unpaidLeaveDays = requestedUnpaidLeaveDays + overflowApprovedPaidLeaves + Math.max(absenceDays - autoPaidAbsenceDays, 0);
+        int payableDays = workedDays + holidayDays + paidLeaveDays;
         BigDecimal monthlySalary = safeMoney(employee.getMonthlySalary());
         BigDecimal dailyRate = daysCounted == 0
                 ? BigDecimal.ZERO
@@ -388,7 +474,7 @@ public class AdminService {
                 employee.getStatus(),
                 moneyValue(monthlySalary),
                 daysCounted,
-                (int) workedDays,
+                workedDays,
                 allowedLeaves,
                 paidLeaveDays,
                 unpaidLeaveDays,
@@ -410,5 +496,15 @@ public class AdminService {
 
     private BigDecimal scaleMoney(BigDecimal amount) {
         return amount.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private Set<LocalDate> expandDates(LocalDate startDate, LocalDate endDate, LocalDate clampStart, LocalDate clampEnd) {
+        LocalDate effectiveStart = startDate.isAfter(clampStart) ? startDate : clampStart;
+        LocalDate effectiveEnd = endDate.isBefore(clampEnd) ? endDate : clampEnd;
+        if (effectiveEnd.isBefore(effectiveStart)) {
+            return Set.of();
+        }
+        return effectiveStart.datesUntil(effectiveEnd.plusDays(1))
+                .collect(java.util.stream.Collectors.toCollection(HashSet::new));
     }
 }

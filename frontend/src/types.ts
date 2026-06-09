@@ -62,6 +62,38 @@ export type EmployeeOverview = {
   };
 };
 
+export type LeaveRequest = {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  branchName: string;
+  leaveType: "PAID" | "UNPAID";
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  startDate: string;
+  endDate: string;
+  totalDays: number;
+  reason: string;
+  reviewNote: string | null;
+  requestedAt: string;
+  reviewedAt: string | null;
+};
+
+export type Holiday = {
+  id: string;
+  name: string;
+  holidayDate: string;
+};
+
+export type EmployeeLeaveWorkspace = {
+  balance: {
+    monthlyAllowance: number;
+    approvedPaidLeaves: number;
+    remainingPaidLeaves: number;
+  };
+  requests: LeaveRequest[];
+  holidays: Holiday[];
+};
+
 export type Dashboard = {
   cards: {
     totalEmployees: number;

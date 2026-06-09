@@ -7,10 +7,11 @@ import {
   getDistanceMeters
 } from "../lib/format";
 import { AttendanceTable } from "../components/AttendanceTable";
+import { HolidayList, LeaveRequestTable } from "../components/LeaveManagement";
 import { LoadingWorkspace, MetricCard } from "../components/shared";
-import type { EmployeeOverview, Session } from "../types";
+import type { EmployeeLeaveWorkspace, EmployeeOverview, Session } from "../types";
 
-type EmployeeTab = "mark" | "today" | "history" | "help";
+type EmployeeTab = "mark" | "today" | "history" | "leaves" | "help";
 
 export function EmployeeScreen({
   session,
@@ -21,6 +22,7 @@ export function EmployeeScreen({
 }) {
   const [overview, setOverview] = useState<EmployeeOverview | null>(null);
   const [loadError, setLoadError] = useState("");
+  const [leaveWorkspace, setLeaveWorkspace] = useState<EmployeeLeaveWorkspace | null>(null);
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [selfie, setSelfie] = useState<string>("");
   const [status, setStatus] = useState("");
@@ -31,6 +33,14 @@ export function EmployeeScreen({
   const [trackingMessage, setTrackingMessage] = useState("");
   const [activeTab, setActiveTab] = useState<EmployeeTab>("mark");
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [leaveStatus, setLeaveStatus] = useState("");
+  const [leaveSaving, setLeaveSaving] = useState(false);
+  const [leaveForm, setLeaveForm] = useState({
+    leaveType: "PAID",
+    startDate: "",
+    endDate: "",
+    reason: ""
+  });
   const [attendanceSummary, setAttendanceSummary] = useState<{
     mode: "check-in" | "check-out";
     branchName: string;
@@ -44,8 +54,12 @@ export function EmployeeScreen({
   async function loadOverview() {
     try {
       setLoadError("");
-      const data = await apiFetch<EmployeeOverview>(session, "/employee/overview");
-      setOverview(data);
+      const [overviewData, leaveData] = await Promise.all([
+        apiFetch<EmployeeOverview>(session, "/employee/overview"),
+        apiFetch<EmployeeLeaveWorkspace>(session, "/employee/leaves")
+      ]);
+      setOverview(overviewData);
+      setLeaveWorkspace(leaveData);
     } catch (error) {
       if (error instanceof ApiRequestError && (error.status === 401 || error.status === 403)) {
         onLogout();
@@ -262,6 +276,35 @@ export function EmployeeScreen({
     }
   }
 
+  function updateLeaveForm(key: "leaveType" | "startDate" | "endDate" | "reason", value: string) {
+    setLeaveForm((current) => ({ ...current, [key]: value }));
+  }
+
+  async function submitLeaveRequest(event: React.FormEvent) {
+    event.preventDefault();
+    setLeaveSaving(true);
+    setLeaveStatus("");
+    try {
+      await apiFetch(session, "/employee/leaves", {
+        method: "POST",
+        body: JSON.stringify(leaveForm)
+      });
+      setLeaveStatus("Leave request submitted successfully.");
+      setLeaveForm({
+        leaveType: "PAID",
+        startDate: "",
+        endDate: "",
+        reason: ""
+      });
+      await loadOverview();
+      setActiveTab("leaves");
+    } catch (error) {
+      setLeaveStatus(error instanceof Error ? error.message : "Unable to submit leave request.");
+    } finally {
+      setLeaveSaving(false);
+    }
+  }
+
   if (!overview) {
     if (loadError) {
       return (
@@ -314,6 +357,7 @@ export function EmployeeScreen({
     { id: "mark", label: "Mark attendance" },
     { id: "today", label: "Today's status" },
     { id: "history", label: "Attendance history" },
+    { id: "leaves", label: "Leaves" },
     { id: "help", label: "How it works" }
   ];
   const employeeSteps = [
@@ -624,6 +668,78 @@ export function EmployeeScreen({
                 ))}
               </div>
             </section>
+          ) : null}
+
+          {activeTab === "leaves" ? (
+            <>
+              <section className="grid two-column">
+                <article className="panel">
+                  <h3>Apply for leave</h3>
+                  <p className="muted section-intro">Choose paid or unpaid leave, select your dates, and send it for approval.</p>
+                  <form className="leave-form-grid" onSubmit={submitLeaveRequest}>
+                    <div className="grid two-column compact-grid">
+                      <label>
+                        Leave type
+                        <select value={leaveForm.leaveType} onChange={(event) => updateLeaveForm("leaveType", event.target.value)}>
+                          <option value="PAID">Paid leave</option>
+                          <option value="UNPAID">Unpaid leave</option>
+                        </select>
+                      </label>
+                      <label>
+                        Start date
+                        <input required type="date" value={leaveForm.startDate} onChange={(event) => updateLeaveForm("startDate", event.target.value)} />
+                      </label>
+                    </div>
+                    <div className="grid two-column compact-grid">
+                      <label>
+                        End date
+                        <input required type="date" value={leaveForm.endDate} onChange={(event) => updateLeaveForm("endDate", event.target.value)} />
+                      </label>
+                      <label>
+                        Reason
+                        <input required value={leaveForm.reason} onChange={(event) => updateLeaveForm("reason", event.target.value)} placeholder="Medical, personal work, travel..." />
+                      </label>
+                    </div>
+                    <div className="action-row">
+                      <button className="primary-button" disabled={leaveSaving} type="submit">
+                        {leaveSaving ? "Sending..." : "Apply leave"}
+                      </button>
+                    </div>
+                    {leaveStatus ? (
+                      <p className={leaveStatus.includes("successfully") ? "status-text" : "error-text"}>{leaveStatus}</p>
+                    ) : null}
+                  </form>
+                </article>
+
+                <article className="panel">
+                  <h3>Leave balance</h3>
+                  <p className="muted section-intro">Your monthly paid leave allowance updates here after approvals.</p>
+                  {leaveWorkspace ? (
+                    <div className="leave-balance-grid">
+                      <MetricCard label="Allowed / month" value={leaveWorkspace.balance.monthlyAllowance} />
+                      <MetricCard label="Approved paid leaves" value={leaveWorkspace.balance.approvedPaidLeaves} />
+                      <MetricCard label="Remaining paid leaves" value={leaveWorkspace.balance.remainingPaidLeaves} />
+                    </div>
+                  ) : null}
+                </article>
+              </section>
+
+              <section className="panel">
+                <h3>My leave requests</h3>
+                <p className="muted section-intro">Track whether your requests are pending, approved, or rejected.</p>
+                <LeaveRequestTable
+                  requests={leaveWorkspace?.requests ?? []}
+                  emptyTitle="No leave requests yet"
+                  emptyMessage="Your leave requests will appear here after you submit one."
+                />
+              </section>
+
+              <section className="panel">
+                <h3>Holiday calendar</h3>
+                <p className="muted section-intro">See the dates your property has marked as holidays.</p>
+                <HolidayList holidays={leaveWorkspace?.holidays ?? []} />
+              </section>
+            </>
           ) : null}
         </section>
       </div>

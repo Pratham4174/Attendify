@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { AttendancePayrollTable, AttendanceTable, TrackingLink } from "../components/AttendanceTable";
+import { HolidayList, LeaveRequestTable } from "../components/LeaveManagement";
 import { ActionList, EmptyState, LoadingWorkspace, MetricCard } from "../components/shared";
 import { apiFetch, apiFetchVoid, ApiRequestError } from "../lib/api";
 import {
@@ -18,6 +19,8 @@ import type {
   Branch,
   Dashboard,
   Employee,
+  Holiday,
+  LeaveRequest,
   PayrollSummary,
   Session
 } from "../types";
@@ -38,6 +41,7 @@ type AdminTab =
   | "overview"
   | "add-employee"
   | "employees"
+  | "leave"
   | "payroll"
   | "attendance"
   | "tracking"
@@ -57,6 +61,8 @@ export function AdminScreen({
   const [attendance, setAttendance] = useState<AttendanceRow[]>([]);
   const [tracking, setTracking] = useState<AdminTracking | null>(null);
   const [trackingDate, setTrackingDate] = useState(() => formatLocalDateKey(new Date()));
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
+  const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [previewImage, setPreviewImage] = useState<AttendancePreview | null>(null);
   const [editingEmployeeId, setEditingEmployeeId] = useState<string | null>(null);
   const [employeeFormStatus, setEmployeeFormStatus] = useState("");
@@ -65,6 +71,12 @@ export function AdminScreen({
   const [payroll, setPayroll] = useState<PayrollSummary | null>(null);
   const [activeTab, setActiveTab] = useState<AdminTab>("overview");
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [leaveStatusMessage, setLeaveStatusMessage] = useState("");
+  const [holidaySaving, setHolidaySaving] = useState(false);
+  const [holidayForm, setHolidayForm] = useState({
+    name: "",
+    holidayDate: ""
+  });
   const [employeeForm, setEmployeeForm] = useState<EmployeeFormState>({
     employeeCode: "",
     name: "",
@@ -81,6 +93,7 @@ export function AdminScreen({
     { id: "overview", label: "Overview" },
     { id: "add-employee", label: "Add employee" },
     { id: "employees", label: "View employees" },
+    { id: "leave", label: "Leave management" },
     { id: "payroll", label: "Payroll" },
     { id: "attendance", label: "Attendance" },
     { id: "tracking", label: "Tracking" },
@@ -106,13 +119,15 @@ export function AdminScreen({
   async function loadAdminData() {
     try {
       setLoadError("");
-      const [dashboardData, employeeData, branchData, attendanceData, trackingData, payrollData] = await Promise.all([
+      const [dashboardData, employeeData, branchData, attendanceData, trackingData, payrollData, leaveData, holidayData] = await Promise.all([
         apiFetch<Dashboard>(session, "/admin/dashboard"),
         apiFetch<Employee[]>(session, "/admin/employees"),
         apiFetch<Branch[]>(session, "/admin/branches"),
         apiFetch<AttendanceRow[]>(session, "/admin/attendance"),
         apiFetch<AdminTracking>(session, `/admin/tracking?date=${trackingDate}`),
-        apiFetch<PayrollSummary>(session, `/admin/payroll?month=${payrollMonth}`)
+        apiFetch<PayrollSummary>(session, `/admin/payroll?month=${payrollMonth}`),
+        apiFetch<LeaveRequest[]>(session, "/admin/leaves"),
+        apiFetch<Holiday[]>(session, "/admin/holidays")
       ]);
 
       setDashboard(dashboardData);
@@ -121,6 +136,8 @@ export function AdminScreen({
       setAttendance(attendanceData);
       setTracking(trackingData);
       setPayroll(payrollData);
+      setLeaveRequests(leaveData);
+      setHolidays(holidayData);
       setEmployeeForm((current) =>
         current.branchId || !branchData.length
           ? current
@@ -142,6 +159,10 @@ export function AdminScreen({
 
   function updateEmployeeForm(key: keyof EmployeeFormState, value: string) {
     setEmployeeForm((current) => ({ ...current, [key]: value }));
+  }
+
+  function updateHolidayForm(key: "name" | "holidayDate", value: string) {
+    setHolidayForm((current) => ({ ...current, [key]: value }));
   }
 
   function startEditingEmployee(employee: Employee) {
@@ -230,6 +251,58 @@ export function AdminScreen({
       setEmployeeFormStatus(
         error instanceof Error ? error.message : "Unable to remove employee."
       );
+    }
+  }
+
+  async function decideLeave(leaveId: string, status: "APPROVED" | "REJECTED") {
+    setLeaveStatusMessage("");
+    try {
+      await apiFetch<LeaveRequest>(session, `/admin/leaves/${leaveId}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          status,
+          reviewNote: status === "APPROVED" ? "Approved by owner." : "Rejected by owner."
+        })
+      });
+      setLeaveStatusMessage(`Leave request ${status.toLowerCase()} successfully.`);
+      await loadAdminData();
+    } catch (error) {
+      setLeaveStatusMessage(error instanceof Error ? error.message : "Unable to update leave request.");
+    }
+  }
+
+  async function createHoliday(event: React.FormEvent) {
+    event.preventDefault();
+    setHolidaySaving(true);
+    setLeaveStatusMessage("");
+    try {
+      await apiFetch<Holiday>(session, "/admin/holidays", {
+        method: "POST",
+        body: JSON.stringify(holidayForm)
+      });
+      setHolidayForm({ name: "", holidayDate: "" });
+      setLeaveStatusMessage("Holiday added successfully.");
+      await loadAdminData();
+    } catch (error) {
+      setLeaveStatusMessage(error instanceof Error ? error.message : "Unable to add holiday.");
+    } finally {
+      setHolidaySaving(false);
+    }
+  }
+
+  async function removeHoliday(holiday: Holiday) {
+    if (!window.confirm(`Remove ${holiday.name} from the holiday calendar?`)) {
+      return;
+    }
+    setLeaveStatusMessage("");
+    try {
+      await apiFetchVoid(session, `/admin/holidays/${holiday.id}`, {
+        method: "DELETE"
+      });
+      setLeaveStatusMessage("Holiday removed successfully.");
+      await loadAdminData();
+    } catch (error) {
+      setLeaveStatusMessage(error instanceof Error ? error.message : "Unable to remove holiday.");
     }
   }
 
@@ -613,6 +686,64 @@ export function AdminScreen({
                   <EmptyState title="No salary records yet" message="Add salary details to employees and this section will show daily rate, gross, advance, and net payable." />
                 )}
               </section>
+            </>
+          ) : null}
+
+          {activeTab === "leave" ? (
+            <>
+              <section className="grid two-column">
+                <article className="panel">
+                  <h3>Leave requests</h3>
+                  <p className="muted section-intro">Approve or reject employee leave requests from one place.</p>
+                  <LeaveRequestTable
+                    requests={leaveRequests}
+                    showEmployee
+                    emptyTitle="No leave requests yet"
+                    emptyMessage="Leave requests from employees will appear here."
+                    renderActions={(request) =>
+                      request.status === "PENDING" ? (
+                        <>
+                          <button className="ghost-button compact-button" onClick={() => void decideLeave(request.id, "APPROVED")} type="button">
+                            Approve
+                          </button>
+                          <button className="ghost-button compact-button danger-button" onClick={() => void decideLeave(request.id, "REJECTED")} type="button">
+                            Reject
+                          </button>
+                        </>
+                      ) : (
+                        <span className="muted">Decision saved</span>
+                      )
+                    }
+                  />
+                </article>
+
+                <article className="panel">
+                  <h3>Holiday calendar</h3>
+                  <p className="muted section-intro">Add company holidays so payroll and leave screens stay aligned.</p>
+                  <form className="leave-form-grid" onSubmit={createHoliday}>
+                    <label>
+                      Holiday name
+                      <input required value={holidayForm.name} onChange={(event) => updateHolidayForm("name", event.target.value)} placeholder="Diwali / Founder's Day / Annual closure" />
+                    </label>
+                    <label>
+                      Holiday date
+                      <input required type="date" value={holidayForm.holidayDate} onChange={(event) => updateHolidayForm("holidayDate", event.target.value)} />
+                    </label>
+                    <div className="action-row">
+                      <button className="primary-button" disabled={holidaySaving} type="submit">
+                        {holidaySaving ? "Saving..." : "Add holiday"}
+                      </button>
+                    </div>
+                  </form>
+                  <div className="spacer-sm" />
+                  <HolidayList holidays={holidays} onRemove={removeHoliday} />
+                </article>
+              </section>
+              {leaveStatusMessage ? (
+                <p className={leaveStatusMessage.includes("successfully") ? "status-text" : "error-text"}>
+                  {leaveStatusMessage}
+                </p>
+              ) : null}
             </>
           ) : null}
 
