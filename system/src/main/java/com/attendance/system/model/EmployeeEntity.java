@@ -59,6 +59,9 @@ public class EmployeeEntity {
     @Column(name = "advance_paid", nullable = false, precision = 12, scale = 2)
     private BigDecimal advancePaid = BigDecimal.ZERO;
 
+    @Column(name = "profile_image_ref", columnDefinition = "LONGTEXT")
+    private String profileImageRef;
+
     public UUID getId() {
         return id;
     }
@@ -149,5 +152,13 @@ public class EmployeeEntity {
 
     public void setAdvancePaid(BigDecimal advancePaid) {
         this.advancePaid = advancePaid;
+    }
+
+    public String getProfileImageRef() {
+        return profileImageRef;
+    }
+
+    public void setProfileImageRef(String profileImageRef) {
+        this.profileImageRef = profileImageRef;
     }
 }

@@ -43,6 +43,7 @@ export type EmployeeOverview = {
     phone: string;
     status: string;
     designation: string;
+    profileImageRef: string | null;
   };
   branch: {
     id: string;
@@ -153,6 +154,7 @@ export type Employee = {
   monthlyLeaveAllowance: number;
   advancePaid: string;
   loginEnabled: boolean;
+  profileImageRef: string | null;
 };
 
 export type EmployeeBulkImportResponse = {

@@ -9,7 +9,7 @@ import {
 import { AttendanceTable } from "../components/AttendanceTable";
 import { AttendanceCorrectionTable } from "../components/AttendanceCorrections";
 import { HolidayList, LeaveRequestTable } from "../components/LeaveManagement";
-import { LoadingWorkspace, MetricCard } from "../components/shared";
+import { LoadingWorkspace, MetricCard, ProfileAvatar } from "../components/shared";
 import type { AttendanceCorrection, EmployeeLeaveWorkspace, EmployeeOverview, Session } from "../types";
 
 type EmployeeTab = "mark" | "today" | "history" | "corrections" | "leaves" | "help";
@@ -30,6 +30,7 @@ export function EmployeeScreen({
   const [locationAccuracy, setLocationAccuracy] = useState<number | null>(null);
   const [locationSampleCount, setLocationSampleCount] = useState(0);
   const [selfie, setSelfie] = useState<string>("");
+  const [profileSelfie, setProfileSelfie] = useState("");
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
   const [cameraReady, setCameraReady] = useState(false);
@@ -61,6 +62,8 @@ export function EmployeeScreen({
     distanceMeters: number;
     image: string;
   } | null>(null);
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileStatus, setProfileStatus] = useState("");
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
@@ -291,7 +294,7 @@ export function EmployeeScreen({
     setStatus("Camera is ready. Capture a fresh selfie to continue.");
   }
 
-  function captureSelfie() {
+  function captureImage(onCapture: (value: string) => void) {
     if (!videoRef.current) {
       return;
     }
@@ -310,8 +313,46 @@ export function EmployeeScreen({
     }
 
     ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-    setSelfie(canvas.toDataURL("image/jpeg", 0.72));
-    setStatus("Selfie captured. You can submit attendance now.");
+    onCapture(canvas.toDataURL("image/jpeg", 0.72));
+  }
+
+  function captureSelfie() {
+    captureImage((value) => {
+      setSelfie(value);
+      setStatus("Selfie captured. You can submit attendance now.");
+    });
+  }
+
+  function captureProfileSelfie() {
+    captureImage((value) => {
+      setProfileSelfie(value);
+      setProfileStatus("Profile image captured. Save it to continue.");
+    });
+  }
+
+  async function saveProfileImage() {
+    if (!profileSelfie) {
+      return;
+    }
+
+    setProfileSaving(true);
+    setProfileStatus("");
+    try {
+      const updatedOverview = await apiFetch<EmployeeOverview>(session, "/employee/profile-image", {
+        method: "POST",
+        body: JSON.stringify({
+          imageDataUrl: profileSelfie
+        })
+      });
+      setOverview(updatedOverview);
+      setProfileSelfie("");
+      setProfileStatus("Profile image saved successfully.");
+      stopCameraStream();
+    } catch (error) {
+      setProfileStatus(error instanceof Error ? error.message : "Unable to save profile image.");
+    } finally {
+      setProfileSaving(false);
+    }
   }
 
   async function submitAttendance(mode: "check-in" | "check-out") {
@@ -545,6 +586,59 @@ export function EmployeeScreen({
           </button>
         </div>
       </header>
+
+      {!overview.employee.profileImageRef ? (
+        <div className="tutorial-backdrop profile-setup-backdrop">
+          <section className="tutorial-modal profile-setup-modal">
+            <div className="profile-setup-header">
+              <ProfileAvatar image={profileSelfie || overview.employee.profileImageRef} name={overview.employee.name} />
+              <div>
+                <span className="eyebrow">Profile setup</span>
+                <h3>Add your profile image</h3>
+                <p className="muted">
+                  Capture a live profile image before using your ATTENDIFY portal. The owner will see this in the employee directory.
+                </p>
+              </div>
+            </div>
+
+            <div className="camera-panel profile-setup-camera">
+              <video autoPlay muted playsInline ref={videoRef} />
+              {profileSelfie ? (
+                <img alt="Captured profile" src={profileSelfie} />
+              ) : (
+                <div className="empty-media">Your captured profile image will appear here.</div>
+              )}
+            </div>
+
+            <div className="prep-card-grid profile-setup-actions">
+              <div className="prep-card">
+                <button className="secondary-button prep-button" onClick={() => void startCamera()} type="button">
+                  Start camera
+                </button>
+                <span className="prep-value">Use the front camera and keep your face centered.</span>
+              </div>
+              <div className="prep-card">
+                <button className="secondary-button prep-button" onClick={captureProfileSelfie} type="button">
+                  Capture profile
+                </button>
+                <span className="prep-value">Take a clear image with proper lighting.</span>
+              </div>
+              <div className="prep-card">
+                <button className="primary-button prep-button" disabled={profileSaving || !profileSelfie} onClick={() => void saveProfileImage()} type="button">
+                  {profileSaving ? "Saving..." : "Save and continue"}
+                </button>
+                <span className="prep-value">This is required before you can use the employee portal.</span>
+              </div>
+            </div>
+
+            {profileStatus ? (
+              <p className={profileStatus.includes("successfully") ? "status-text" : "error-text"}>
+                {profileStatus}
+              </p>
+            ) : null}
+          </section>
+        </div>
+      ) : null}
 
       <div className="employee-shell">
         <aside className={`employee-sidebar${drawerOpen ? " open" : ""}`}>

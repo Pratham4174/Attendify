@@ -2,6 +2,7 @@ package com.attendance.system.controller;
 
 import com.attendance.system.dto.AttendanceActionResponse;
 import com.attendance.system.dto.AttendanceRequest;
+import com.attendance.system.dto.EmployeeProfileImageRequest;
 import com.attendance.system.dto.EmployeeOverviewResponse;
 import com.attendance.system.dto.LocationPingRequest;
 import com.attendance.system.dto.LocationPingResponse;
@@ -27,6 +28,14 @@ public class AttendanceController {
     @GetMapping("/employee/overview")
     public EmployeeOverviewResponse overview(Authentication authentication) {
         return attendanceService.employeeOverview(currentUser(authentication));
+    }
+
+    @PostMapping("/employee/profile-image")
+    public EmployeeOverviewResponse saveProfileImage(
+            Authentication authentication,
+            @Valid @RequestBody EmployeeProfileImageRequest request
+    ) {
+        return attendanceService.saveEmployeeProfileImage(currentUser(authentication), request);
     }
 
     @PostMapping("/attendance/check-in")

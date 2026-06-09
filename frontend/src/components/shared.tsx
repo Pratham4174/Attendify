@@ -57,3 +57,26 @@ export function LoadingWorkspace({ title, lines }: { title: string; lines: numbe
     </main>
   );
 }
+
+export function ProfileAvatar({
+  name,
+  image,
+  className = ""
+}: {
+  name: string;
+  image?: string | null;
+  className?: string;
+}) {
+  const initials = name
+    .split(" ")
+    .map((part) => part[0] ?? "")
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+  if (image) {
+    return <img alt={`${name} profile`} className={`profile-avatar ${className}`.trim()} src={image} />;
+  }
+
+  return <span className={`profile-avatar profile-avatar-fallback ${className}`.trim()}>{initials || "EM"}</span>;
+}

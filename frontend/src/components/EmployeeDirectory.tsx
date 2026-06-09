@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { apiFetch, apiFetchVoid } from "../lib/api";
 import { formatDateTime, formatLocalDateKey, formatMoney, formatWorkedHours } from "../lib/format";
-import { EmptyState } from "./shared";
+import { EmptyState, ProfileAvatar } from "./shared";
 import type { AttendanceRow, Branch, Employee, PayrollSummary, Session } from "../types";
 
 export function EmployeeDirectory({
@@ -224,9 +224,12 @@ export function EmployeeDirectory({
                 type="button"
               >
                 <div className="employee-summary-card-head">
-                  <div>
-                    <strong>{employee.name}</strong>
-                    <span>{employee.designation}</span>
+                  <div className="employee-summary-card-person">
+                    <ProfileAvatar className="employee-card-avatar" image={employee.profileImageRef} name={employee.name} />
+                    <div>
+                      <strong>{employee.name}</strong>
+                      <span>{employee.designation}</span>
+                    </div>
                   </div>
                   <span className="pill">{employee.status}</span>
                 </div>
@@ -242,10 +245,13 @@ export function EmployeeDirectory({
         {selectedEmployee ? (
           <div className="employee-detail-card">
             <div className="employee-detail-header">
-              <div>
-                <span className="eyebrow">Employee details</span>
-                <h4>{selectedEmployee.name}</h4>
-                <p className="muted">{selectedEmployee.designation}</p>
+              <div className="employee-detail-person">
+                <ProfileAvatar className="employee-detail-avatar" image={selectedEmployee.profileImageRef} name={selectedEmployee.name} />
+                <div>
+                  <span className="eyebrow">Employee details</span>
+                  <h4>{selectedEmployee.name}</h4>
+                  <p className="muted">{selectedEmployee.designation}</p>
+                </div>
               </div>
               <span className="pill">{selectedEmployee.status}</span>
             </div>

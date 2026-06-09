@@ -334,6 +334,33 @@
   gap: 14px;
 }
 
+.profile-setup-backdrop {
+  z-index: 40;
+}
+
+.profile-setup-modal {
+  width: min(92vw, 720px);
+}
+
+.profile-setup-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.profile-setup-header .profile-avatar {
+  width: 72px;
+  height: 72px;
+}
+
+.profile-setup-camera {
+  margin-top: 4px;
+}
+
+.profile-setup-actions {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .tutorial-modal h3 {
   margin: 0;
 }
@@ -397,6 +424,14 @@
   .compact-step-list,
   .prep-card-grid,
   .attendance-insight-row {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-setup-header {
+    align-items: flex-start;
+  }
+
+  .profile-setup-actions {
     grid-template-columns: 1fr;
   }
 

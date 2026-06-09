@@ -20,6 +20,7 @@ com/attendance/system/model/VendorEntity.class
 com/attendance/system/service/LeaveService.class
 com/attendance/system/dto/EmployeeStatusRequest.class
 com/attendance/system/repository/AttendanceRecordRepository.class
+com/attendance/system/dto/EmployeeProfileImageRequest.class
 com/attendance/system/dto/PropertyRegistrationRequest.class
 com/attendance/system/dto/HolidayResponse.class
 com/attendance/system/model/HolidayEntity.class

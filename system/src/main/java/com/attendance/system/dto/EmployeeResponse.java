@@ -13,6 +13,7 @@ public record EmployeeResponse(
         String monthlySalary,
         int monthlyLeaveAllowance,
         String advancePaid,
-        boolean loginEnabled
+        boolean loginEnabled,
+        String profileImageRef
 ) {
 }

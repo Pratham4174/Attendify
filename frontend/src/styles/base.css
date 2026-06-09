@@ -160,6 +160,23 @@ select {
   color: var(--text-main);
 }
 
+.profile-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 1px solid rgba(37, 99, 235, 0.12);
+  background: rgba(239, 246, 255, 0.94);
+  flex-shrink: 0;
+}
+
+.profile-avatar-fallback {
+  display: grid;
+  place-items: center;
+  color: var(--primary-strong);
+  font-weight: 800;
+}
+
 .primary-button,
 .secondary-button,
 .ghost-button {

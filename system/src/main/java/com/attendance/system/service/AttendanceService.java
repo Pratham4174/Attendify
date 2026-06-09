@@ -3,6 +3,7 @@ package com.attendance.system.service;
 import com.attendance.system.config.TrackingProperties;
 import com.attendance.system.dto.AttendanceActionResponse;
 import com.attendance.system.dto.AttendanceRequest;
+import com.attendance.system.dto.EmployeeProfileImageRequest;
 import com.attendance.system.dto.EmployeeOverviewResponse;
 import com.attendance.system.dto.LocationPingRequest;
 import com.attendance.system.dto.LocationPingResponse;
@@ -130,6 +131,14 @@ public class AttendanceService {
                 history.stream().limit(7).map(mapper::toAttendanceRow).toList(),
                 trackingSummary
         );
+    }
+
+    @Transactional
+    public EmployeeOverviewResponse saveEmployeeProfileImage(AuthenticatedUser user, EmployeeProfileImageRequest request) {
+        EmployeeEntity employee = requireEmployeeUser(user);
+        employee.setProfileImageRef(request.imageDataUrl().trim());
+        employeeRepository.save(employee);
+        return employeeOverview(user);
     }
 
     @Transactional

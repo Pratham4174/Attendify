@@ -28,6 +28,7 @@
 /Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/dto/EmployeeLoginStatusRequest.java
 /Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/dto/EmployeeOverviewResponse.java
 /Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/dto/EmployeePasswordResetRequest.java
+/Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/dto/EmployeeProfileImageRequest.java
 /Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/dto/EmployeeResponse.java
 /Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/dto/EmployeeStatusRequest.java
 /Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/dto/EmployeeUpsertRequest.java
