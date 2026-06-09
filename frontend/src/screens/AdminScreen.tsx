@@ -622,9 +622,9 @@ export function AdminScreen({
                       Check how much is payable this month after worked days, allowed leave, and advances.
                     </p>
                   </div>
-                  <label className="date-filter">
+                  <label className="date-filter payroll-period-filter">
                     Payroll month
-                    <input type="month" value={payrollMonth} onChange={(event) => setPayrollMonth(event.target.value)} />
+                    <input className="payroll-period-input" type="month" value={payrollMonth} onChange={(event) => setPayrollMonth(event.target.value)} />
                   </label>
                 </div>
                 {payroll?.employees.length ? (
@@ -668,7 +668,7 @@ export function AdminScreen({
                   <p className="muted section-intro">
                     Record any salary amount paid early during the month so it is settled from the final payout.
                   </p>
-                  <form className="leave-form-grid" onSubmit={submitAdvancePayment}>
+                  <form className="leave-form-grid payroll-advance-form" onSubmit={submitAdvancePayment}>
                     <div className="grid two-column compact-grid">
                       <label>
                         Employee
@@ -681,7 +681,7 @@ export function AdminScreen({
                       </label>
                       <label>
                         Payment date
-                        <input type="date" value={advancePaymentForm.paymentDate} onChange={(event) => updateAdvancePaymentForm("paymentDate", event.target.value)} required />
+                        <input className="payroll-date-input" type="date" value={advancePaymentForm.paymentDate} onChange={(event) => updateAdvancePaymentForm("paymentDate", event.target.value)} required />
                       </label>
                     </div>
                     <div className="grid two-column compact-grid">

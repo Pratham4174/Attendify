@@ -259,6 +259,11 @@
   min-width: 180px;
 }
 
+.payroll-period-filter {
+  min-width: 0;
+  width: min(100%, 260px);
+}
+
 .action-list {
   display: grid;
   gap: 12px;
@@ -317,6 +322,26 @@
 
 .payroll-action-grid > .panel {
   min-width: 0;
+}
+
+.payroll-advance-form label {
+  min-width: 0;
+}
+
+.payroll-date-input {
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.payroll-period-input {
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .card-action-row {
@@ -459,5 +484,9 @@
   .date-filter input {
     min-width: 100%;
     width: 100%;
+  }
+
+  .payroll-period-filter {
+    max-width: 100%;
   }
 }
