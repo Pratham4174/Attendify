@@ -139,6 +139,16 @@ export function EmployeeScreen({
   }, []);
 
   useEffect(() => {
+    if (!overview || overview.employee.profileImageRef || cameraReady) {
+      return;
+    }
+
+    void startCamera().catch((error) => {
+      setProfileStatus(error instanceof Error ? error.message : "Unable to open the camera.");
+    });
+  }, [overview, cameraReady]);
+
+  useEffect(() => {
     if (!cameraReady || !videoRef.current || !streamRef.current) {
       return;
     }
@@ -647,19 +657,20 @@ export function EmployeeScreen({
               </div>
             </div>
 
-            <div className="camera-panel profile-setup-camera">
-              <video autoPlay muted playsInline ref={videoRef} />
+            <div className="camera-panel single-camera-panel profile-setup-camera">
               {profileSelfie ? (
                 <img alt="Captured profile" src={profileSelfie} />
+              ) : cameraReady ? (
+                <video autoPlay muted playsInline ref={videoRef} />
               ) : (
-                <div className="empty-media">Your captured profile image will appear here.</div>
+                <div className="empty-media">Opening the front camera in this popup...</div>
               )}
             </div>
 
             <div className="prep-card-grid profile-setup-actions">
               <div className="prep-card">
-                <button className="secondary-button prep-button" onClick={() => void startCamera()} type="button">
-                  Start camera
+                <button className="secondary-button prep-button" disabled={cameraReady && !profileSelfie} onClick={() => void startCamera()} type="button">
+                  {cameraReady && !profileSelfie ? "Camera live" : "Restart camera"}
                 </button>
                 <span className="prep-value">Use the front camera and keep your face centered.</span>
               </div>
