@@ -783,15 +783,7 @@ export function EmployeeScreen({
                   </div>
                   <div className="action-row attendance-action-row">
                     <button
-                      className="secondary-button"
-                      disabled={loading || insideGeofence !== true || !cameraReady || !!selfie}
-                      onClick={captureSelfie}
-                      type="button"
-                    >
-                      Capture preview
-                    </button>
-                    <button
-                      className="secondary-button"
+                      className="primary-button"
                       disabled={loading || insideGeofence !== true || !cameraReady}
                       onClick={() => void captureSelfieAndSubmit(canCheckOut ? "check-out" : "check-in")}
                       type="button"
@@ -805,22 +797,6 @@ export function EmployeeScreen({
                       type="button"
                     >
                       Retake
-                    </button>
-                    <button
-                      className="primary-button"
-                      disabled={loading || hasCheckedIn || insideGeofence !== true || !selfie}
-                      onClick={() => void submitAttendance("check-in")}
-                      type="button"
-                    >
-                      {loading ? "Saving..." : "Check in"}
-                    </button>
-                    <button
-                      className="ghost-button"
-                      disabled={loading || !canCheckOut || insideGeofence !== true || !selfie}
-                      onClick={() => void submitAttendance("check-out")}
-                      type="button"
-                    >
-                      {loading ? "Saving..." : "Check out"}
                     </button>
                   </div>
                 </div>
