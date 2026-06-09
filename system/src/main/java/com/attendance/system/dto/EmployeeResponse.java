@@ -12,6 +12,7 @@ public record EmployeeResponse(
         String branchName,
         String monthlySalary,
         int monthlyLeaveAllowance,
-        String advancePaid
+        String advancePaid,
+        boolean loginEnabled
 ) {
 }

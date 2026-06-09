@@ -152,6 +152,20 @@ export type Employee = {
   monthlySalary: string;
   monthlyLeaveAllowance: number;
   advancePaid: string;
+  loginEnabled: boolean;
+};
+
+export type EmployeeBulkImportResponse = {
+  totalRows: number;
+  createdCount: number;
+  failedCount: number;
+  results: Array<{
+    rowNumber: number;
+    employeeCode: string;
+    employeeName: string;
+    success: boolean;
+    message: string;
+  }>;
 };
 
 export type Branch = {

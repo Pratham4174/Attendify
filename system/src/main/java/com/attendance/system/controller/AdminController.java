@@ -18,6 +18,11 @@ import com.attendance.system.dto.AttendanceRowResponse;
 import com.attendance.system.dto.AdminTrackingResponse;
 import com.attendance.system.dto.BranchResponse;
 import com.attendance.system.dto.DashboardSummaryResponse;
+import com.attendance.system.dto.EmployeeBranchTransferRequest;
+import com.attendance.system.dto.EmployeeBulkImportRequest;
+import com.attendance.system.dto.EmployeeBulkImportResponse;
+import com.attendance.system.dto.EmployeeLoginStatusRequest;
+import com.attendance.system.dto.EmployeePasswordResetRequest;
 import com.attendance.system.dto.EmployeeResponse;
 import com.attendance.system.dto.EmployeeStatusRequest;
 import com.attendance.system.dto.EmployeeUpsertRequest;
@@ -71,6 +76,41 @@ public class AdminController {
             @Valid @RequestBody EmployeeStatusRequest request
     ) {
         return adminService.updateEmployeeStatus(currentUser(authentication), employeeId, request);
+    }
+
+    @PatchMapping("/employees/{employeeId}/login")
+    public EmployeeResponse updateEmployeeLoginStatus(
+            Authentication authentication,
+            @PathVariable String employeeId,
+            @Valid @RequestBody EmployeeLoginStatusRequest request
+    ) {
+        return adminService.updateEmployeeLoginStatus(currentUser(authentication), employeeId, request);
+    }
+
+    @PatchMapping("/employees/{employeeId}/branch")
+    public EmployeeResponse transferEmployee(
+            Authentication authentication,
+            @PathVariable String employeeId,
+            @Valid @RequestBody EmployeeBranchTransferRequest request
+    ) {
+        return adminService.transferEmployee(currentUser(authentication), employeeId, request);
+    }
+
+    @PostMapping("/employees/{employeeId}/reset-password")
+    public void resetEmployeePassword(
+            Authentication authentication,
+            @PathVariable String employeeId,
+            @Valid @RequestBody EmployeePasswordResetRequest request
+    ) {
+        adminService.resetEmployeePassword(currentUser(authentication), employeeId, request);
+    }
+
+    @PostMapping("/employees/bulk-import")
+    public EmployeeBulkImportResponse bulkImportEmployees(
+            Authentication authentication,
+            @Valid @RequestBody EmployeeBulkImportRequest request
+    ) {
+        return adminService.bulkImportEmployees(currentUser(authentication), request);
     }
 
     @DeleteMapping("/employees/{employeeId}")

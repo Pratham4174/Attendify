@@ -53,7 +53,7 @@ public class AttendanceMapper {
         );
     }
 
-    public EmployeeResponse toEmployeeResponse(EmployeeEntity employee) {
+    public EmployeeResponse toEmployeeResponse(EmployeeEntity employee, boolean loginEnabled) {
         return new EmployeeResponse(
                 employee.getId().toString(),
                 employee.getEmployeeCode(),
@@ -66,7 +66,8 @@ public class AttendanceMapper {
                 employee.getBranch().getName(),
                 employee.getMonthlySalary().toPlainString(),
                 employee.getMonthlyLeaveAllowance(),
-                employee.getAdvancePaid().toPlainString()
+                employee.getAdvancePaid().toPlainString(),
+                loginEnabled
         );
     }
 

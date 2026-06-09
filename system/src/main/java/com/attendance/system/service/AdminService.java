@@ -5,6 +5,11 @@ import com.attendance.system.dto.AttendanceRowResponse;
 import com.attendance.system.dto.AdminTrackingResponse;
 import com.attendance.system.dto.BranchResponse;
 import com.attendance.system.dto.DashboardSummaryResponse;
+import com.attendance.system.dto.EmployeeBranchTransferRequest;
+import com.attendance.system.dto.EmployeeBulkImportRequest;
+import com.attendance.system.dto.EmployeeBulkImportResponse;
+import com.attendance.system.dto.EmployeeLoginStatusRequest;
+import com.attendance.system.dto.EmployeePasswordResetRequest;
 import com.attendance.system.dto.EmployeeResponse;
 import com.attendance.system.dto.EmployeeStatusRequest;
 import com.attendance.system.dto.EmployeeUpsertRequest;
@@ -51,6 +56,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
 
@@ -136,40 +142,19 @@ public class AdminService {
     @Transactional(readOnly = true)
     public List<EmployeeResponse> employees(AuthenticatedUser user) {
         requireAdmin(user);
-        return employeeRepository.findByVendor_IdOrderByNameAsc(user.vendorId()).stream()
+        List<EmployeeEntity> vendorEmployees = employeeRepository.findByVendor_IdOrderByNameAsc(user.vendorId()).stream()
                 .filter(employee -> !"REMOVED".equalsIgnoreCase(employee.getStatus()))
-                .map(mapper::toEmployeeResponse)
+                .toList();
+        Map<UUID, Boolean> loginStates = resolveLoginStates(vendorEmployees);
+        return vendorEmployees.stream()
+                .map(employee -> mapper.toEmployeeResponse(employee, loginStates.getOrDefault(employee.getId(), false)))
                 .toList();
     }
 
     @Transactional
     public EmployeeResponse createEmployee(AuthenticatedUser user, EmployeeUpsertRequest request) {
         requireAdmin(user);
-        String email = request.email().trim().toLowerCase(Locale.ROOT);
-        String employeeCode = request.employeeCode().trim().toUpperCase(Locale.ROOT);
-        if (employeeRepository.existsByEmailIgnoreCase(email) || userRepository.existsByEmailIgnoreCase(email)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Employee email is already registered.");
-        }
-        if (employeeRepository.existsByEmployeeCodeIgnoreCaseAndVendor_Id(employeeCode, user.vendorId())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Employee code is already in use.");
-        }
-
-        BranchEntity branch = loadBranch(user.vendorId(), request.branchId());
-        EmployeeEntity employee = new EmployeeEntity();
-        populateEmployee(employee, branch, request, employeeCode, email);
-        employee.setStatus("ACTIVE");
-        employee = employeeRepository.save(employee);
-
-        UserEntity employeeUser = new UserEntity();
-        employeeUser.setVendor(branch.getVendor());
-        employeeUser.setEmployee(employee);
-        employeeUser.setName(employee.getName());
-        employeeUser.setEmail(employee.getEmail());
-        employeeUser.setPasswordHash(passwordEncoder.encode("password"));
-        employeeUser.setRole(UserRole.EMPLOYEE);
-        employeeUser.setActive(true);
-        userRepository.save(employeeUser);
-        return mapper.toEmployeeResponse(employee);
+        return createEmployeeInternal(user, request);
     }
 
     @Transactional
@@ -194,10 +179,9 @@ public class AdminService {
         userRepository.findByEmployee_Id(savedEmployee.getId()).ifPresent(employeeUser -> {
             employeeUser.setName(savedEmployee.getName());
             employeeUser.setEmail(savedEmployee.getEmail());
-            employeeUser.setActive("ACTIVE".equalsIgnoreCase(savedEmployee.getStatus()));
             userRepository.save(employeeUser);
         });
-        return mapper.toEmployeeResponse(savedEmployee);
+        return toEmployeeResponse(savedEmployee);
     }
 
     @Transactional
@@ -211,10 +195,107 @@ public class AdminService {
         employee.setStatus(status);
         EmployeeEntity savedEmployee = employeeRepository.save(employee);
         userRepository.findByEmployee_Id(savedEmployee.getId()).ifPresent(employeeUser -> {
-            employeeUser.setActive("ACTIVE".equals(status));
+            if ("INACTIVE".equals(status)) {
+                employeeUser.setActive(false);
+            }
             userRepository.save(employeeUser);
         });
-        return mapper.toEmployeeResponse(savedEmployee);
+        return toEmployeeResponse(savedEmployee);
+    }
+
+    @Transactional
+    public EmployeeResponse updateEmployeeLoginStatus(AuthenticatedUser user, String employeeId, EmployeeLoginStatusRequest request) {
+        requireAdmin(user);
+        EmployeeEntity employee = loadEmployee(user.vendorId(), employeeId);
+        UserEntity employeeUser = loadEmployeeUser(employee);
+        employeeUser.setActive(Boolean.TRUE.equals(request.enabled()));
+        userRepository.save(employeeUser);
+        return mapper.toEmployeeResponse(employee, employeeUser.isActive());
+    }
+
+    @Transactional
+    public EmployeeResponse transferEmployee(AuthenticatedUser user, String employeeId, EmployeeBranchTransferRequest request) {
+        requireAdmin(user);
+        EmployeeEntity employee = loadEmployee(user.vendorId(), employeeId);
+        BranchEntity branch = loadBranch(user.vendorId(), request.branchId());
+        employee.setBranch(branch);
+        EmployeeEntity savedEmployee = employeeRepository.save(employee);
+        return toEmployeeResponse(savedEmployee);
+    }
+
+    @Transactional
+    public void resetEmployeePassword(AuthenticatedUser user, String employeeId, EmployeePasswordResetRequest request) {
+        requireAdmin(user);
+        EmployeeEntity employee = loadEmployee(user.vendorId(), employeeId);
+        UserEntity employeeUser = loadEmployeeUser(employee);
+        employeeUser.setPasswordHash(passwordEncoder.encode(request.newPassword().trim()));
+        userRepository.save(employeeUser);
+    }
+
+    @Transactional
+    public EmployeeBulkImportResponse bulkImportEmployees(AuthenticatedUser user, EmployeeBulkImportRequest request) {
+        requireAdmin(user);
+        List<EmployeeBulkImportResponse.RowResult> results = new ArrayList<>();
+        Set<String> seenCodes = new HashSet<>();
+        Set<String> seenEmails = new HashSet<>();
+        int createdCount = 0;
+
+        for (int index = 0; index < request.employees().size(); index++) {
+            EmployeeUpsertRequest row = request.employees().get(index);
+            int rowNumber = index + 1;
+            String employeeCode = row.employeeCode().trim().toUpperCase(Locale.ROOT);
+            String email = row.email().trim().toLowerCase(Locale.ROOT);
+            String name = row.name().trim();
+
+            if (!seenCodes.add(employeeCode)) {
+                results.add(new EmployeeBulkImportResponse.RowResult(
+                        rowNumber,
+                        employeeCode,
+                        name,
+                        false,
+                        "Duplicate employee code in this file."
+                ));
+                continue;
+            }
+
+            if (!seenEmails.add(email)) {
+                results.add(new EmployeeBulkImportResponse.RowResult(
+                        rowNumber,
+                        employeeCode,
+                        name,
+                        false,
+                        "Duplicate email in this file."
+                ));
+                continue;
+            }
+
+            try {
+                createEmployeeInternal(user, row);
+                createdCount++;
+                results.add(new EmployeeBulkImportResponse.RowResult(
+                        rowNumber,
+                        employeeCode,
+                        name,
+                        true,
+                        "Employee created successfully."
+                ));
+            } catch (ResponseStatusException exception) {
+                results.add(new EmployeeBulkImportResponse.RowResult(
+                        rowNumber,
+                        employeeCode,
+                        name,
+                        false,
+                        exception.getReason() == null ? "Unable to import employee." : exception.getReason()
+                ));
+            }
+        }
+
+        return new EmployeeBulkImportResponse(
+                request.employees().size(),
+                createdCount,
+                request.employees().size() - createdCount,
+                results
+        );
     }
 
     @Transactional
@@ -402,6 +483,61 @@ public class AdminService {
     private EmployeeEntity loadEmployee(UUID vendorId, String employeeId) {
         return employeeRepository.findByIdAndVendor_Id(UUID.fromString(employeeId), vendorId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Employee not found."));
+    }
+
+    private UserEntity loadEmployeeUser(EmployeeEntity employee) {
+        return userRepository.findByEmployee_Id(employee.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Employee login not found."));
+    }
+
+    private Map<UUID, Boolean> resolveLoginStates(List<EmployeeEntity> employees) {
+        if (employees.isEmpty()) {
+            return Map.of();
+        }
+
+        Map<UUID, Boolean> loginStates = new HashMap<>();
+        userRepository.findByEmployee_IdIn(employees.stream().map(EmployeeEntity::getId).toList())
+                .forEach(user -> {
+                    if (user.getEmployee() != null) {
+                        loginStates.put(user.getEmployee().getId(), user.isActive());
+                    }
+                });
+        return loginStates;
+    }
+
+    private EmployeeResponse toEmployeeResponse(EmployeeEntity employee) {
+        return mapper.toEmployeeResponse(
+                employee,
+                userRepository.findByEmployee_Id(employee.getId()).map(UserEntity::isActive).orElse(false)
+        );
+    }
+
+    private EmployeeResponse createEmployeeInternal(AuthenticatedUser user, EmployeeUpsertRequest request) {
+        String email = request.email().trim().toLowerCase(Locale.ROOT);
+        String employeeCode = request.employeeCode().trim().toUpperCase(Locale.ROOT);
+        if (employeeRepository.existsByEmailIgnoreCase(email) || userRepository.existsByEmailIgnoreCase(email)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Employee email is already registered.");
+        }
+        if (employeeRepository.existsByEmployeeCodeIgnoreCaseAndVendor_Id(employeeCode, user.vendorId())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Employee code is already in use.");
+        }
+
+        BranchEntity branch = loadBranch(user.vendorId(), request.branchId());
+        EmployeeEntity employee = new EmployeeEntity();
+        populateEmployee(employee, branch, request, employeeCode, email);
+        employee.setStatus("ACTIVE");
+        employee = employeeRepository.save(employee);
+
+        UserEntity employeeUser = new UserEntity();
+        employeeUser.setVendor(branch.getVendor());
+        employeeUser.setEmployee(employee);
+        employeeUser.setName(employee.getName());
+        employeeUser.setEmail(employee.getEmail());
+        employeeUser.setPasswordHash(passwordEncoder.encode("password"));
+        employeeUser.setRole(UserRole.EMPLOYEE);
+        employeeUser.setActive(true);
+        userRepository.save(employeeUser);
+        return mapper.toEmployeeResponse(employee, true);
     }
 
     private void populateEmployee(

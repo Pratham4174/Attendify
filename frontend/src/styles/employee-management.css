@@ -1,0 +1,80 @@
+.employee-import-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.file-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px dashed rgba(37, 99, 235, 0.24);
+  background: rgba(239, 246, 255, 0.8);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.file-picker input {
+  display: none;
+}
+
+.employee-import-textarea {
+  display: grid;
+  gap: 10px;
+}
+
+.employee-import-textarea textarea {
+  min-height: 180px;
+  resize: vertical;
+}
+
+.employee-import-preview,
+.employee-import-results {
+  display: grid;
+  gap: 14px;
+}
+
+.employee-import-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: var(--text-soft);
+  font-weight: 700;
+}
+
+.import-preview-list {
+  display: grid;
+}
+
+.employee-inline-panel {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(239, 246, 255, 0.78);
+  border: 1px solid rgba(37, 99, 235, 0.12);
+}
+
+.pill-success {
+  background: rgba(37, 99, 235, 0.14);
+  color: var(--primary-strong);
+}
+
+.pill-warning {
+  background: rgba(191, 219, 254, 0.68);
+  color: var(--text-main);
+}
+
+@media (max-width: 840px) {
+  .employee-import-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .file-picker {
+    justify-content: center;
+  }
+}

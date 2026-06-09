@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { AttendancePayrollTable, AttendanceTable, TrackingLink } from "../components/AttendanceTable";
 import { AttendanceCorrectionTable } from "../components/AttendanceCorrections";
+import { BulkEmployeeImport } from "../components/BulkEmployeeImport";
+import { EmployeeDirectory } from "../components/EmployeeDirectory";
 import { HolidayList, LeaveRequestTable } from "../components/LeaveManagement";
 import { ActionList, EmptyState, LoadingWorkspace, MetricCard } from "../components/shared";
 import { apiFetch, apiFetchVoid, ApiRequestError } from "../lib/api";
@@ -243,42 +245,6 @@ export function AdminScreen({
       );
     } finally {
       setEmployeeSaving(false);
-    }
-  }
-
-  async function changeEmployeeStatus(employeeId: string, status: "ACTIVE" | "INACTIVE") {
-    setEmployeeFormStatus("");
-    try {
-      await apiFetch<Employee>(session, `/admin/employees/${employeeId}/status`, {
-        method: "PATCH",
-        body: JSON.stringify({ status })
-      });
-      await loadAdminData();
-    } catch (error) {
-      setEmployeeFormStatus(
-        error instanceof Error ? error.message : "Unable to update employee status."
-      );
-    }
-  }
-
-  async function removeEmployee(employeeId: string, employeeName: string) {
-    if (!window.confirm(`Remove ${employeeName} from this property? Existing attendance records will stay visible in reports.`)) {
-      return;
-    }
-
-    setEmployeeFormStatus("");
-    try {
-      await apiFetchVoid(session, `/admin/employees/${employeeId}`, {
-        method: "DELETE"
-      });
-      if (editingEmployeeId === employeeId) {
-        resetEmployeeForm();
-      }
-      await loadAdminData();
-    } catch (error) {
-      setEmployeeFormStatus(
-        error instanceof Error ? error.message : "Unable to remove employee."
-      );
     }
   }
 
@@ -530,208 +496,96 @@ export function AdminScreen({
           ) : null}
 
           {activeTab === "add-employee" ? (
-            <section className="panel">
-              <div className="topbar">
-                <div>
-                  <h3>{editingEmployeeId ? "Edit employee" : "Add employee"}</h3>
-                  <p className="muted section-intro">
-                    Owners can add staff after property setup, keep people active or inactive, and store salary rules in one place.
-                  </p>
+            <>
+              <section className="panel">
+                <div className="topbar">
+                  <div>
+                    <h3>{editingEmployeeId ? "Edit employee" : "Add employee"}</h3>
+                    <p className="muted section-intro">
+                      Add new staff, keep salary settings ready, and use the Excel-friendly import below for larger teams.
+                    </p>
+                  </div>
+                  {editingEmployeeId ? (
+                    <button className="ghost-button" onClick={() => resetEmployeeForm()} type="button">
+                      Cancel edit
+                    </button>
+                  ) : null}
                 </div>
-                {editingEmployeeId ? (
-                  <button className="ghost-button" onClick={() => resetEmployeeForm()} type="button">
-                    Cancel edit
-                  </button>
-                ) : null}
-              </div>
-              <form className="admin-form-grid" onSubmit={handleEmployeeSubmit}>
-                <div className="grid two-column compact-grid">
-                  <label>
-                    Employee code
-                    <input required value={employeeForm.employeeCode} onChange={(event) => updateEmployeeForm("employeeCode", event.target.value)} placeholder="EMP-001" />
-                  </label>
-                  <label>
-                    Full name
-                    <input required value={employeeForm.name} onChange={(event) => updateEmployeeForm("name", event.target.value)} placeholder="Rahul Sharma" />
-                  </label>
-                </div>
-                <div className="grid two-column compact-grid">
-                  <label>
-                    Designation
-                    <input required value={employeeForm.designation} onChange={(event) => updateEmployeeForm("designation", event.target.value)} placeholder="Front desk / Cashier / Manager" />
-                  </label>
-                  <label>
-                    Branch
-                    <select required value={employeeForm.branchId} onChange={(event) => updateEmployeeForm("branchId", event.target.value)}>
-                      <option value="" disabled>Select branch</option>
-                      {branches.map((branch) => (
-                        <option key={branch.id} value={branch.id}>{branch.name}</option>
-                      ))}
-                    </select>
-                  </label>
-                </div>
-                <div className="grid two-column compact-grid">
-                  <label>
-                    Email
-                    <input required type="email" value={employeeForm.email} onChange={(event) => updateEmployeeForm("email", event.target.value)} placeholder="employee@property.com" />
-                  </label>
-                  <label>
-                    Phone
-                    <input required value={employeeForm.phone} onChange={(event) => updateEmployeeForm("phone", event.target.value)} placeholder="+91-98xxxxxxx" />
-                  </label>
-                </div>
-                <div className="grid three-column compact-grid">
-                  <label>
-                    Monthly salary
-                    <input required min="0" step="0.01" type="number" value={employeeForm.monthlySalary} onChange={(event) => updateEmployeeForm("monthlySalary", event.target.value)} placeholder="20000" />
-                  </label>
-                  <label>
-                    Allowed leaves / month
-                    <input required min="0" max="31" type="number" value={employeeForm.monthlyLeaveAllowance} onChange={(event) => updateEmployeeForm("monthlyLeaveAllowance", event.target.value)} placeholder="2" />
-                  </label>
-                  <label>
-                    Advance already paid
-                    <input required min="0" step="0.01" type="number" value={employeeForm.advancePaid} onChange={(event) => updateEmployeeForm("advancePaid", event.target.value)} placeholder="0" />
-                  </label>
-                </div>
-                <div className="action-row">
-                  <button className="primary-button" disabled={employeeSaving} type="submit">
-                    {employeeSaving ? "Saving..." : editingEmployeeId ? "Update employee" : "Add employee"}
-                  </button>
-                  <span className="muted">New employees can sign in with their email and starter password `password`.</span>
-                </div>
-                {employeeFormStatus ? (
-                  <p className={employeeFormStatus.includes("successfully") ? "status-text" : "error-text"}>
-                    {employeeFormStatus}
-                  </p>
-                ) : null}
-              </form>
-            </section>
+                <form className="admin-form-grid" onSubmit={handleEmployeeSubmit}>
+                  <div className="grid two-column compact-grid">
+                    <label>
+                      Employee code
+                      <input required value={employeeForm.employeeCode} onChange={(event) => updateEmployeeForm("employeeCode", event.target.value)} placeholder="EMP-001" />
+                    </label>
+                    <label>
+                      Full name
+                      <input required value={employeeForm.name} onChange={(event) => updateEmployeeForm("name", event.target.value)} placeholder="Rahul Sharma" />
+                    </label>
+                  </div>
+                  <div className="grid two-column compact-grid">
+                    <label>
+                      Designation
+                      <input required value={employeeForm.designation} onChange={(event) => updateEmployeeForm("designation", event.target.value)} placeholder="Front desk / Cashier / Manager" />
+                    </label>
+                    <label>
+                      Branch
+                      <select required value={employeeForm.branchId} onChange={(event) => updateEmployeeForm("branchId", event.target.value)}>
+                        <option value="" disabled>Select branch</option>
+                        {branches.map((branch) => (
+                          <option key={branch.id} value={branch.id}>{branch.name}</option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                  <div className="grid two-column compact-grid">
+                    <label>
+                      Email
+                      <input required type="email" value={employeeForm.email} onChange={(event) => updateEmployeeForm("email", event.target.value)} placeholder="employee@property.com" />
+                    </label>
+                    <label>
+                      Phone
+                      <input required value={employeeForm.phone} onChange={(event) => updateEmployeeForm("phone", event.target.value)} placeholder="+91-98xxxxxxx" />
+                    </label>
+                  </div>
+                  <div className="grid three-column compact-grid">
+                    <label>
+                      Monthly salary
+                      <input required min="0" step="0.01" type="number" value={employeeForm.monthlySalary} onChange={(event) => updateEmployeeForm("monthlySalary", event.target.value)} placeholder="20000" />
+                    </label>
+                    <label>
+                      Allowed leaves / month
+                      <input required min="0" max="31" type="number" value={employeeForm.monthlyLeaveAllowance} onChange={(event) => updateEmployeeForm("monthlyLeaveAllowance", event.target.value)} placeholder="2" />
+                    </label>
+                    <label>
+                      Advance already paid
+                      <input required min="0" step="0.01" type="number" value={employeeForm.advancePaid} onChange={(event) => updateEmployeeForm("advancePaid", event.target.value)} placeholder="0" />
+                    </label>
+                  </div>
+                  <div className="action-row">
+                    <button className="primary-button" disabled={employeeSaving} type="submit">
+                      {employeeSaving ? "Saving..." : editingEmployeeId ? "Update employee" : "Add employee"}
+                    </button>
+                    <span className="muted">New employees can sign in with their email and starter password `password`.</span>
+                  </div>
+                  {employeeFormStatus ? (
+                    <p className={employeeFormStatus.includes("successfully") ? "status-text" : "error-text"}>
+                      {employeeFormStatus}
+                    </p>
+                  ) : null}
+                </form>
+              </section>
+              <BulkEmployeeImport session={session} branches={branches} onReload={loadAdminData} />
+            </>
           ) : null}
 
           {activeTab === "employees" ? (
-            <section className="panel">
-              <div className="topbar">
-                <div>
-                  <h3>Employees</h3>
-                  <p className="muted section-intro">
-                    Manage active staff, remove old records, and review monthly salary rules quickly.
-                  </p>
-                </div>
-              </div>
-              {employees.length ? (
-                <>
-                  <table className="data-table desktop-table">
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Code</th>
-                        <th>Branch</th>
-                        <th>Salary</th>
-                        <th>Allowed leaves</th>
-                        <th>Advance</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {employees.map((employee) => (
-                        <tr key={employee.id}>
-                          <td>
-                            <strong>{employee.name}</strong>
-                            <div className="table-subtext">{employee.designation}</div>
-                          </td>
-                          <td>{employee.employeeCode}</td>
-                          <td>{employee.branchName}</td>
-                          <td>{formatMoney(employee.monthlySalary)}</td>
-                          <td>{employee.monthlyLeaveAllowance}</td>
-                          <td>{formatMoney(employee.advancePaid)}</td>
-                          <td>{employee.status}</td>
-                          <td>
-                            <div className="table-action-row">
-                              <button
-                                className="ghost-button compact-button"
-                                onClick={() => startEditingEmployee(employee)}
-                                type="button"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                className="ghost-button compact-button"
-                                onClick={() =>
-                                  void changeEmployeeStatus(
-                                    employee.id,
-                                    employee.status === "ACTIVE" ? "INACTIVE" : "ACTIVE"
-                                  )
-                                }
-                                type="button"
-                              >
-                                {employee.status === "ACTIVE" ? "Make inactive" : "Make active"}
-                              </button>
-                              <button
-                                className="ghost-button compact-button danger-button"
-                                onClick={() => void removeEmployee(employee.id, employee.name)}
-                                type="button"
-                              >
-                                Remove
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <div className="attendance-card-list employee-card-list">
-                    {employees.map((employee) => (
-                      <article className="attendance-card" key={employee.id}>
-                        <div className="attendance-card-header">
-                          <strong>{employee.name}</strong>
-                          <span className="pill">{employee.status}</span>
-                        </div>
-                        <div className="attendance-card-grid">
-                          <span>Code</span>
-                          <strong>{employee.employeeCode}</strong>
-                          <span>Branch</span>
-                          <strong>{employee.branchName}</strong>
-                          <span>Salary</span>
-                          <strong>{formatMoney(employee.monthlySalary)}</strong>
-                          <span>Leaves / month</span>
-                          <strong>{employee.monthlyLeaveAllowance}</strong>
-                          <span>Advance paid</span>
-                          <strong>{formatMoney(employee.advancePaid)}</strong>
-                        </div>
-                        <div className="table-action-row card-action-row">
-                          <button className="ghost-button compact-button" onClick={() => startEditingEmployee(employee)} type="button">
-                            Edit
-                          </button>
-                          <button
-                            className="ghost-button compact-button"
-                            onClick={() =>
-                              void changeEmployeeStatus(
-                                employee.id,
-                                employee.status === "ACTIVE" ? "INACTIVE" : "ACTIVE"
-                              )
-                            }
-                            type="button"
-                          >
-                            {employee.status === "ACTIVE" ? "Make inactive" : "Make active"}
-                          </button>
-                          <button
-                            className="ghost-button compact-button danger-button"
-                            onClick={() => void removeEmployee(employee.id, employee.name)}
-                            type="button"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <EmptyState title="No employees added yet" message="Employee records will show up here after you add your first team members." />
-              )}
-            </section>
+            <EmployeeDirectory
+              session={session}
+              employees={employees}
+              branches={branches}
+              onReload={loadAdminData}
+              onEditEmployee={startEditingEmployee}
+            />
           ) : null}
 
           {activeTab === "payroll" ? (
