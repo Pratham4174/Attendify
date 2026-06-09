@@ -340,6 +340,11 @@ export function EmployeeScreen({
     });
   }
 
+  function retakeSelfie() {
+    setSelfie("");
+    setStatus("Camera is ready. Capture a fresh selfie to continue.");
+  }
+
   async function captureSelfieAndSubmit(mode: "check-in" | "check-out") {
     if (!cameraReady) {
       return;
@@ -738,26 +743,15 @@ export function EmployeeScreen({
                         : "We take a few readings to avoid random inside/outside results."}
                     </span>
                   </div>
-                  <div className="prep-card">
-                    <button className="secondary-button prep-button" onClick={() => void startCamera()} type="button">
-                      Start camera
-                    </button>
-                    <span className="prep-value">{cameraReady ? "Camera ready for a fresh selfie" : "Open the front camera"}</span>
-                  </div>
-                  <div className="prep-card">
-                    <button className="secondary-button prep-button" onClick={captureSelfie} type="button">
-                      Capture selfie
-                    </button>
-                    <span className="prep-value">{selfie ? "Selfie captured and attached" : "Take a clear selfie"}</span>
-                  </div>
                 </div>
 
-                <div className="camera-panel">
-                  <video autoPlay muted playsInline ref={videoRef} />
+                <div className="camera-panel single-camera-panel">
                   {selfie ? (
                     <img alt="Captured selfie" src={selfie} />
+                  ) : cameraReady ? (
+                    <video autoPlay muted playsInline ref={videoRef} />
                   ) : (
-                    <div className="empty-media">Selfie preview will appear here.</div>
+                    <div className="empty-media">Lock GPS inside the branch area to open the live camera here.</div>
                   )}
                 </div>
 
@@ -790,6 +784,14 @@ export function EmployeeScreen({
                   <div className="action-row attendance-action-row">
                     <button
                       className="secondary-button"
+                      disabled={loading || insideGeofence !== true || !cameraReady || !!selfie}
+                      onClick={captureSelfie}
+                      type="button"
+                    >
+                      Capture preview
+                    </button>
+                    <button
+                      className="secondary-button"
                       disabled={loading || insideGeofence !== true || !cameraReady}
                       onClick={() => void captureSelfieAndSubmit(canCheckOut ? "check-out" : "check-in")}
                       type="button"
@@ -797,8 +799,16 @@ export function EmployeeScreen({
                       {loading ? "Saving..." : canCheckOut ? "Capture and check out" : "Capture and check in"}
                     </button>
                     <button
+                      className="ghost-button"
+                      disabled={loading || !selfie}
+                      onClick={retakeSelfie}
+                      type="button"
+                    >
+                      Retake
+                    </button>
+                    <button
                       className="primary-button"
-                      disabled={loading || hasCheckedIn || insideGeofence !== true}
+                      disabled={loading || hasCheckedIn || insideGeofence !== true || !selfie}
                       onClick={() => void submitAttendance("check-in")}
                       type="button"
                     >
@@ -806,7 +816,7 @@ export function EmployeeScreen({
                     </button>
                     <button
                       className="ghost-button"
-                      disabled={loading || !canCheckOut || insideGeofence !== true}
+                      disabled={loading || !canCheckOut || insideGeofence !== true || !selfie}
                       onClick={() => void submitAttendance("check-out")}
                       type="button"
                     >

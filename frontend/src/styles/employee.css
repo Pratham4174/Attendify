@@ -94,6 +94,10 @@
   margin: 0;
 }
 
+.single-camera-panel {
+  grid-template-columns: 1fr;
+}
+
 .camera-panel video,
 .camera-panel img,
 .evidence-stack img {
