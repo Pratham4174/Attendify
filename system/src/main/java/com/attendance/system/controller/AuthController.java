@@ -1,7 +1,9 @@
 package com.attendance.system.controller;
 
+import com.attendance.system.dto.ForgotPasswordRequest;
 import com.attendance.system.dto.LoginRequest;
 import com.attendance.system.dto.LoginResponse;
+import com.attendance.system.dto.MessageResponse;
 import com.attendance.system.security.AuthenticatedUser;
 import com.attendance.system.service.AuthService;
 import jakarta.validation.Valid;
@@ -24,6 +26,11 @@ public class AuthController {
     @PostMapping("/login")
     public LoginResponse login(@Valid @RequestBody LoginRequest request) {
         return authService.login(request);
+    }
+
+    @PostMapping("/forgot-password")
+    public MessageResponse forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        return authService.forgotPassword(request);
     }
 
     @GetMapping("/me")

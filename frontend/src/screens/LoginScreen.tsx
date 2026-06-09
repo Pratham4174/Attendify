@@ -22,6 +22,15 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [forgotPasswordMode, setForgotPasswordMode] = useState(false);
+  const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
+  const [forgotPasswordStatus, setForgotPasswordStatus] = useState("");
+  const [forgotPasswordForm, setForgotPasswordForm] = useState({
+    email: "",
+    phone: "",
+    newPassword: "",
+    confirmPassword: ""
+  });
   const [registrationMode, setRegistrationMode] = useState(false);
   const [registrationLoading, setRegistrationLoading] = useState(false);
   const [registrationStatus, setRegistrationStatus] = useState("");
@@ -70,6 +79,58 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
       setError(loginError instanceof Error ? loginError.message : "Unable to sign in.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  function updateForgotPasswordForm(
+    key: "email" | "phone" | "newPassword" | "confirmPassword",
+    value: string
+  ) {
+    setForgotPasswordForm((current) => ({ ...current, [key]: value }));
+  }
+
+  async function handleForgotPassword(event: React.FormEvent) {
+    event.preventDefault();
+    setForgotPasswordLoading(true);
+    setForgotPasswordStatus("");
+    setError("");
+
+    try {
+      if (forgotPasswordForm.newPassword !== forgotPasswordForm.confirmPassword) {
+        throw new Error("New password and confirm password must match.");
+      }
+
+      const response = await fetch(`${API_BASE}/auth/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: forgotPasswordForm.email,
+          phone: forgotPasswordForm.phone,
+          newPassword: forgotPasswordForm.newPassword
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(await extractError(response));
+      }
+
+      const data = (await response.json()) as { message: string };
+      setForgotPasswordStatus(data.message);
+      setEmail(forgotPasswordForm.email);
+      setPassword("");
+      setForgotPasswordForm({
+        email: "",
+        phone: "",
+        newPassword: "",
+        confirmPassword: ""
+      });
+      setForgotPasswordMode(false);
+    } catch (forgotError) {
+      setForgotPasswordStatus(
+        forgotError instanceof Error ? forgotError.message : "Unable to reset password."
+      );
+    } finally {
+      setForgotPasswordLoading(false);
     }
   }
 
@@ -215,14 +276,20 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
             <button
               className={registrationMode ? "auth-toggle-button" : "auth-toggle-button active"}
               type="button"
-              onClick={() => setRegistrationMode(false)}
+              onClick={() => {
+                setRegistrationMode(false);
+                setForgotPasswordMode(false);
+              }}
             >
               Sign in
             </button>
             <button
               className={registrationMode ? "auth-toggle-button active" : "auth-toggle-button"}
               type="button"
-              onClick={() => setRegistrationMode(true)}
+              onClick={() => {
+                setRegistrationMode(true);
+                setForgotPasswordMode(false);
+              }}
             >
               Register property
             </button>
@@ -230,44 +297,130 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
         </div>
         {!registrationMode ? (
           <>
-            <h2>Sign in</h2>
-            <p className="muted section-intro auth-section-intro">Use your work email to open your ATTENDIFY workspace.</p>
-            <form onSubmit={handleLogin}>
-              <label>
-                Email
-                <input
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  type="email"
-                  placeholder="you@property.com"
-                />
-                <span className="field-hint">Use your admin or employee email to continue.</span>
-              </label>
-              <label>
-                Password
-                <input
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  type="password"
-                  placeholder="password"
-                />
-                <span className="field-hint">Enter the password linked to your ATTENDIFY account.</span>
-              </label>
-              {error ? <p className="error-text">{error}</p> : null}
-              {registrationStatus ? <p className="status-text">{registrationStatus}</p> : null}
-              {registrationSummary ? (
-                <div className="info-card">
-                  <strong>{registrationSummary.propertyName} is ready</strong>
-                  <span>{registrationSummary.message}</span>
-                  <span>Admin sign-in: {registrationSummary.adminEmail}</span>
-                  <span>Starter employees added: {registrationSummary.employeesCreated}</span>
-                  <span>Employee starter password: password</span>
-                </div>
-              ) : null}
-              <button className="primary-button" disabled={loading} type="submit">
-                {loading ? "Signing in..." : "Access workspace"}
-              </button>
-            </form>
+            {!forgotPasswordMode ? (
+              <>
+                <h2>Sign in</h2>
+                <p className="muted section-intro auth-section-intro">Use your work email to open your ATTENDIFY workspace.</p>
+                <form onSubmit={handleLogin}>
+                  <label>
+                    Email
+                    <input
+                      value={email}
+                      onChange={(event) => setEmail(event.target.value)}
+                      type="email"
+                      placeholder="you@property.com"
+                    />
+                    <span className="field-hint">Use your admin or employee email to continue.</span>
+                  </label>
+                  <label>
+                    Password
+                    <input
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                      type="password"
+                      placeholder="password"
+                    />
+                    <span className="field-hint">Enter the password linked to your ATTENDIFY account.</span>
+                  </label>
+                  <div className="auth-inline-actions">
+                    <button
+                      className="auth-text-button"
+                      onClick={() => {
+                        setForgotPasswordMode(true);
+                        setForgotPasswordStatus("");
+                        setError("");
+                        setForgotPasswordForm((current) => ({
+                          ...current,
+                          email: email || current.email
+                        }));
+                      }}
+                      type="button"
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
+                  {error ? <p className="error-text">{error}</p> : null}
+                  {registrationStatus ? <p className="status-text">{registrationStatus}</p> : null}
+                  {registrationSummary ? (
+                    <div className="info-card">
+                      <strong>{registrationSummary.propertyName} is ready</strong>
+                      <span>{registrationSummary.message}</span>
+                      <span>Admin sign-in: {registrationSummary.adminEmail}</span>
+                      <span>Starter employees added: {registrationSummary.employeesCreated}</span>
+                      <span>Employee starter password: password</span>
+                    </div>
+                  ) : null}
+                  <button className="primary-button" disabled={loading} type="submit">
+                    {loading ? "Signing in..." : "Access workspace"}
+                  </button>
+                </form>
+              </>
+            ) : (
+              <>
+                <h2>Reset employee password</h2>
+                <p className="muted section-intro auth-section-intro">
+                  Enter your employee email, registered phone number, and a new password.
+                </p>
+                <form onSubmit={handleForgotPassword}>
+                  <label>
+                    Employee email
+                    <input
+                      value={forgotPasswordForm.email}
+                      onChange={(event) => updateForgotPasswordForm("email", event.target.value)}
+                      type="email"
+                      placeholder="employee@property.com"
+                    />
+                  </label>
+                  <label>
+                    Registered phone
+                    <input
+                      value={forgotPasswordForm.phone}
+                      onChange={(event) => updateForgotPasswordForm("phone", event.target.value)}
+                      placeholder="+91 98xxxxxxx"
+                    />
+                    <span className="field-hint">Use the same phone number saved in your employee profile.</span>
+                  </label>
+                  <label>
+                    New password
+                    <input
+                      value={forgotPasswordForm.newPassword}
+                      onChange={(event) => updateForgotPasswordForm("newPassword", event.target.value)}
+                      type="password"
+                      placeholder="Create a new password"
+                    />
+                  </label>
+                  <label>
+                    Confirm new password
+                    <input
+                      value={forgotPasswordForm.confirmPassword}
+                      onChange={(event) => updateForgotPasswordForm("confirmPassword", event.target.value)}
+                      type="password"
+                      placeholder="Repeat the new password"
+                    />
+                  </label>
+                  {forgotPasswordStatus ? (
+                    <p className={forgotPasswordStatus.includes("successfully") ? "status-text" : "error-text"}>
+                      {forgotPasswordStatus}
+                    </p>
+                  ) : null}
+                  <div className="auth-inline-actions">
+                    <button className="primary-button" disabled={forgotPasswordLoading} type="submit">
+                      {forgotPasswordLoading ? "Updating..." : "Reset password"}
+                    </button>
+                    <button
+                      className="ghost-button"
+                      onClick={() => {
+                        setForgotPasswordMode(false);
+                        setForgotPasswordStatus("");
+                      }}
+                      type="button"
+                    >
+                      Back to sign in
+                    </button>
+                  </div>
+                </form>
+              </>
+            )}
           </>
         ) : (
           <>

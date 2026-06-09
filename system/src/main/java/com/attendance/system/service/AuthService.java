@@ -1,8 +1,11 @@
 package com.attendance.system.service;
 
+import com.attendance.system.dto.ForgotPasswordRequest;
 import com.attendance.system.dto.LoginRequest;
 import com.attendance.system.dto.LoginResponse;
+import com.attendance.system.dto.MessageResponse;
 import com.attendance.system.model.UserEntity;
+import com.attendance.system.model.UserRole;
 import com.attendance.system.repository.UserRepository;
 import com.attendance.system.security.AuthenticatedUser;
 import com.attendance.system.security.JwtService;
@@ -37,6 +40,25 @@ public class AuthService {
         return new LoginResponse(jwtService.generateToken(user), toUserSummary(user));
     }
 
+    @Transactional
+    public MessageResponse forgotPassword(ForgotPasswordRequest request) {
+        UserEntity user = userRepository.findByEmailIgnoreCase(request.email())
+                .filter(UserEntity::isActive)
+                .filter(existingUser -> existingUser.getRole() == UserRole.EMPLOYEE)
+                .filter(existingUser -> existingUser.getEmployee() != null)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Employee account not found."));
+
+        String requestedPhone = normalizePhone(request.phone());
+        String employeePhone = normalizePhone(user.getEmployee().getPhone());
+        if (!employeePhone.equals(requestedPhone)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email and phone do not match our records.");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
+        return new MessageResponse("Password updated successfully. You can sign in now.");
+    }
+
     @Transactional(readOnly = true)
     public LoginResponse.UserSummary currentUser(AuthenticatedUser authenticatedUser) {
         UserEntity user = userRepository.findById(authenticatedUser.userId())
@@ -54,5 +76,9 @@ public class AuthService {
                 user.getEmail(),
                 user.getRole()
         );
+    }
+
+    private String normalizePhone(String value) {
+        return value == null ? "" : value.replaceAll("[^0-9]", "");
     }
 }
