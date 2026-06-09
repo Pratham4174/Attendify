@@ -63,6 +63,14 @@ export function EmployeeDirectory({
     ? (payroll?.advancePayments ?? []).filter((payment) => payment.employeeId === selectedEmployee.id)
     : [];
 
+  function formatAttendanceProgress(record: AttendanceRow) {
+    if (!record.checkOutTime && record.date < todayKey) {
+      return "Absent";
+    }
+
+    return formatWorkedHours(record.checkInTime, record.checkOutTime);
+  }
+
   async function updateEmployeeStatus(employeeId: string, status: "ACTIVE" | "INACTIVE") {
     setWorking(true);
     setStatusMessage("");
@@ -292,7 +300,7 @@ export function EmployeeDirectory({
                         </div>
                         <div>
                           <strong>{record.status}</strong>
-                          <span>{formatWorkedHours(record.checkInTime, record.checkOutTime)}</span>
+                          <span>{formatAttendanceProgress(record)}</span>
                         </div>
                       </div>
                     ))}
