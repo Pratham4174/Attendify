@@ -81,7 +81,9 @@ public class AttendanceMapper {
                 branch.getRadiusMeters().doubleValue(),
                 branch.getShiftStartTime().toString(),
                 branch.getShiftEndTime().toString(),
-                branch.getGraceMinutes()
+                branch.getGraceMinutes(),
+                Math.max(1, branch.getHalfDayMinutes() / 60),
+                Math.max(1, branch.getFullDayMinutes() / 60)
         );
     }
 }

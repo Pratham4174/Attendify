@@ -178,6 +178,8 @@ export type Branch = {
   shiftStartTime: string;
   shiftEndTime: string;
   graceMinutes: number;
+  halfDayHours: number;
+  fullDayHours: number;
 };
 
 export type AdminTracking = {

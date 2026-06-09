@@ -53,6 +53,12 @@ public class BranchEntity {
     @Column(name = "grace_minutes", nullable = false)
     private Integer graceMinutes = 15;
 
+    @Column(name = "half_day_minutes", nullable = false)
+    private Integer halfDayMinutes = 240;
+
+    @Column(name = "full_day_minutes", nullable = false)
+    private Integer fullDayMinutes = 480;
+
     public UUID getId() {
         return id;
     }
@@ -127,5 +133,21 @@ public class BranchEntity {
 
     public void setGraceMinutes(Integer graceMinutes) {
         this.graceMinutes = graceMinutes;
+    }
+
+    public Integer getHalfDayMinutes() {
+        return halfDayMinutes;
+    }
+
+    public void setHalfDayMinutes(Integer halfDayMinutes) {
+        this.halfDayMinutes = halfDayMinutes;
+    }
+
+    public Integer getFullDayMinutes() {
+        return fullDayMinutes;
+    }
+
+    public void setFullDayMinutes(Integer fullDayMinutes) {
+        this.fullDayMinutes = fullDayMinutes;
     }
 }

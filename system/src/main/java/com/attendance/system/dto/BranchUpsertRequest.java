@@ -16,6 +16,8 @@ public record BranchUpsertRequest(
         @NotNull @DecimalMin("1.0") BigDecimal radiusMeters,
         @NotBlank String shiftStartTime,
         @NotBlank String shiftEndTime,
-        @NotNull @Min(0) @Max(240) Integer graceMinutes
+        @NotNull @Min(0) @Max(240) Integer graceMinutes,
+        @NotNull @Min(1) @Max(24) Integer halfDayHours,
+        @NotNull @Min(1) @Max(24) Integer fullDayHours
 ) {
 }

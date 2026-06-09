@@ -12,6 +12,8 @@ type BranchFormState = {
   shiftStartTime: string;
   shiftEndTime: string;
   graceMinutes: string;
+  halfDayHours: string;
+  fullDayHours: string;
 };
 
 function buildEmptyBranchForm(): BranchFormState {
@@ -23,7 +25,9 @@ function buildEmptyBranchForm(): BranchFormState {
     radiusMeters: "50",
     shiftStartTime: "09:00",
     shiftEndTime: "18:00",
-    graceMinutes: "15"
+    graceMinutes: "15",
+    halfDayHours: "4",
+    fullDayHours: "8"
   };
 }
 
@@ -58,7 +62,9 @@ export function BranchManagement({
       radiusMeters: String(branch.radiusMeters),
       shiftStartTime: branch.shiftStartTime,
       shiftEndTime: branch.shiftEndTime,
-      graceMinutes: String(branch.graceMinutes)
+      graceMinutes: String(branch.graceMinutes),
+      halfDayHours: String(branch.halfDayHours),
+      fullDayHours: String(branch.fullDayHours)
     });
   }
 
@@ -87,7 +93,9 @@ export function BranchManagement({
             radiusMeters: Number(branchForm.radiusMeters),
             shiftStartTime: branchForm.shiftStartTime,
             shiftEndTime: branchForm.shiftEndTime,
-            graceMinutes: Number(branchForm.graceMinutes)
+            graceMinutes: Number(branchForm.graceMinutes),
+            halfDayHours: Number(branchForm.halfDayHours),
+            fullDayHours: Number(branchForm.fullDayHours)
           })
         }
       );
@@ -169,7 +177,7 @@ export function BranchManagement({
               </label>
             </div>
 
-            <div className="grid three-column compact-grid">
+            <div className="grid compact-grid branch-policy-grid">
               <label>
                 Shift start
                 <input required type="time" value={branchForm.shiftStartTime} onChange={(event) => updateBranchForm("shiftStartTime", event.target.value)} />
@@ -182,7 +190,18 @@ export function BranchManagement({
                 Grace minutes
                 <input required min="0" max="240" type="number" value={branchForm.graceMinutes} onChange={(event) => updateBranchForm("graceMinutes", event.target.value)} />
               </label>
+              <label>
+                Half day after (hours)
+                <input required min="1" max="24" type="number" value={branchForm.halfDayHours} onChange={(event) => updateBranchForm("halfDayHours", event.target.value)} />
+              </label>
+              <label>
+                Full day after (hours)
+                <input required min="1" max="24" type="number" value={branchForm.fullDayHours} onChange={(event) => updateBranchForm("fullDayHours", event.target.value)} />
+              </label>
             </div>
+            <p className="muted form-helper-text">
+              Example: 4 hours for half day and 8 hours for full day. Anything below the half-day rule is treated as absent in payroll.
+            </p>
 
             <div className="action-row">
               <button className="primary-button" disabled={branchSaving} type="submit">
@@ -212,6 +231,7 @@ export function BranchManagement({
                   <th>Radius</th>
                   <th>Shift timing</th>
                   <th>Grace</th>
+                  <th>Workday rule</th>
                   <th>Coordinates</th>
                   <th>Actions</th>
                 </tr>
@@ -224,6 +244,7 @@ export function BranchManagement({
                     <td>{branch.radiusMeters}m</td>
                     <td>{branch.shiftStartTime} - {branch.shiftEndTime}</td>
                     <td>{branch.graceMinutes} min</td>
+                    <td>{branch.halfDayHours}h half day / {branch.fullDayHours}h full day</td>
                     <td>{branch.latitude.toFixed(5)}, {branch.longitude.toFixed(5)}</td>
                     <td>
                       <button className="ghost-button compact-button" onClick={() => startEditingBranch(branch)} type="button">
@@ -249,6 +270,8 @@ export function BranchManagement({
                     <strong>{branch.shiftStartTime} - {branch.shiftEndTime}</strong>
                     <span>Grace</span>
                     <strong>{branch.graceMinutes} min</strong>
+                    <span>Workday rule</span>
+                    <strong>{branch.halfDayHours}h half day / {branch.fullDayHours}h full day</strong>
                     <span>Coordinates</span>
                     <strong>{branch.latitude.toFixed(5)}, {branch.longitude.toFixed(5)}</strong>
                   </div>

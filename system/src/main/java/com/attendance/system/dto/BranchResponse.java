@@ -9,6 +9,8 @@ public record BranchResponse(
         double radiusMeters,
         String shiftStartTime,
         String shiftEndTime,
-        int graceMinutes
+        int graceMinutes,
+        int halfDayHours,
+        int fullDayHours
 ) {
 }

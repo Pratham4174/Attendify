@@ -591,6 +591,9 @@ public class AdminService {
     }
 
     private void populateBranch(BranchEntity branch, BranchUpsertRequest request) {
+        if (request.fullDayHours() < request.halfDayHours()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Full day hours must be greater than or equal to half day hours.");
+        }
         branch.setName(request.name().trim());
         branch.setAddress(request.address().trim());
         branch.setLatitude(request.latitude().setScale(7, RoundingMode.HALF_UP));
@@ -599,6 +602,8 @@ public class AdminService {
         branch.setShiftStartTime(parseTime(request.shiftStartTime(), "Shift start time must use HH:MM format."));
         branch.setShiftEndTime(parseTime(request.shiftEndTime(), "Shift end time must use HH:MM format."));
         branch.setGraceMinutes(request.graceMinutes());
+        branch.setHalfDayMinutes(request.halfDayHours() * 60);
+        branch.setFullDayMinutes(request.fullDayHours() * 60);
     }
 
     private PayrollSummaryResponse.EmployeePayrollRow buildPayrollRow(
@@ -682,10 +687,13 @@ public class AdminService {
             if (holidayDates.contains(date)) {
                 holidayDays++;
             } else if (attendanceRecord != null) {
-                if (isHalfDay(attendanceRecord)) {
+                BigDecimal workedDayUnits = resolveWorkedDayUnits(attendanceRecord);
+                if (workedDayUnits.compareTo(BigDecimal.ONE) >= 0) {
+                    workedDays++;
+                } else if (workedDayUnits.compareTo(BigDecimal.valueOf(0.5)) >= 0) {
                     halfDays++;
                 } else {
-                    workedDays++;
+                    absenceDays++;
                 }
             } else if (requestedPaidLeaveDates.contains(date)) {
                 requestedPaidLeaveDays++;
@@ -750,15 +758,22 @@ public class AdminService {
         return amount == null ? BigDecimal.ZERO : scaleMoney(amount);
     }
 
-    private boolean isHalfDay(AttendanceRecordEntity record) {
-        if (record.getCheckInTime() == null) {
-            return false;
+    private BigDecimal resolveWorkedDayUnits(AttendanceRecordEntity record) {
+        if (record.getCheckInTime() == null || record.getCheckOutTime() == null) {
+            return BigDecimal.ZERO;
         }
-        if (record.getCheckOutTime() == null) {
-            return true;
-        }
+
         long minutesWorked = java.time.Duration.between(record.getCheckInTime(), record.getCheckOutTime()).toMinutes();
-        return minutesWorked < 6 * 60;
+        int halfDayMinutes = record.getBranch().getHalfDayMinutes() == null ? 240 : record.getBranch().getHalfDayMinutes();
+        int fullDayMinutes = record.getBranch().getFullDayMinutes() == null ? 480 : record.getBranch().getFullDayMinutes();
+
+        if (minutesWorked >= fullDayMinutes) {
+            return BigDecimal.ONE;
+        }
+        if (minutesWorked >= halfDayMinutes) {
+            return BigDecimal.valueOf(0.5);
+        }
+        return BigDecimal.ZERO;
     }
 
     private BigDecimal scaleMoney(BigDecimal amount) {
