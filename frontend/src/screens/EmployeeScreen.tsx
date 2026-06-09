@@ -272,11 +272,28 @@ export function EmployeeScreen({
     setCoords(next);
     setLocationAccuracy(bestAccuracy);
     setLocationSampleCount(samples.length);
+    const nextDistance = overview
+      ? getDistanceMeters(
+          next.latitude,
+          next.longitude,
+          overview.branch.latitude,
+          overview.branch.longitude
+        )
+      : null;
+    const nextLimit = overview ? getGeofenceLimit(overview.branch.radiusMeters, bestAccuracy) : null;
+    const isInsideBranch = nextDistance !== null && nextLimit !== null ? nextDistance <= nextLimit : false;
     setStatus(
       bestAccuracy !== null
-        ? `Location locked with ±${bestAccuracy.toFixed(0)}m accuracy. You are ready for the next step.`
-        : "Location locked. You are ready for the next step."
+        ? isInsideBranch
+          ? `Inside branch area with ±${bestAccuracy.toFixed(0)}m accuracy. Opening camera now.`
+          : `Location locked with ±${bestAccuracy.toFixed(0)}m accuracy. You are still outside the branch area.`
+        : isInsideBranch
+          ? "Inside branch area. Opening camera now."
+          : "Location locked. You are still outside the branch area."
     );
+    if (isInsideBranch) {
+      await startCamera();
+    }
     return next;
   }
 
@@ -323,6 +340,25 @@ export function EmployeeScreen({
     });
   }
 
+  async function captureSelfieAndSubmit(mode: "check-in" | "check-out") {
+    if (!cameraReady) {
+      return;
+    }
+
+    let capturedImage = "";
+    captureImage((value) => {
+      capturedImage = value;
+      setSelfie(value);
+    });
+
+    if (!capturedImage) {
+      return;
+    }
+
+    setStatus(mode === "check-in" ? "Selfie captured. Saving your check-in..." : "Selfie captured. Saving your check-out...");
+    await submitAttendance(mode, capturedImage);
+  }
+
   function captureProfileSelfie() {
     captureImage((value) => {
       setProfileSelfie(value);
@@ -355,7 +391,7 @@ export function EmployeeScreen({
     }
   }
 
-  async function submitAttendance(mode: "check-in" | "check-out") {
+  async function submitAttendance(mode: "check-in" | "check-out", imageOverride?: string) {
     if (!overview) {
       return;
     }
@@ -365,7 +401,8 @@ export function EmployeeScreen({
 
     try {
       const location = coords ?? (await requestLocation());
-      if (!selfie) {
+      const attendanceImage = imageOverride ?? selfie;
+      if (!attendanceImage) {
         throw new Error("Capture a live selfie before submitting attendance.");
       }
 
@@ -379,7 +416,7 @@ export function EmployeeScreen({
               latitude: location.latitude,
               longitude: location.longitude,
               accuracyMeters: locationAccuracy,
-              imageDataUrl: selfie
+              imageDataUrl: attendanceImage
             })
           }
         );
@@ -390,7 +427,7 @@ export function EmployeeScreen({
         branchName: overview.branch.name,
         time: new Date().toISOString(),
         distanceMeters: data.distanceMeters,
-        image: selfie
+        image: attendanceImage
       });
       stopCameraStream();
       setSelfie("");
@@ -521,28 +558,6 @@ export function EmployeeScreen({
     { id: "corrections", label: "Corrections" },
     { id: "leaves", label: "Leaves" },
     { id: "help", label: "How it works" }
-  ];
-  const employeeSteps = [
-    {
-      title: "Allow location",
-      detail: coords ? `Locked at ${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}` : "We use your live location to confirm you are at the branch.",
-      complete: !!coords
-    },
-    {
-      title: "Start camera",
-      detail: cameraReady ? "Camera is ready for a fresh selfie." : "Turn on the front camera before capturing attendance proof.",
-      complete: cameraReady
-    },
-    {
-      title: "Capture selfie",
-      detail: selfie ? "Selfie captured and ready to attach." : "Take a clear selfie before you check in or check out.",
-      complete: !!selfie
-    },
-    {
-      title: canCheckOut ? "Check out" : "Check in",
-      detail: canCheckOut ? "Finish your day once your work is complete." : "Submit your attendance once location and selfie are ready.",
-      complete: canCheckOut ? overview.todayAttendance?.status === "COMPLETED" : hasCheckedIn
-    }
   ];
   const tutorialSteps = [
     {
@@ -678,23 +693,10 @@ export function EmployeeScreen({
                 <div className="mark-attendance-header">
                   <div>
                     <h3>Mark attendance</h3>
-                    <p className="muted section-intro">Complete the 3 quick steps, then submit your attendance.</p>
                   </div>
                   <button className="ghost-button tutorial-button" onClick={() => setShowTutorial(true)} type="button">
                     How it works
                   </button>
-                </div>
-
-                <div className="step-list compact-step-list">
-                  {employeeSteps.map((step, index) => (
-                    <div className={`step-card${step.complete ? " complete" : ""}`} key={step.title}>
-                      <span className="step-index">{index + 1}</span>
-                      <div>
-                        <strong>{step.title}</strong>
-                        <span>{step.detail}</span>
-                      </div>
-                    </div>
-                  ))}
                 </div>
 
                 <div className="prep-card-grid">
@@ -778,15 +780,25 @@ export function EmployeeScreen({
                   <div>
                     <strong>{canCheckOut ? "Ready to check out?" : "Ready to check in?"}</strong>
                     <span className="muted">
-                      {canCheckOut
-                        ? "Finish your shift once your work is complete."
-                        : "Submit once your location and selfie are ready."}
+                      {insideGeofence
+                        ? canCheckOut
+                          ? "Capture and save your check-out directly from here."
+                          : "Capture and save your check-in directly from here."
+                        : "Lock GPS inside the branch area to continue."}
                     </span>
                   </div>
                   <div className="action-row attendance-action-row">
                     <button
+                      className="secondary-button"
+                      disabled={loading || insideGeofence !== true || !cameraReady}
+                      onClick={() => void captureSelfieAndSubmit(canCheckOut ? "check-out" : "check-in")}
+                      type="button"
+                    >
+                      {loading ? "Saving..." : canCheckOut ? "Capture and check out" : "Capture and check in"}
+                    </button>
+                    <button
                       className="primary-button"
-                      disabled={loading || hasCheckedIn}
+                      disabled={loading || hasCheckedIn || insideGeofence !== true}
                       onClick={() => void submitAttendance("check-in")}
                       type="button"
                     >
@@ -794,7 +806,7 @@ export function EmployeeScreen({
                     </button>
                     <button
                       className="ghost-button"
-                      disabled={loading || !canCheckOut}
+                      disabled={loading || !canCheckOut || insideGeofence !== true}
                       onClick={() => void submitAttendance("check-out")}
                       type="button"
                     >
