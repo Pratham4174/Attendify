@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { AttendancePayrollTable, AttendanceTable, TrackingLink } from "../components/AttendanceTable";
+import { AttendanceOverview } from "../components/AttendanceOverview";
+import { AttendancePayrollTable, TrackingLink } from "../components/AttendanceTable";
 import { AttendanceCorrectionTable } from "../components/AttendanceCorrections";
 import { BranchManagement } from "../components/BranchManagement";
 import { BulkEmployeeImport } from "../components/BulkEmployeeImport";
@@ -863,15 +864,11 @@ export function AdminScreen({
           ) : null}
 
           {activeTab === "attendance" ? (
-            <section className="panel">
-              <h3>Attendance evidence report</h3>
-              <p className="muted section-intro">Review check-in and check-out proof with timestamps.</p>
-              <AttendanceTable
-                records={attendance}
-                onPreviewImage={setPreviewImage}
-                emptyMessage="Attendance evidence will appear here once your staff start checking in and out."
-              />
-            </section>
+            <AttendanceOverview
+              attendance={attendance}
+              employees={activeEmployees}
+              onPreviewImage={setPreviewImage}
+            />
           ) : null}
 
           {activeTab === "tracking" ? (
