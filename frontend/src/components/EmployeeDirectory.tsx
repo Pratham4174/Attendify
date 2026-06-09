@@ -11,7 +11,9 @@ export function EmployeeDirectory({
   attendance,
   payroll,
   onReload,
-  onEditEmployee
+  onEditEmployee,
+  title = "Employees",
+  description = "Review each team member quickly, then open their details for actions like transfer, password reset, or login control."
 }: {
   session: Session;
   employees: Employee[];
@@ -20,6 +22,8 @@ export function EmployeeDirectory({
   payroll: PayrollSummary | null;
   onReload: () => Promise<void>;
   onEditEmployee: (employee: Employee) => void;
+  title?: string;
+  description?: string;
 }) {
   const [statusMessage, setStatusMessage] = useState("");
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(employees[0]?.id ?? null);
@@ -179,7 +183,7 @@ export function EmployeeDirectory({
   if (!employees.length) {
     return (
       <section className="panel">
-        <h3>Employees</h3>
+        <h3>{title}</h3>
         <EmptyState
           title="No employees added yet"
           message="Employee records will show up here after you add your first team members."
@@ -192,10 +196,8 @@ export function EmployeeDirectory({
     <section className="panel">
       <div className="topbar">
         <div>
-          <h3>Employees</h3>
-          <p className="muted section-intro">
-            Review each team member quickly, then open their details for actions like transfer, password reset, or login control.
-          </p>
+          <h3>{title}</h3>
+          <p className="muted section-intro">{description}</p>
         </div>
       </div>
 

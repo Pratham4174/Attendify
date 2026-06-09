@@ -47,6 +47,7 @@ type AdminTab =
   | "overview"
   | "add-employee"
   | "employees"
+  | "inactive-employees"
   | "corrections"
   | "leave"
   | "payroll"
@@ -109,6 +110,7 @@ export function AdminScreen({
     { id: "overview", label: "Overview" },
     { id: "add-employee", label: "Add employee" },
     { id: "employees", label: "View employees" },
+    { id: "inactive-employees", label: "Inactive employees" },
     { id: "corrections", label: "Corrections" },
     { id: "leave", label: "Leave management" },
     { id: "payroll", label: "Payroll" },
@@ -384,9 +386,11 @@ export function AdminScreen({
   }
 
   const todayKey = formatLocalDateKey(new Date());
+  const activeEmployees = employees.filter((employee) => employee.status === "ACTIVE");
+  const inactiveEmployees = employees.filter((employee) => employee.status === "INACTIVE");
   const todayAttendance = attendance.filter((record) => record.date === todayKey);
   const todayAttendanceIds = new Set(todayAttendance.map((record) => record.employeeId));
-  const absentEmployees = employees.filter(
+  const absentEmployees = activeEmployees.filter(
     (employee) => employee.status === "ACTIVE" && !todayAttendanceIds.has(employee.id)
   );
   const checkedInEmployees = todayAttendance.filter((record) => record.status === "CHECKED_IN");
@@ -582,12 +586,28 @@ export function AdminScreen({
           {activeTab === "employees" ? (
             <EmployeeDirectory
               session={session}
-              employees={employees}
+              employees={activeEmployees}
               branches={branches}
               attendance={attendance}
               payroll={payroll}
               onReload={loadAdminData}
               onEditEmployee={startEditingEmployee}
+              title="Active employees"
+              description="Review active team members quickly, then open their details for attendance, payroll, payments, and account actions."
+            />
+          ) : null}
+
+          {activeTab === "inactive-employees" ? (
+            <EmployeeDirectory
+              session={session}
+              employees={inactiveEmployees}
+              branches={branches}
+              attendance={attendance}
+              payroll={payroll}
+              onReload={loadAdminData}
+              onEditEmployee={startEditingEmployee}
+              title="Inactive employees"
+              description="See staff who are currently inactive, review their past records, and reactivate them whenever needed."
             />
           ) : null}
 
