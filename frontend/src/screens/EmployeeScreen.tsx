@@ -345,25 +345,6 @@ export function EmployeeScreen({
     setStatus("Camera is ready. Capture a fresh selfie to continue.");
   }
 
-  async function captureSelfieAndSubmit(mode: "check-in" | "check-out") {
-    if (!cameraReady) {
-      return;
-    }
-
-    let capturedImage = "";
-    captureImage((value) => {
-      capturedImage = value;
-      setSelfie(value);
-    });
-
-    if (!capturedImage) {
-      return;
-    }
-
-    setStatus(mode === "check-in" ? "Selfie captured. Saving your check-in..." : "Selfie captured. Saving your check-out...");
-    await submitAttendance(mode, capturedImage);
-  }
-
   function captureProfileSelfie() {
     captureImage((value) => {
       setProfileSelfie(value);
@@ -784,11 +765,19 @@ export function EmployeeScreen({
                   <div className="action-row attendance-action-row">
                     <button
                       className="primary-button"
-                      disabled={loading || insideGeofence !== true || !cameraReady}
-                      onClick={() => void captureSelfieAndSubmit(canCheckOut ? "check-out" : "check-in")}
+                      disabled={loading || insideGeofence !== true || !cameraReady || !!selfie}
+                      onClick={captureSelfie}
                       type="button"
                     >
-                      {loading ? "Saving..." : canCheckOut ? "Capture and check out" : "Capture and check in"}
+                      Capture selfie
+                    </button>
+                    <button
+                      className="secondary-button"
+                      disabled={loading || insideGeofence !== true || !selfie}
+                      onClick={() => void submitAttendance(canCheckOut ? "check-out" : "check-in")}
+                      type="button"
+                    >
+                      {loading ? "Saving..." : canCheckOut ? "Check out" : "Check in"}
                     </button>
                     <button
                       className="ghost-button"
