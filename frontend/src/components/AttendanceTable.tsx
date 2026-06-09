@@ -158,7 +158,7 @@ export function AttendanceTable({
               <td>{record.date}</td>
               <td>{formatDateTime(record.checkInTime)}</td>
               <td>{formatDateTime(record.checkOutTime)}</td>
-              <td>{formatWorkedHours(record.checkInTime, record.checkOutTime)}</td>
+              <td>{getWorkedHoursLabel(record)}</td>
               <td>{record.status}</td>
               <td>{record.branchName}</td>
               <td>{renderEvidence(record, onPreviewImage)}</td>
@@ -184,7 +184,7 @@ export function AttendanceTable({
               <span>Check-out</span>
               <strong>{formatDateTime(record.checkOutTime)}</strong>
               <span>Hours worked</span>
-              <strong>{formatWorkedHours(record.checkInTime, record.checkOutTime)}</strong>
+              <strong>{getWorkedHoursLabel(record)}</strong>
             </div>
             <div className="attendance-card-evidence">{renderEvidence(record, onPreviewImage)}</div>
           </article>
@@ -198,6 +198,10 @@ function renderEvidence(
   record: AttendanceRow,
   onPreviewImage?: (preview: AttendancePreview) => void
 ) {
+  if (!record.checkInPhotoRef && !record.checkOutPhotoRef) {
+    return <span className="muted">No evidence for this day</span>;
+  }
+
   return (
     <div className="evidence-stack evidence-thumbnail-stack">
       {record.checkInPhotoRef ? (
@@ -242,6 +246,32 @@ function renderEvidence(
       ) : null}
     </div>
   );
+}
+
+function getWorkedHoursLabel(record: AttendanceRow) {
+  if (!record.checkInTime && !record.checkOutTime) {
+    if (record.status === "Upcoming") {
+      return "Not due";
+    }
+    if (record.status === "Holiday") {
+      return "Holiday";
+    }
+    if (record.status === "Not marked") {
+      return "Not marked";
+    }
+    if (record.status === "Paid leave" || record.status === "Auto paid leave" || record.status === "Unpaid leave") {
+      return record.status;
+    }
+    if (record.status === "Absent") {
+      return "Absent";
+    }
+  }
+
+  if (!record.checkOutTime && record.status === "Absent") {
+    return "Absent";
+  }
+
+  return formatWorkedHours(record.checkInTime, record.checkOutTime);
 }
 
 export function TrackingLink({

@@ -118,6 +118,8 @@ export type EmployeeLeaveWorkspace = {
   balance: {
     monthlyAllowance: number;
     approvedPaidLeaves: number;
+    autoAppliedPaidLeaves: number;
+    usedPaidLeaves: number;
     remainingPaidLeaves: number;
   };
   requests: LeaveRequest[];

@@ -867,6 +867,8 @@ export function AdminScreen({
             <AttendanceOverview
               attendance={attendance}
               employees={activeEmployees}
+              leaveRequests={leaveRequests}
+              holidays={holidays}
               onPreviewImage={setPreviewImage}
             />
           ) : null}

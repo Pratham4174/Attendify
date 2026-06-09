@@ -11,7 +11,9 @@ import com.attendance.system.model.HolidayEntity;
 import com.attendance.system.model.LeaveRequestEntity;
 import com.attendance.system.model.LeaveStatus;
 import com.attendance.system.model.LeaveType;
+import com.attendance.system.model.AttendanceRecordEntity;
 import com.attendance.system.model.UserRole;
+import com.attendance.system.repository.AttendanceRecordRepository;
 import com.attendance.system.repository.EmployeeRepository;
 import com.attendance.system.repository.HolidayRepository;
 import com.attendance.system.repository.LeaveRequestRepository;
@@ -35,15 +37,18 @@ public class LeaveService {
     private final EmployeeRepository employeeRepository;
     private final LeaveRequestRepository leaveRequestRepository;
     private final HolidayRepository holidayRepository;
+    private final AttendanceRecordRepository attendanceRecordRepository;
 
     public LeaveService(
             EmployeeRepository employeeRepository,
             LeaveRequestRepository leaveRequestRepository,
-            HolidayRepository holidayRepository
+            HolidayRepository holidayRepository,
+            AttendanceRecordRepository attendanceRecordRepository
     ) {
         this.employeeRepository = employeeRepository;
         this.leaveRequestRepository = leaveRequestRepository;
         this.holidayRepository = holidayRepository;
+        this.attendanceRecordRepository = attendanceRecordRepository;
     }
 
     @Transactional(readOnly = true)
@@ -60,26 +65,86 @@ public class LeaveService {
 
         LocalDate monthStart = LocalDate.now(ZoneOffset.UTC).withDayOfMonth(1);
         LocalDate monthEnd = monthStart.withDayOfMonth(monthStart.lengthOfMonth());
-        int requestedPaidDays = (int) leaveRequestRepository
+        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+        LocalDate completedThrough = today.minusDays(1);
+        int monthlyAllowance = employee.getMonthlyLeaveAllowance() == null ? 0 : employee.getMonthlyLeaveAllowance();
+
+        List<AttendanceRecordEntity> attendanceRows = attendanceRecordRepository
+                .findByEmployee_IdAndAttendanceDateBetweenOrderByAttendanceDateAsc(employee.getId(), monthStart, completedThrough)
+                .stream()
+                .filter(record -> record.getAttendanceDate() != null)
+                .toList();
+
+        java.util.Map<LocalDate, AttendanceRecordEntity> attendanceByDate = new java.util.LinkedHashMap<>();
+        for (AttendanceRecordEntity attendanceRecord : attendanceRows) {
+            attendanceByDate.putIfAbsent(attendanceRecord.getAttendanceDate(), attendanceRecord);
+        }
+
+        java.util.Set<LocalDate> holidayDates = holidayRepository
+                .findByVendor_IdAndHolidayDateBetweenOrderByHolidayDateAsc(user.vendorId(), monthStart, completedThrough)
+                .stream()
+                .map(HolidayEntity::getHolidayDate)
+                .collect(java.util.stream.Collectors.toCollection(java.util.HashSet::new));
+
+        List<LeaveRequestEntity> approvedLeaves = leaveRequestRepository
                 .findByEmployee_IdAndStatusAndEndDateGreaterThanEqualAndStartDateLessThanEqual(
                         employee.getId(),
                         LeaveStatus.APPROVED,
                         monthStart,
                         monthEnd
-                )
-                .stream()
-                .filter(request -> request.getLeaveType() == LeaveType.PAID)
-                .flatMap(request -> expandDates(request.getStartDate(), request.getEndDate(), monthStart, monthEnd).stream())
-                .distinct()
-                .count();
+                );
 
-        int monthlyAllowance = employee.getMonthlyLeaveAllowance() == null ? 0 : employee.getMonthlyLeaveAllowance();
-        int approvedPaidLeaves = Math.min(requestedPaidDays, monthlyAllowance);
+        java.util.Set<LocalDate> requestedPaidLeaveDates = new java.util.HashSet<>();
+        for (LeaveRequestEntity leaveRequest : approvedLeaves) {
+            if (leaveRequest.getLeaveType() != LeaveType.PAID) {
+                continue;
+            }
+            expandDates(leaveRequest.getStartDate(), leaveRequest.getEndDate(), monthStart, completedThrough).stream()
+                    .filter(date -> !holidayDates.contains(date) && !attendanceByDate.containsKey(date))
+                    .forEach(requestedPaidLeaveDates::add);
+        }
+
+        int approvedPaidLeaves = 0;
+        int autoAppliedPaidLeaves = 0;
+        int remainingAllowance = monthlyAllowance;
+        for (LocalDate date = monthStart; !date.isAfter(completedThrough); date = date.plusDays(1)) {
+            if (holidayDates.contains(date)) {
+                continue;
+            }
+
+            AttendanceRecordEntity attendanceRecord = attendanceByDate.get(date);
+            if (attendanceRecord != null) {
+                if (resolveWorkedDayUnits(attendanceRecord) == 0) {
+                    if (remainingAllowance > 0) {
+                        autoAppliedPaidLeaves++;
+                        remainingAllowance--;
+                    }
+                }
+                continue;
+            }
+
+            if (requestedPaidLeaveDates.contains(date)) {
+                if (remainingAllowance > 0) {
+                    approvedPaidLeaves++;
+                    remainingAllowance--;
+                }
+                continue;
+            }
+
+            if (!date.isAfter(completedThrough) && remainingAllowance > 0) {
+                autoAppliedPaidLeaves++;
+                remainingAllowance--;
+            }
+        }
+
+        int usedPaidLeaves = approvedPaidLeaves + autoAppliedPaidLeaves;
         return new EmployeeLeaveWorkspaceResponse(
                 new EmployeeLeaveWorkspaceResponse.LeaveBalanceSummary(
                         monthlyAllowance,
                         approvedPaidLeaves,
-                        Math.max(monthlyAllowance - approvedPaidLeaves, 0)
+                        autoAppliedPaidLeaves,
+                        usedPaidLeaves,
+                        Math.max(monthlyAllowance - usedPaidLeaves, 0)
                 ),
                 requests,
                 holidays
@@ -241,6 +306,19 @@ public class LeaveService {
             return List.of();
         }
         return effectiveStart.datesUntil(effectiveEnd.plusDays(1)).toList();
+    }
+
+    private int resolveWorkedDayUnits(AttendanceRecordEntity record) {
+        if (record.getCheckInTime() == null || record.getCheckOutTime() == null) {
+            return 0;
+        }
+
+        long minutesWorked = java.time.Duration.between(record.getCheckInTime(), record.getCheckOutTime()).toMinutes();
+        int halfDayMinutes = record.getBranch().getHalfDayMinutes() == null ? 240 : record.getBranch().getHalfDayMinutes();
+        if (minutesWorked >= halfDayMinutes) {
+            return 1;
+        }
+        return 0;
     }
 
     private LeaveRequestResponse toLeaveResponse(LeaveRequestEntity request) {

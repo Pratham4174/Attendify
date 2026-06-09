@@ -10,6 +10,8 @@ public record EmployeeLeaveWorkspaceResponse(
     public record LeaveBalanceSummary(
             int monthlyAllowance,
             int approvedPaidLeaves,
+            int autoAppliedPaidLeaves,
+            int usedPaidLeaves,
             int remainingPaidLeaves
     ) {
     }

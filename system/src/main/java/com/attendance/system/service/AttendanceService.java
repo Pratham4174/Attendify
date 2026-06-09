@@ -128,7 +128,7 @@ public class AttendanceService {
                 mapper.toEmployeeSummary(employee),
                 mapper.toBranchSummary(employee.getBranch()),
                 todayRecord == null ? null : mapper.toAttendanceRow(todayRecord),
-                history.stream().limit(7).map(mapper::toAttendanceRow).toList(),
+                history.stream().map(mapper::toAttendanceRow).toList(),
                 trackingSummary
         );
     }

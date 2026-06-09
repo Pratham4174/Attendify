@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { apiFetch, ApiRequestError } from "../lib/api";
+import { buildAttendanceStatusRecords } from "../lib/attendanceStatus";
 import {
   formatDateTime,
+  formatMonthKey,
   formatTimeOnly,
   formatWorkedHours,
   getDistanceMeters
@@ -39,6 +41,7 @@ export function EmployeeScreen({
   const [trackingMessage, setTrackingMessage] = useState("");
   const [activeTab, setActiveTab] = useState<EmployeeTab>("mark");
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [historyMonth, setHistoryMonth] = useState(() => formatMonthKey(new Date()));
   const [leaveStatus, setLeaveStatus] = useState("");
   const [leaveSaving, setLeaveSaving] = useState(false);
   const [correctionSaving, setCorrectionSaving] = useState(false);
@@ -66,6 +69,8 @@ export function EmployeeScreen({
   const [profileStatus, setProfileStatus] = useState("");
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const historyMonthStart = `${historyMonth}-01`;
+  const historyMonthEnd = `${historyMonth}-${new Date(Number(historyMonth.slice(0, 4)), Number(historyMonth.slice(5, 7)), 0).getDate().toString().padStart(2, "0")}`;
 
   function stopCameraStream() {
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -75,6 +80,31 @@ export function EmployeeScreen({
     }
     setCameraReady(false);
   }
+
+  const monthlyHistoryRecords =
+    overview && leaveWorkspace
+      ? buildAttendanceStatusRecords({
+          employees: [
+            {
+              id: overview.employee.id,
+              name: overview.employee.name,
+              branchId: overview.branch.id,
+              branchName: overview.branch.name,
+              monthlyLeaveAllowance: leaveWorkspace.balance.monthlyAllowance
+            }
+          ],
+          attendance: overview.recentAttendance,
+          leaveRequests: leaveWorkspace.requests,
+          holidays: leaveWorkspace.holidays,
+          fromDate: historyMonthStart,
+          toDate: historyMonthEnd
+        }).sort((first, second) => {
+          if (second.date === first.date) {
+            return 0;
+          }
+          return second.date < first.date ? -1 : 1;
+        })
+      : [];
 
   async function loadOverview() {
     try {
@@ -868,11 +898,19 @@ export function EmployeeScreen({
 
           {activeTab === "history" ? (
             <section className="panel">
-              <h3>Recent attendance</h3>
-              <p className="muted section-intro">Your latest attendance activity appears here.</p>
+              <div className="topbar">
+                <div>
+                  <h3>Monthly attendance</h3>
+                  <p className="muted section-intro">See every day in the selected month, including missed days, paid leave used, and holidays.</p>
+                </div>
+                <label className="date-filter">
+                  Month
+                  <input type="month" value={historyMonth} onChange={(event) => setHistoryMonth(event.target.value)} />
+                </label>
+              </div>
               <AttendanceTable
-                records={overview.recentAttendance}
-                emptyMessage="No attendance has been marked yet. Your latest check-ins will appear here."
+                records={monthlyHistoryRecords}
+                emptyMessage="No attendance activity appears for this month yet."
               />
             </section>
           ) : null}
@@ -950,6 +988,8 @@ export function EmployeeScreen({
                     <div className="leave-balance-grid">
                       <MetricCard label="Allowed / month" value={leaveWorkspace.balance.monthlyAllowance} />
                       <MetricCard label="Approved paid leaves" value={leaveWorkspace.balance.approvedPaidLeaves} />
+                      <MetricCard label="Auto-used paid leaves" value={leaveWorkspace.balance.autoAppliedPaidLeaves} />
+                      <MetricCard label="Total paid leaves used" value={leaveWorkspace.balance.usedPaidLeaves} />
                       <MetricCard label="Remaining paid leaves" value={leaveWorkspace.balance.remainingPaidLeaves} />
                     </div>
                   ) : null}
