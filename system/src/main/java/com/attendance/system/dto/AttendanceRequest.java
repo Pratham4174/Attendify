@@ -7,6 +7,7 @@ public record AttendanceRequest(
         @NotBlank String branchId,
         @NotNull Double latitude,
         @NotNull Double longitude,
+        Double accuracyMeters,
         @NotBlank String imageDataUrl
 ) {
 }

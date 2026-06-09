@@ -21,11 +21,14 @@ export function EmployeeScreen({
   session: Session;
   onLogout: () => void;
 }) {
+  const locationSampleTarget = 4;
   const [overview, setOverview] = useState<EmployeeOverview | null>(null);
   const [loadError, setLoadError] = useState("");
   const [leaveWorkspace, setLeaveWorkspace] = useState<EmployeeLeaveWorkspace | null>(null);
   const [corrections, setCorrections] = useState<AttendanceCorrection[]>([]);
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [locationAccuracy, setLocationAccuracy] = useState<number | null>(null);
+  const [locationSampleCount, setLocationSampleCount] = useState(0);
   const [selfie, setSelfie] = useState<string>("");
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
@@ -194,23 +197,84 @@ export function EmployeeScreen({
     };
   }, [overview?.tracking.available, overview?.tracking.active, overview?.todayAttendance?.status, session]);
 
-  async function requestLocation() {
-    setStatus("Fetching your current location...");
-    return new Promise<{ latitude: number; longitude: number }>((resolve, reject) => {
+  function getGeofenceLimit(radiusMeters: number, accuracyMeters: number | null) {
+    if (accuracyMeters === null || !Number.isFinite(accuracyMeters) || accuracyMeters <= 0) {
+      return radiusMeters;
+    }
+    return radiusMeters + Math.min(accuracyMeters, 20);
+  }
+
+  function getAccuracyLabel(accuracyMeters: number | null) {
+    if (accuracyMeters === null) {
+      return "Waiting for live GPS accuracy";
+    }
+    if (accuracyMeters <= 15) {
+      return `Strong GPS accuracy · ±${accuracyMeters.toFixed(0)}m`;
+    }
+    if (accuracyMeters <= 30) {
+      return `Usable GPS accuracy · ±${accuracyMeters.toFixed(0)}m`;
+    }
+    return `Weak GPS accuracy · ±${accuracyMeters.toFixed(0)}m`;
+  }
+
+  async function captureLocationSample() {
+    return new Promise<GeolocationPosition>((resolve, reject) => {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const next = {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude
-          };
-          setCoords(next);
-          setStatus("Location locked. You are ready for the next step.");
-          resolve(next);
-        },
-        () => reject(new Error("Location permission was denied.")),
-        { enableHighAccuracy: true, timeout: 10000 }
+        resolve,
+        reject,
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     });
+  }
+
+  async function requestLocation() {
+    if (!navigator.geolocation) {
+      throw new Error("Location services are not available on this device.");
+    }
+
+    setStatus("Checking GPS accuracy and locking your branch location...");
+    const samples: Array<{ latitude: number; longitude: number; accuracy: number }> = [];
+
+    for (let index = 0; index < locationSampleTarget; index += 1) {
+      try {
+        const position = await captureLocationSample();
+        samples.push({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracy: position.coords.accuracy
+        });
+        setStatus(`Improving GPS lock... ${samples.length}/${locationSampleTarget} sample${samples.length > 1 ? "s" : ""} captured.`);
+      } catch (error) {
+        if (samples.length === 0) {
+          throw new Error("Location permission was denied.");
+        }
+        break;
+      }
+    }
+
+    if (!samples.length) {
+      throw new Error("Unable to capture your live location right now.");
+    }
+
+    const rankedSamples = [...samples].sort((left, right) => left.accuracy - right.accuracy);
+    const selectedSamples = rankedSamples.slice(0, Math.min(3, rankedSamples.length));
+    const averagedLatitude = selectedSamples.reduce((total, sample) => total + sample.latitude, 0) / selectedSamples.length;
+    const averagedLongitude = selectedSamples.reduce((total, sample) => total + sample.longitude, 0) / selectedSamples.length;
+    const bestAccuracy = rankedSamples[0]?.accuracy ?? null;
+    const next = {
+      latitude: averagedLatitude,
+      longitude: averagedLongitude
+    };
+
+    setCoords(next);
+    setLocationAccuracy(bestAccuracy);
+    setLocationSampleCount(samples.length);
+    setStatus(
+      bestAccuracy !== null
+        ? `Location locked with ±${bestAccuracy.toFixed(0)}m accuracy. You are ready for the next step.`
+        : "Location locked. You are ready for the next step."
+    );
+    return next;
   }
 
   async function startCamera() {
@@ -269,14 +333,15 @@ export function EmployeeScreen({
         `/attendance/${mode}`,
         {
           method: "POST",
-          body: JSON.stringify({
-            branchId: overview.branch.id,
-            latitude: location.latitude,
-            longitude: location.longitude,
-            imageDataUrl: selfie
-          })
-        }
-      );
+            body: JSON.stringify({
+              branchId: overview.branch.id,
+              latitude: location.latitude,
+              longitude: location.longitude,
+              accuracyMeters: locationAccuracy,
+              imageDataUrl: selfie
+            })
+          }
+        );
 
       setStatus(`${data.message} Distance from branch: ${data.distanceMeters.toFixed(1)}m.`);
       setAttendanceSummary({
@@ -394,8 +459,9 @@ export function EmployeeScreen({
           overview.branch.longitude
         )
       : null;
+  const effectiveGeofenceLimit = getGeofenceLimit(overview.branch.radiusMeters, locationAccuracy);
   const insideGeofence =
-    geofenceDistance !== null ? geofenceDistance <= overview.branch.radiusMeters : null;
+    geofenceDistance !== null ? geofenceDistance <= effectiveGeofenceLimit : null;
   const completedThisMonth = overview.recentAttendance.filter((record) => {
     if (!record.checkOutTime) {
       return false;
@@ -570,6 +636,11 @@ export function EmployeeScreen({
                     <span className="prep-value">
                       {coords ? `${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}` : "Current coordinates will appear here"}
                     </span>
+                    <span className="prep-subvalue">
+                      {coords
+                        ? `${getAccuracyLabel(locationAccuracy)}${locationSampleCount ? ` · ${locationSampleCount} samples` : ""}`
+                        : "We take a few readings to avoid random inside/outside results."}
+                    </span>
                   </div>
                   <div className="prep-card">
                     <button className="secondary-button prep-button" onClick={() => void startCamera()} type="button">
@@ -603,7 +674,7 @@ export function EmployeeScreen({
                         : `Outside branch area · ${geofenceDistance?.toFixed(1)}m`}
                   </div>
                   <div className="status-chip">
-                    Branch target · {overview.branch.latitude.toFixed(5)}, {overview.branch.longitude.toFixed(5)}
+                    Allowed range · {effectiveGeofenceLimit.toFixed(1)}m including GPS tolerance
                   </div>
                 </div>
 

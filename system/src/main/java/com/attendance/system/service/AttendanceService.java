@@ -65,7 +65,7 @@ public class AttendanceService {
         EmployeeEntity employee = requireEmployeeUser(user);
         BranchEntity branch = loadBranch(user.vendorId(), request.branchId());
         validateEmployeeBranch(employee, branch);
-        BigDecimal distanceMeters = validateGeofence(branch, request.latitude(), request.longitude());
+        BigDecimal distanceMeters = validateGeofence(branch, request.latitude(), request.longitude(), request.accuracyMeters());
 
         attendanceRecordRepository.findFirstByEmployee_IdAndAttendanceDateOrderByCheckInTimeDesc(employee.getId(), LocalDate.now(ZoneOffset.UTC))
                 .ifPresent(record -> {
@@ -96,7 +96,7 @@ public class AttendanceService {
         EmployeeEntity employee = requireEmployeeUser(user);
         BranchEntity branch = loadBranch(user.vendorId(), request.branchId());
         validateEmployeeBranch(employee, branch);
-        BigDecimal distanceMeters = validateGeofence(branch, request.latitude(), request.longitude());
+        BigDecimal distanceMeters = validateGeofence(branch, request.latitude(), request.longitude(), request.accuracyMeters());
 
         AttendanceRecordEntity record = attendanceRecordRepository
                 .findFirstByEmployee_IdAndAttendanceDateAndCheckOutTimeIsNull(employee.getId(), LocalDate.now(ZoneOffset.UTC))
@@ -178,7 +178,7 @@ public class AttendanceService {
         }
     }
 
-    private BigDecimal validateGeofence(BranchEntity branch, double latitude, double longitude) {
+    private BigDecimal validateGeofence(BranchEntity branch, double latitude, double longitude, Double accuracyMeters) {
         if (latitude == 0 || longitude == 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Valid location coordinates are required.");
         }
@@ -188,10 +188,19 @@ public class AttendanceService {
                 branch.getLatitude().doubleValue(),
                 branch.getLongitude().doubleValue()
         );
-        if (distance > branch.getRadiusMeters().doubleValue()) {
+        double accuracyBuffer = resolveAccuracyBuffer(accuracyMeters);
+        double allowedDistance = branch.getRadiusMeters().doubleValue() + accuracyBuffer;
+        if (distance > allowedDistance) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You are outside the allowed branch geofence.");
         }
         return scale(distance);
+    }
+
+    private double resolveAccuracyBuffer(Double accuracyMeters) {
+        if (accuracyMeters == null || accuracyMeters.isNaN() || accuracyMeters.isInfinite() || accuracyMeters <= 0) {
+            return 0;
+        }
+        return Math.min(accuracyMeters, 20.0);
     }
 
     private BigDecimal scale(double value) {

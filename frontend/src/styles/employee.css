@@ -273,6 +273,12 @@
   word-break: break-word;
 }
 
+.prep-subvalue {
+  color: var(--text-soft);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
 .attendance-insight-row {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
