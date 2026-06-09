@@ -449,7 +449,7 @@ export function AdminScreen({
                 <MetricCard label="Absent today" value={dashboard.cards.absentToday} />
               </section>
 
-              <section className="grid two-column">
+              <section className="grid two-column payroll-action-grid">
                 <article className="panel">
                   <h3>Needs attention today</h3>
                   <p className="muted section-intro">Start here to follow up with missing staff.</p>

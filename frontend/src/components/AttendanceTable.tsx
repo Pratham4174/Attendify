@@ -68,10 +68,17 @@ export function AttendancePayrollTable({
         {payroll.employees.map((employee) => (
           <article className="attendance-card" key={employee.employeeId}>
             <div className="attendance-card-header">
-              <strong>{employee.employeeName}</strong>
+              <div className="payroll-card-identity">
+                <strong>{employee.employeeName}</strong>
+                <span className="table-subtext">{employee.designation}</span>
+              </div>
               <span className="pill">{employee.status}</span>
             </div>
-            <div className="attendance-card-grid">
+            <div className="payroll-card-highlight">
+              <span>Net payable</span>
+              <strong>{formatMoney(employee.netPayable.value)}</strong>
+            </div>
+            <div className="attendance-card-grid payroll-card-grid">
               <span>Monthly salary</span>
               <strong>{formatMoney(employee.monthlySalary.value)}</strong>
               <span>Worked days</span>
@@ -96,8 +103,6 @@ export function AttendancePayrollTable({
               <strong>{formatMoney(employee.monthAdvancePaid.value)}</strong>
               <span>Total advance</span>
               <strong>{formatMoney(employee.totalAdvanceDeducted.value)}</strong>
-              <span>Net payable</span>
-              <strong>{formatMoney(employee.netPayable.value)}</strong>
             </div>
             {onDownloadSlip ? (
               <div className="table-action-row card-action-row">
