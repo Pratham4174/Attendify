@@ -584,6 +584,8 @@ export function AdminScreen({
               session={session}
               employees={employees}
               branches={branches}
+              attendance={attendance}
+              payroll={payroll}
               onReload={loadAdminData}
               onEditEmployee={startEditingEmployee}
             />

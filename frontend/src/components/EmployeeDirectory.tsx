@@ -1,31 +1,67 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { apiFetch, apiFetchVoid } from "../lib/api";
-import { formatMoney } from "../lib/format";
+import { formatDateTime, formatLocalDateKey, formatMoney, formatWorkedHours } from "../lib/format";
 import { EmptyState } from "./shared";
-import type { Branch, Employee, Session } from "../types";
+import type { AttendanceRow, Branch, Employee, PayrollSummary, Session } from "../types";
 
 export function EmployeeDirectory({
   session,
   employees,
   branches,
+  attendance,
+  payroll,
   onReload,
   onEditEmployee
 }: {
   session: Session;
   employees: Employee[];
   branches: Branch[];
+  attendance: AttendanceRow[];
+  payroll: PayrollSummary | null;
   onReload: () => Promise<void>;
   onEditEmployee: (employee: Employee) => void;
 }) {
   const [statusMessage, setStatusMessage] = useState("");
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(employees[0]?.id ?? null);
   const [transferTargetId, setTransferTargetId] = useState<string | null>(null);
   const [transferBranchId, setTransferBranchId] = useState("");
   const [passwordTargetId, setPasswordTargetId] = useState<string | null>(null);
   const [newPassword, setNewPassword] = useState("");
   const [working, setWorking] = useState(false);
 
+  useEffect(() => {
+    if (!employees.length) {
+      setSelectedEmployeeId(null);
+      return;
+    }
+    if (!selectedEmployeeId || !employees.some((employee) => employee.id === selectedEmployeeId)) {
+      setSelectedEmployeeId(employees[0].id);
+    }
+  }, [employees, selectedEmployeeId]);
+
+  const payrollByEmployeeId = useMemo(() => {
+    return new Map(
+      (payroll?.employees ?? []).map((employeePayroll) => [
+        employeePayroll.employeeId,
+        employeePayroll
+      ])
+    );
+  }, [payroll]);
+
+  const selectedEmployee = employees.find((employee) => employee.id === selectedEmployeeId) ?? null;
+  const selectedPayroll = selectedEmployee ? payrollByEmployeeId.get(selectedEmployee.id) ?? null : null;
   const transferTarget = employees.find((employee) => employee.id === transferTargetId) ?? null;
   const passwordTarget = employees.find((employee) => employee.id === passwordTargetId) ?? null;
+  const selectedAttendance = selectedEmployee
+    ? attendance.filter((record) => record.employeeId === selectedEmployee.id)
+    : [];
+  const latestAttendance = selectedAttendance[0] ?? null;
+  const recentAttendance = selectedAttendance.slice(0, 5);
+  const todayKey = formatLocalDateKey(new Date());
+  const todayAttendance = selectedAttendance.find((record) => record.date === todayKey) ?? null;
+  const monthAdvancePayments = selectedEmployee
+    ? (payroll?.advancePayments ?? []).filter((payment) => payment.employeeId === selectedEmployee.id)
+    : [];
 
   async function updateEmployeeStatus(employeeId: string, status: "ACTIVE" | "INACTIVE") {
     setWorking(true);
@@ -150,7 +186,7 @@ export function EmployeeDirectory({
         <div>
           <h3>Employees</h3>
           <p className="muted section-intro">
-            Reset passwords, disable login, transfer branches, or update employment status from one place.
+            Review each team member quickly, then open their details for actions like transfer, password reset, or login control.
           </p>
         </div>
       </div>
@@ -161,124 +197,203 @@ export function EmployeeDirectory({
         </p>
       ) : null}
 
-      <table className="data-table desktop-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Code</th>
-            <th>Branch</th>
-            <th>Salary</th>
-            <th>Leaves</th>
-            <th>Employment</th>
-            <th>Login</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {employees.map((employee) => (
-            <tr key={employee.id}>
-              <td>
-                <strong>{employee.name}</strong>
-                <div className="table-subtext">{employee.designation}</div>
-              </td>
-              <td>{employee.employeeCode}</td>
-              <td>{employee.branchName}</td>
-              <td>{formatMoney(employee.monthlySalary)}</td>
-              <td>{employee.monthlyLeaveAllowance}</td>
-              <td>{employee.status}</td>
-              <td>{employee.loginEnabled ? "Enabled" : "Disabled"}</td>
-              <td>
-                <div className="table-action-row">
-                  <button className="ghost-button compact-button" onClick={() => onEditEmployee(employee)} type="button">
-                    Edit
-                  </button>
-                  <button
-                    className="ghost-button compact-button"
-                    onClick={() => void updateEmployeeStatus(employee.id, employee.status === "ACTIVE" ? "INACTIVE" : "ACTIVE")}
-                    type="button"
-                    disabled={working}
-                  >
-                    {employee.status === "ACTIVE" ? "Make inactive" : "Make active"}
-                  </button>
-                  <button
-                    className="ghost-button compact-button"
-                    onClick={() => void updateLoginStatus(employee.id, !employee.loginEnabled)}
-                    type="button"
-                    disabled={working}
-                  >
-                    {employee.loginEnabled ? "Disable login" : "Enable login"}
-                  </button>
-                  <button
-                    className="ghost-button compact-button"
-                    onClick={() => {
-                      setTransferTargetId(employee.id);
-                      setTransferBranchId(employee.branchId);
-                      setPasswordTargetId(null);
-                    }}
-                    type="button"
-                  >
-                    Transfer
-                  </button>
-                  <button
-                    className="ghost-button compact-button"
-                    onClick={() => {
-                      setPasswordTargetId(employee.id);
-                      setNewPassword("");
-                      setTransferTargetId(null);
-                    }}
-                    type="button"
-                  >
-                    Reset password
-                  </button>
-                  <button
-                    className="ghost-button compact-button danger-button"
-                    onClick={() => void removeEmployee(employee.id, employee.name)}
-                    type="button"
-                    disabled={working}
-                  >
-                    Remove
-                  </button>
+      <div className="employee-directory-layout">
+        <div className="employee-summary-grid">
+          {employees.map((employee) => {
+            const employeePayroll = payrollByEmployeeId.get(employee.id);
+            const isSelected = selectedEmployeeId === employee.id;
+            return (
+              <button
+                key={employee.id}
+                className={`employee-summary-card${isSelected ? " active" : ""}`}
+                onClick={() => {
+                  setSelectedEmployeeId(employee.id);
+                  setTransferTargetId(null);
+                  setPasswordTargetId(null);
+                }}
+                type="button"
+              >
+                <div className="employee-summary-card-head">
+                  <div>
+                    <strong>{employee.name}</strong>
+                    <span>{employee.designation}</span>
+                  </div>
+                  <span className="pill">{employee.status}</span>
                 </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                <div className="employee-summary-pay">
+                  <span>Net payable</span>
+                  <strong>{formatMoney(employeePayroll?.netPayable.value ?? "0")}</strong>
+                </div>
+              </button>
+            );
+          })}
+        </div>
 
-      <div className="attendance-card-list employee-card-list">
-        {employees.map((employee) => (
-          <article className="attendance-card" key={employee.id}>
-            <div className="attendance-card-header">
-              <strong>{employee.name}</strong>
-              <span className="pill">{employee.status}</span>
+        {selectedEmployee ? (
+          <div className="employee-detail-card">
+            <div className="employee-detail-header">
+              <div>
+                <span className="eyebrow">Employee details</span>
+                <h4>{selectedEmployee.name}</h4>
+                <p className="muted">{selectedEmployee.designation}</p>
+              </div>
+              <span className="pill">{selectedEmployee.status}</span>
             </div>
-            <div className="attendance-card-grid">
-              <span>Code</span>
-              <strong>{employee.employeeCode}</strong>
+
+            <div className="employee-detail-summary">
+              <div className="employee-detail-stat">
+                <span>Net payable</span>
+                <strong>{formatMoney(selectedPayroll?.netPayable.value ?? "0")}</strong>
+              </div>
+              <div className="employee-detail-stat">
+                <span>Today</span>
+                <strong>{todayAttendance ? todayAttendance.status : "No mark yet"}</strong>
+              </div>
+              <div className="employee-detail-stat">
+                <span>Last activity</span>
+                <strong>{latestAttendance ? formatDateTime(latestAttendance.checkOutTime ?? latestAttendance.checkInTime) : "No attendance yet"}</strong>
+              </div>
+              <div className="employee-detail-stat">
+                <span>Advance this month</span>
+                <strong>{formatMoney(selectedPayroll?.monthAdvancePaid.value ?? "0")}</strong>
+              </div>
+            </div>
+
+            <div className="employee-detail-grid employee-detail-grid-compact">
+              <span>Employee code</span>
+              <strong>{selectedEmployee.employeeCode}</strong>
               <span>Branch</span>
-              <strong>{employee.branchName}</strong>
-              <span>Salary</span>
-              <strong>{formatMoney(employee.monthlySalary)}</strong>
+              <strong>{selectedEmployee.branchName}</strong>
+              <span>Monthly salary</span>
+              <strong>{formatMoney(selectedEmployee.monthlySalary)}</strong>
+              <span>Allowed leaves</span>
+              <strong>{selectedEmployee.monthlyLeaveAllowance}</strong>
               <span>Login</span>
-              <strong>{employee.loginEnabled ? "Enabled" : "Disabled"}</strong>
+              <strong>{selectedEmployee.loginEnabled ? "Enabled" : "Disabled"}</strong>
+              <span>Email</span>
+              <strong>{selectedEmployee.email}</strong>
+              <span>Phone</span>
+              <strong>{selectedEmployee.phone}</strong>
             </div>
-            <div className="table-action-row card-action-row">
-              <button className="ghost-button compact-button" onClick={() => onEditEmployee(employee)} type="button">
+
+            <div className="employee-detail-sections">
+              <section className="employee-mini-panel">
+                <div className="employee-mini-panel-head">
+                  <strong>Attendance</strong>
+                  <span className="muted">Latest 5 records</span>
+                </div>
+                {recentAttendance.length ? (
+                  <div className="employee-mini-list">
+                    {recentAttendance.map((record) => (
+                      <div className="employee-mini-item" key={record.recordId}>
+                        <div>
+                          <strong>{record.date}</strong>
+                          <span>{record.branchName}</span>
+                        </div>
+                        <div>
+                          <strong>{record.status}</strong>
+                          <span>{formatWorkedHours(record.checkInTime, record.checkOutTime)}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="muted">No attendance records yet.</span>
+                )}
+              </section>
+
+              <section className="employee-mini-panel">
+                <div className="employee-mini-panel-head">
+                  <strong>Payments</strong>
+                  <span className="muted">This payroll month</span>
+                </div>
+                {monthAdvancePayments.length ? (
+                  <div className="employee-mini-list">
+                    {monthAdvancePayments.slice(0, 5).map((payment) => (
+                      <div className="employee-mini-item" key={payment.id}>
+                        <div>
+                          <strong>{payment.paymentDate}</strong>
+                          <span>{payment.note ?? "Advance payment"}</span>
+                        </div>
+                        <div>
+                          <strong>{formatMoney(payment.amount.value)}</strong>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="muted">No payments recorded this month.</span>
+                )}
+              </section>
+
+              <section className="employee-mini-panel">
+                <div className="employee-mini-panel-head">
+                  <strong>Payroll snapshot</strong>
+                  <span className="muted">Current month</span>
+                </div>
+                {selectedPayroll ? (
+                  <div className="employee-mini-list employee-payroll-list">
+                    <div className="employee-mini-item">
+                      <div>
+                        <strong>Worked days</strong>
+                        <span>{selectedPayroll.workedDays} full + {selectedPayroll.halfDays} half</span>
+                      </div>
+                      <div>
+                        <strong>{selectedPayroll.payableDays.value}</strong>
+                        <span>payable days</span>
+                      </div>
+                    </div>
+                    <div className="employee-mini-item">
+                      <div>
+                        <strong>Leave breakup</strong>
+                        <span>{selectedPayroll.paidLeaveDays} paid · {selectedPayroll.unpaidLeaveDays} unpaid</span>
+                      </div>
+                      <div>
+                        <strong>{selectedPayroll.allowedLeaves}</strong>
+                        <span>allowed</span>
+                      </div>
+                    </div>
+                    <div className="employee-mini-item">
+                      <div>
+                        <strong>Advance deduction</strong>
+                        <span>Opening + month advances</span>
+                      </div>
+                      <div>
+                        <strong>{formatMoney(selectedPayroll.totalAdvanceDeducted.value)}</strong>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <span className="muted">Payroll details will appear after the month is calculated.</span>
+                )}
+              </section>
+            </div>
+
+            <div className="employee-detail-actions">
+              <button className="ghost-button compact-button" onClick={() => onEditEmployee(selectedEmployee)} type="button">
                 Edit
               </button>
               <button
                 className="ghost-button compact-button"
-                onClick={() => void updateLoginStatus(employee.id, !employee.loginEnabled)}
+                onClick={() => void updateEmployeeStatus(selectedEmployee.id, selectedEmployee.status === "ACTIVE" ? "INACTIVE" : "ACTIVE")}
                 type="button"
                 disabled={working}
               >
-                {employee.loginEnabled ? "Disable login" : "Enable login"}
+                {selectedEmployee.status === "ACTIVE" ? "Make inactive" : "Make active"}
+              </button>
+              <button
+                className="ghost-button compact-button"
+                onClick={() => void updateLoginStatus(selectedEmployee.id, !selectedEmployee.loginEnabled)}
+                type="button"
+                disabled={working}
+              >
+                {selectedEmployee.loginEnabled ? "Disable login" : "Enable login"}
               </button>
               <button
                 className="ghost-button compact-button"
                 onClick={() => {
-                  setTransferTargetId(employee.id);
-                  setTransferBranchId(employee.branchId);
+                  setTransferTargetId(selectedEmployee.id);
+                  setTransferBranchId(selectedEmployee.branchId);
                   setPasswordTargetId(null);
                 }}
                 type="button"
@@ -288,7 +403,7 @@ export function EmployeeDirectory({
               <button
                 className="ghost-button compact-button"
                 onClick={() => {
-                  setPasswordTargetId(employee.id);
+                  setPasswordTargetId(selectedEmployee.id);
                   setNewPassword("");
                   setTransferTargetId(null);
                 }}
@@ -298,15 +413,15 @@ export function EmployeeDirectory({
               </button>
               <button
                 className="ghost-button compact-button danger-button"
-                onClick={() => void removeEmployee(employee.id, employee.name)}
+                onClick={() => void removeEmployee(selectedEmployee.id, selectedEmployee.name)}
                 type="button"
                 disabled={working}
               >
                 Remove
               </button>
             </div>
-          </article>
-        ))}
+          </div>
+        ) : null}
       </div>
 
       {transferTarget ? (
