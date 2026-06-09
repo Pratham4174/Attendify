@@ -41,6 +41,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
@@ -343,7 +344,7 @@ public class AdminService {
     public SalaryAdvancePaymentResponse recordAdvancePayment(AuthenticatedUser user, SalaryAdvancePaymentRequest request) {
         requireAdmin(user);
         EmployeeEntity employee = loadEmployee(user.vendorId(), request.employeeId());
-        LocalDate paymentDate = parseDate(request.paymentDate());
+        LocalDate paymentDate = parseRequiredDate(request.paymentDate());
         SalaryAdvancePaymentEntity payment = new SalaryAdvancePaymentEntity();
         payment.setVendor(employee.getVendor());
         payment.setEmployee(employee);
@@ -491,7 +492,7 @@ public class AdminService {
                     ? requestedPaidLeaveDates
                     : requestedUnpaidLeaveDates;
             expandDates(leaveRequest.getStartDate(), leaveRequest.getEndDate(), startDate, completedThrough).stream()
-                    .filter(date -> !holidayDates.contains(date) && !workedDates.contains(date))
+                    .filter(date -> !holidayDates.contains(date) && !attendanceByDate.containsKey(date))
                     .forEach(targetSet::add);
         }
 
@@ -599,7 +600,7 @@ public class AdminService {
                 .collect(java.util.stream.Collectors.toCollection(HashSet::new));
     }
 
-    private LocalDate parseDate(String value) {
+    private LocalDate parseRequiredDate(String value) {
         if (value == null || value.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Payment date is required.");
         }
