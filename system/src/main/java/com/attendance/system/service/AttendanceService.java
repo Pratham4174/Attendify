@@ -136,7 +136,7 @@ public class AttendanceService {
     @Transactional
     public EmployeeOverviewResponse saveEmployeeProfileImage(AuthenticatedUser user, EmployeeProfileImageRequest request) {
         EmployeeEntity employee = requireEmployeeUser(user);
-        employee.setProfileImageRef(request.imageDataUrl().trim());
+        employee.setProfileImageRef(attendanceImageStorageService.storeProfileImage(employee, request.imageDataUrl().trim()));
         employeeRepository.save(employee);
         return employeeOverview(user);
     }

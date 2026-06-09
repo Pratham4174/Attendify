@@ -1,6 +1,7 @@
 package com.attendance.system.service;
 
 import com.attendance.system.model.AttendanceRecordEntity;
+import com.attendance.system.model.EmployeeEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -34,6 +35,18 @@ public class R2AttendanceImageStorageService implements AttendanceImageStorageSe
         return upload(record, imageDataUrl, "check-out");
     }
 
+    @Override
+    public String storeProfileImage(EmployeeEntity employee, String imageDataUrl) {
+        ParsedImage parsedImage = parseDataUrl(imageDataUrl);
+        String key = "profiles/%s/%s/profile-%s.%s".formatted(
+                employee.getVendor().getId(),
+                employee.getId(),
+                UUID.randomUUID(),
+                parsedImage.extension()
+        );
+        return upload(key, parsedImage);
+    }
+
     private String upload(AttendanceRecordEntity record, String imageDataUrl, String mode) {
         ParsedImage parsedImage = parseDataUrl(imageDataUrl);
         LocalDate attendanceDate = record.getAttendanceDate();
@@ -45,7 +58,10 @@ public class R2AttendanceImageStorageService implements AttendanceImageStorageSe
                 UUID.randomUUID(),
                 parsedImage.extension()
         );
+        return upload(key, parsedImage);
+    }
 
+    private String upload(String key, ParsedImage parsedImage) {
         PutObjectRequest request = PutObjectRequest.builder()
                 .bucket(bucket)
                 .key(key)
