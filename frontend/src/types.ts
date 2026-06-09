@@ -84,6 +84,35 @@ export type Holiday = {
   holidayDate: string;
 };
 
+export type AttendanceCorrectionAudit = {
+  actionType: string;
+  actorName: string;
+  note: string | null;
+  beforeCheckInTime: string | null;
+  beforeCheckOutTime: string | null;
+  afterCheckInTime: string | null;
+  afterCheckOutTime: string | null;
+  createdAt: string;
+};
+
+export type AttendanceCorrection = {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  branchName: string;
+  correctionType: "MISSED_CHECK_IN" | "MISSED_CHECK_OUT";
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  attendanceDate: string;
+  requestedTime: string;
+  appliedTime: string | null;
+  reason: string;
+  reviewNote: string | null;
+  reviewedByName: string | null;
+  createdAt: string;
+  reviewedAt: string | null;
+  auditTrail: AttendanceCorrectionAudit[];
+};
+
 export type EmployeeLeaveWorkspace = {
   balance: {
     monthlyAllowance: number;

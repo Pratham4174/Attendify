@@ -25,6 +25,22 @@
   height: 12px;
 }
 
+.correction-card-list {
+  gap: 14px;
+}
+
+.audit-trail {
+  display: grid;
+  gap: 10px;
+}
+
+.audit-item {
+  display: grid;
+  gap: 4px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(37, 99, 235, 0.08);
+}
+
 @media (max-width: 1024px) {
   .leave-balance-grid {
     grid-template-columns: 1fr;

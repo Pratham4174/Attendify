@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { AttendancePayrollTable, AttendanceTable, TrackingLink } from "../components/AttendanceTable";
+import { AttendanceCorrectionTable } from "../components/AttendanceCorrections";
 import { HolidayList, LeaveRequestTable } from "../components/LeaveManagement";
 import { ActionList, EmptyState, LoadingWorkspace, MetricCard } from "../components/shared";
 import { apiFetch, apiFetchVoid, ApiRequestError } from "../lib/api";
@@ -19,6 +20,7 @@ import type {
   Branch,
   Dashboard,
   Employee,
+  AttendanceCorrection,
   Holiday,
   LeaveRequest,
   PayrollSummary,
@@ -41,6 +43,7 @@ type AdminTab =
   | "overview"
   | "add-employee"
   | "employees"
+  | "corrections"
   | "leave"
   | "payroll"
   | "attendance"
@@ -61,6 +64,7 @@ export function AdminScreen({
   const [attendance, setAttendance] = useState<AttendanceRow[]>([]);
   const [tracking, setTracking] = useState<AdminTracking | null>(null);
   const [trackingDate, setTrackingDate] = useState(() => formatLocalDateKey(new Date()));
+  const [corrections, setCorrections] = useState<AttendanceCorrection[]>([]);
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
   const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [previewImage, setPreviewImage] = useState<AttendancePreview | null>(null);
@@ -93,6 +97,7 @@ export function AdminScreen({
     { id: "overview", label: "Overview" },
     { id: "add-employee", label: "Add employee" },
     { id: "employees", label: "View employees" },
+    { id: "corrections", label: "Corrections" },
     { id: "leave", label: "Leave management" },
     { id: "payroll", label: "Payroll" },
     { id: "attendance", label: "Attendance" },
@@ -119,13 +124,14 @@ export function AdminScreen({
   async function loadAdminData() {
     try {
       setLoadError("");
-      const [dashboardData, employeeData, branchData, attendanceData, trackingData, payrollData, leaveData, holidayData] = await Promise.all([
+      const [dashboardData, employeeData, branchData, attendanceData, trackingData, payrollData, correctionData, leaveData, holidayData] = await Promise.all([
         apiFetch<Dashboard>(session, "/admin/dashboard"),
         apiFetch<Employee[]>(session, "/admin/employees"),
         apiFetch<Branch[]>(session, "/admin/branches"),
         apiFetch<AttendanceRow[]>(session, "/admin/attendance"),
         apiFetch<AdminTracking>(session, `/admin/tracking?date=${trackingDate}`),
         apiFetch<PayrollSummary>(session, `/admin/payroll?month=${payrollMonth}`),
+        apiFetch<AttendanceCorrection[]>(session, "/admin/corrections"),
         apiFetch<LeaveRequest[]>(session, "/admin/leaves"),
         apiFetch<Holiday[]>(session, "/admin/holidays")
       ]);
@@ -136,6 +142,7 @@ export function AdminScreen({
       setAttendance(attendanceData);
       setTracking(trackingData);
       setPayroll(payrollData);
+      setCorrections(correctionData);
       setLeaveRequests(leaveData);
       setHolidays(holidayData);
       setEmployeeForm((current) =>
@@ -268,6 +275,38 @@ export function AdminScreen({
       await loadAdminData();
     } catch (error) {
       setLeaveStatusMessage(error instanceof Error ? error.message : "Unable to update leave request.");
+    }
+  }
+
+  async function decideCorrection(correction: AttendanceCorrection, status: "APPROVED" | "REJECTED") {
+    const ownerReason = window.prompt(
+      status === "APPROVED"
+        ? "Enter approval reason"
+        : "Enter rejection reason"
+    );
+    if (!ownerReason?.trim()) {
+      return;
+    }
+
+    const approvedTime =
+      status === "APPROVED"
+        ? window.prompt("Optional: change approved time (HH:MM). Leave blank to use requested time.", "")
+        : "";
+
+    setLeaveStatusMessage("");
+    try {
+      await apiFetch<AttendanceCorrection>(session, `/admin/corrections/${correction.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          status,
+          approvedTime: approvedTime?.trim() || undefined,
+          reviewNote: ownerReason.trim()
+        })
+      });
+      setLeaveStatusMessage(`Correction ${status.toLowerCase()} successfully.`);
+      await loadAdminData();
+    } catch (error) {
+      setLeaveStatusMessage(error instanceof Error ? error.message : "Unable to update correction request.");
     }
   }
 
@@ -738,6 +777,42 @@ export function AdminScreen({
                   <div className="spacer-sm" />
                   <HolidayList holidays={holidays} onRemove={removeHoliday} />
                 </article>
+              </section>
+              {leaveStatusMessage ? (
+                <p className={leaveStatusMessage.includes("successfully") ? "status-text" : "error-text"}>
+                  {leaveStatusMessage}
+                </p>
+              ) : null}
+            </>
+          ) : null}
+
+          {activeTab === "corrections" ? (
+            <>
+              <section className="panel">
+                <h3>Attendance corrections</h3>
+                <p className="muted section-intro">
+                  Review missed check-in and check-out requests, approve with a reason, and keep an audit trail for every change.
+                </p>
+                <AttendanceCorrectionTable
+                  corrections={corrections}
+                  showEmployee
+                  emptyTitle="No correction requests yet"
+                  emptyMessage="Employee correction requests will appear here once someone asks for a fix."
+                  renderActions={(correction) =>
+                    correction.status === "PENDING" ? (
+                      <>
+                        <button className="ghost-button compact-button" onClick={() => void decideCorrection(correction, "APPROVED")} type="button">
+                          Approve
+                        </button>
+                        <button className="ghost-button compact-button danger-button" onClick={() => void decideCorrection(correction, "REJECTED")} type="button">
+                          Reject
+                        </button>
+                      </>
+                    ) : (
+                      <span className="muted">Decision saved</span>
+                    )
+                  }
+                />
               </section>
               {leaveStatusMessage ? (
                 <p className={leaveStatusMessage.includes("successfully") ? "status-text" : "error-text"}>

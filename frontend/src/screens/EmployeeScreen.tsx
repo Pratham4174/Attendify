@@ -7,11 +7,12 @@ import {
   getDistanceMeters
 } from "../lib/format";
 import { AttendanceTable } from "../components/AttendanceTable";
+import { AttendanceCorrectionTable } from "../components/AttendanceCorrections";
 import { HolidayList, LeaveRequestTable } from "../components/LeaveManagement";
 import { LoadingWorkspace, MetricCard } from "../components/shared";
-import type { EmployeeLeaveWorkspace, EmployeeOverview, Session } from "../types";
+import type { AttendanceCorrection, EmployeeLeaveWorkspace, EmployeeOverview, Session } from "../types";
 
-type EmployeeTab = "mark" | "today" | "history" | "leaves" | "help";
+type EmployeeTab = "mark" | "today" | "history" | "corrections" | "leaves" | "help";
 
 export function EmployeeScreen({
   session,
@@ -23,6 +24,7 @@ export function EmployeeScreen({
   const [overview, setOverview] = useState<EmployeeOverview | null>(null);
   const [loadError, setLoadError] = useState("");
   const [leaveWorkspace, setLeaveWorkspace] = useState<EmployeeLeaveWorkspace | null>(null);
+  const [corrections, setCorrections] = useState<AttendanceCorrection[]>([]);
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [selfie, setSelfie] = useState<string>("");
   const [status, setStatus] = useState("");
@@ -35,10 +37,18 @@ export function EmployeeScreen({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [leaveStatus, setLeaveStatus] = useState("");
   const [leaveSaving, setLeaveSaving] = useState(false);
+  const [correctionSaving, setCorrectionSaving] = useState(false);
+  const [correctionStatus, setCorrectionStatus] = useState("");
   const [leaveForm, setLeaveForm] = useState({
     leaveType: "PAID",
     startDate: "",
     endDate: "",
+    reason: ""
+  });
+  const [correctionForm, setCorrectionForm] = useState({
+    correctionType: "MISSED_CHECK_IN",
+    attendanceDate: "",
+    requestedTime: "",
     reason: ""
   });
   const [attendanceSummary, setAttendanceSummary] = useState<{
@@ -54,12 +64,14 @@ export function EmployeeScreen({
   async function loadOverview() {
     try {
       setLoadError("");
-      const [overviewData, leaveData] = await Promise.all([
+      const [overviewData, leaveData, correctionData] = await Promise.all([
         apiFetch<EmployeeOverview>(session, "/employee/overview"),
-        apiFetch<EmployeeLeaveWorkspace>(session, "/employee/leaves")
+        apiFetch<EmployeeLeaveWorkspace>(session, "/employee/leaves"),
+        apiFetch<AttendanceCorrection[]>(session, "/employee/corrections")
       ]);
       setOverview(overviewData);
       setLeaveWorkspace(leaveData);
+      setCorrections(correctionData);
     } catch (error) {
       if (error instanceof ApiRequestError && (error.status === 401 || error.status === 403)) {
         onLogout();
@@ -305,6 +317,38 @@ export function EmployeeScreen({
     }
   }
 
+  function updateCorrectionForm(
+    key: "correctionType" | "attendanceDate" | "requestedTime" | "reason",
+    value: string
+  ) {
+    setCorrectionForm((current) => ({ ...current, [key]: value }));
+  }
+
+  async function submitCorrectionRequest(event: React.FormEvent) {
+    event.preventDefault();
+    setCorrectionSaving(true);
+    setCorrectionStatus("");
+    try {
+      await apiFetch(session, "/employee/corrections", {
+        method: "POST",
+        body: JSON.stringify(correctionForm)
+      });
+      setCorrectionStatus("Correction request submitted successfully.");
+      setCorrectionForm({
+        correctionType: "MISSED_CHECK_IN",
+        attendanceDate: "",
+        requestedTime: "",
+        reason: ""
+      });
+      await loadOverview();
+      setActiveTab("corrections");
+    } catch (error) {
+      setCorrectionStatus(error instanceof Error ? error.message : "Unable to submit correction request.");
+    } finally {
+      setCorrectionSaving(false);
+    }
+  }
+
   if (!overview) {
     if (loadError) {
       return (
@@ -357,6 +401,7 @@ export function EmployeeScreen({
     { id: "mark", label: "Mark attendance" },
     { id: "today", label: "Today's status" },
     { id: "history", label: "Attendance history" },
+    { id: "corrections", label: "Corrections" },
     { id: "leaves", label: "Leaves" },
     { id: "help", label: "How it works" }
   ];
@@ -738,6 +783,69 @@ export function EmployeeScreen({
                 <h3>Holiday calendar</h3>
                 <p className="muted section-intro">See the dates your property has marked as holidays.</p>
                 <HolidayList holidays={leaveWorkspace?.holidays ?? []} />
+              </section>
+            </>
+          ) : null}
+
+          {activeTab === "corrections" ? (
+            <>
+              <section className="grid two-column">
+                <article className="panel">
+                  <h3>Request correction</h3>
+                  <p className="muted section-intro">Use this if you missed a check-in or check-out and need owner approval.</p>
+                  <form className="leave-form-grid" onSubmit={submitCorrectionRequest}>
+                    <div className="grid two-column compact-grid">
+                      <label>
+                        Correction type
+                        <select value={correctionForm.correctionType} onChange={(event) => updateCorrectionForm("correctionType", event.target.value)}>
+                          <option value="MISSED_CHECK_IN">Missed check-in</option>
+                          <option value="MISSED_CHECK_OUT">Missed check-out</option>
+                        </select>
+                      </label>
+                      <label>
+                        Attendance date
+                        <input required type="date" value={correctionForm.attendanceDate} onChange={(event) => updateCorrectionForm("attendanceDate", event.target.value)} />
+                      </label>
+                    </div>
+                    <div className="grid two-column compact-grid">
+                      <label>
+                        Time you meant to mark
+                        <input required type="time" value={correctionForm.requestedTime} onChange={(event) => updateCorrectionForm("requestedTime", event.target.value)} />
+                      </label>
+                      <label>
+                        Reason
+                        <input required value={correctionForm.reason} onChange={(event) => updateCorrectionForm("reason", event.target.value)} placeholder="Network issue, app closed, forgot to check out..." />
+                      </label>
+                    </div>
+                    <div className="action-row">
+                      <button className="primary-button" disabled={correctionSaving} type="submit">
+                        {correctionSaving ? "Sending..." : "Request correction"}
+                      </button>
+                    </div>
+                    {correctionStatus ? (
+                      <p className={correctionStatus.includes("successfully") ? "status-text" : "error-text"}>{correctionStatus}</p>
+                    ) : null}
+                  </form>
+                </article>
+
+                <article className="panel">
+                  <h3>How review works</h3>
+                  <p className="muted section-intro">Owners can approve or reject with a note, and every action stays in the audit trail.</p>
+                  <div className="info-card">
+                    <strong>Audit trail included</strong>
+                    <span className="muted">Every request, approval, rejection, and applied change is stored with time and actor details.</span>
+                  </div>
+                </article>
+              </section>
+
+              <section className="panel">
+                <h3>My correction requests</h3>
+                <p className="muted section-intro">Track pending requests and review the full change history.</p>
+                <AttendanceCorrectionTable
+                  corrections={corrections}
+                  emptyTitle="No correction requests yet"
+                  emptyMessage="Your correction requests will appear here after you submit one."
+                />
               </section>
             </>
           ) : null}
