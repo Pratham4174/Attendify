@@ -585,6 +585,9 @@ public class AdminService {
         employee.setMonthlySalary(scaleMoney(request.monthlySalary()));
         employee.setMonthlyLeaveAllowance(request.monthlyLeaveAllowance());
         employee.setAdvancePaid(scaleMoney(request.advancePaid()));
+        if (employee.getCreatedAt() == null) {
+            employee.setCreatedAt(OffsetDateTime.now(ZoneOffset.UTC));
+        }
         if (employee.getStatus() == null || employee.getStatus().isBlank()) {
             employee.setStatus("ACTIVE");
         }

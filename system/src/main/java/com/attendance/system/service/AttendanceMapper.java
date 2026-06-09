@@ -39,7 +39,8 @@ public class AttendanceMapper {
                 employee.getPhone(),
                 employee.getStatus(),
                 employee.getDesignation(),
-                employee.getProfileImageRef()
+                employee.getProfileImageRef(),
+                employee.getCreatedAt().toString()
         );
     }
 
@@ -69,7 +70,8 @@ public class AttendanceMapper {
                 employee.getMonthlyLeaveAllowance(),
                 employee.getAdvancePaid().toPlainString(),
                 loginEnabled,
-                employee.getProfileImageRef()
+                employee.getProfileImageRef(),
+                employee.getCreatedAt().toString()
         );
     }
 

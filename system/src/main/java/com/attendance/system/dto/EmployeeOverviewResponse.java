@@ -18,7 +18,8 @@ public record EmployeeOverviewResponse(
             String phone,
             String status,
             String designation,
-            String profileImageRef
+            String profileImageRef,
+            String createdAt
     ) {
     }
 

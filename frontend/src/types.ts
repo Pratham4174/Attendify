@@ -44,6 +44,7 @@ export type EmployeeOverview = {
     status: string;
     designation: string;
     profileImageRef: string | null;
+    createdAt: string;
   };
   branch: {
     id: string;
@@ -157,6 +158,7 @@ export type Employee = {
   advancePaid: string;
   loginEnabled: boolean;
   profileImageRef: string | null;
+  createdAt: string;
 };
 
 export type EmployeeBulkImportResponse = {

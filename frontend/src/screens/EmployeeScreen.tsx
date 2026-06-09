@@ -90,7 +90,8 @@ export function EmployeeScreen({
               name: overview.employee.name,
               branchId: overview.branch.id,
               branchName: overview.branch.name,
-              monthlyLeaveAllowance: leaveWorkspace.balance.monthlyAllowance
+              monthlyLeaveAllowance: leaveWorkspace.balance.monthlyAllowance,
+              createdAt: overview.employee.createdAt
             }
           ],
           attendance: overview.recentAttendance,

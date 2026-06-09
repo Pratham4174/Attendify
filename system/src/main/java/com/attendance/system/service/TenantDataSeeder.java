@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 @Component
 public class TenantDataSeeder implements ApplicationRunner {
@@ -101,6 +103,7 @@ public class TenantDataSeeder implements ApplicationRunner {
         employee.setPhone(phone);
         employee.setStatus("ACTIVE");
         employee.setDesignation(designation);
+        employee.setCreatedAt(OffsetDateTime.now(ZoneOffset.UTC));
         return employeeRepository.save(employee);
     }
 

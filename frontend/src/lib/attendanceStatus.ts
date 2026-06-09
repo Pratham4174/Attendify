@@ -1,7 +1,7 @@
 import type { AttendanceRow, Employee, Holiday, LeaveRequest } from "../types";
 
 type AttendanceStatusSource = {
-  employees: Array<Pick<Employee, "id" | "name" | "branchId" | "branchName" | "monthlyLeaveAllowance">>;
+  employees: Array<Pick<Employee, "id" | "name" | "branchId" | "branchName" | "monthlyLeaveAllowance" | "createdAt">>;
   attendance: AttendanceRow[];
   leaveRequests: Array<Pick<LeaveRequest, "employeeId" | "leaveType" | "status" | "startDate" | "endDate">>;
   holidays: Array<Pick<Holiday, "holidayDate">>;
@@ -99,8 +99,10 @@ export function buildAttendanceStatusRecords({
     }
 
     const remainingAllowanceByMonth = new Map<string, number>();
+    const employeeStartDate = employee.createdAt.slice(0, 10);
+    const effectiveFromDate = employeeStartDate > fromDate ? employeeStartDate : fromDate;
 
-    for (const date of expandDateRange(fromDate, toDate, fromDate, toDate)) {
+    for (const date of expandDateRange(effectiveFromDate, toDate, effectiveFromDate, toDate)) {
       const monthKey = getMonthKey(date);
       if (!remainingAllowanceByMonth.has(monthKey)) {
         remainingAllowanceByMonth.set(monthKey, employee.monthlyLeaveAllowance);
@@ -111,21 +113,6 @@ export function buildAttendanceStatusRecords({
       const branchId = attendanceRecord?.branchId ?? employee.branchId;
 
       if (date > effectiveToday) {
-        rows.push({
-          recordId: `${employee.id}-${date}-upcoming`,
-          employeeId: employee.id,
-          employeeName: employee.name,
-          branchId,
-          branchName,
-          date,
-          checkInTime: null,
-          checkOutTime: null,
-          status: "Upcoming",
-          checkInDistanceMeters: 0,
-          checkOutDistanceMeters: null,
-          checkInPhotoRef: null,
-          checkOutPhotoRef: null
-        });
         continue;
       }
 

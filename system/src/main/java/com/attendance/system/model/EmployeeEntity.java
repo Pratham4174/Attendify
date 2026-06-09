@@ -13,6 +13,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
@@ -61,6 +62,9 @@ public class EmployeeEntity {
 
     @Column(name = "profile_image_ref", columnDefinition = "LONGTEXT")
     private String profileImageRef;
+
+    @Column(name = "created_at", nullable = false)
+    private OffsetDateTime createdAt;
 
     public UUID getId() {
         return id;
@@ -160,5 +164,13 @@ public class EmployeeEntity {
 
     public void setProfileImageRef(String profileImageRef) {
         this.profileImageRef = profileImageRef;
+    }
+
+    public OffsetDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(OffsetDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

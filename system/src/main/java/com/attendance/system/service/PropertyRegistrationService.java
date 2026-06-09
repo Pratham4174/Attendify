@@ -18,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -105,6 +107,7 @@ public class PropertyRegistrationService {
             employee.setPhone(seed.phone().trim());
             employee.setStatus("ACTIVE");
             employee.setDesignation(seed.designation().trim());
+            employee.setCreatedAt(OffsetDateTime.now(ZoneOffset.UTC));
             employee = employeeRepository.save(employee);
 
             UserEntity employeeUser = new UserEntity();
