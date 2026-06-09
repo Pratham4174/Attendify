@@ -3,7 +3,13 @@ import type { AttendancePreview, AttendanceRow, PayrollSummary } from "../types"
 import { buildMapsUrl, formatDateTime, formatMoney, formatTimeOnly, formatWorkedHours } from "../lib/format";
 import { EmptyState } from "./shared";
 
-export function AttendancePayrollTable({ payroll }: { payroll: PayrollSummary }) {
+export function AttendancePayrollTable({
+  payroll,
+  onDownloadSlip
+}: {
+  payroll: PayrollSummary;
+  onDownloadSlip?: (employeeId: string) => void;
+}) {
   return (
     <>
       <table className="data-table desktop-table">
@@ -12,12 +18,18 @@ export function AttendancePayrollTable({ payroll }: { payroll: PayrollSummary })
             <th>Employee</th>
             <th>Monthly salary</th>
             <th>Worked days</th>
+            <th>Half days</th>
+            <th>Holiday days</th>
+            <th>Worked units</th>
             <th>Allowed leaves</th>
             <th>Paid leaves used</th>
             <th>Unpaid leaves</th>
             <th>Payable days</th>
-            <th>Advance</th>
+            <th>Opening advance</th>
+            <th>Month advance</th>
+            <th>Total advance</th>
             <th>Net payable</th>
+            {onDownloadSlip ? <th>Slip</th> : null}
           </tr>
         </thead>
         <tbody>
@@ -29,12 +41,24 @@ export function AttendancePayrollTable({ payroll }: { payroll: PayrollSummary })
               </td>
               <td>{formatMoney(employee.monthlySalary.value)}</td>
               <td>{employee.workedDays}</td>
+              <td>{employee.halfDays}</td>
+              <td>{employee.holidayDays}</td>
+              <td>{employee.workedDayUnits.value}</td>
               <td>{employee.allowedLeaves}</td>
               <td>{employee.paidLeaveDays}</td>
               <td>{employee.unpaidLeaveDays}</td>
-              <td>{employee.payableDays}</td>
-              <td>{formatMoney(employee.advancePaid.value)}</td>
+              <td>{employee.payableDays.value}</td>
+              <td>{formatMoney(employee.openingAdvance.value)}</td>
+              <td>{formatMoney(employee.monthAdvancePaid.value)}</td>
+              <td>{formatMoney(employee.totalAdvanceDeducted.value)}</td>
               <td>{formatMoney(employee.netPayable.value)}</td>
+              {onDownloadSlip ? (
+                <td>
+                  <button className="ghost-button compact-button" onClick={() => onDownloadSlip(employee.employeeId)} type="button">
+                    Slip
+                  </button>
+                </td>
+              ) : null}
             </tr>
           ))}
         </tbody>
@@ -52,6 +76,12 @@ export function AttendancePayrollTable({ payroll }: { payroll: PayrollSummary })
               <strong>{formatMoney(employee.monthlySalary.value)}</strong>
               <span>Worked days</span>
               <strong>{employee.workedDays}</strong>
+              <span>Half days</span>
+              <strong>{employee.halfDays}</strong>
+              <span>Holiday days</span>
+              <strong>{employee.holidayDays}</strong>
+              <span>Worked units</span>
+              <strong>{employee.workedDayUnits.value}</strong>
               <span>Allowed leaves</span>
               <strong>{employee.allowedLeaves}</strong>
               <span>Paid leaves used</span>
@@ -59,12 +89,23 @@ export function AttendancePayrollTable({ payroll }: { payroll: PayrollSummary })
               <span>Unpaid leaves</span>
               <strong>{employee.unpaidLeaveDays}</strong>
               <span>Payable days</span>
-              <strong>{employee.payableDays}</strong>
-              <span>Advance</span>
-              <strong>{formatMoney(employee.advancePaid.value)}</strong>
+              <strong>{employee.payableDays.value}</strong>
+              <span>Opening advance</span>
+              <strong>{formatMoney(employee.openingAdvance.value)}</strong>
+              <span>Month advance</span>
+              <strong>{formatMoney(employee.monthAdvancePaid.value)}</strong>
+              <span>Total advance</span>
+              <strong>{formatMoney(employee.totalAdvanceDeducted.value)}</strong>
               <span>Net payable</span>
               <strong>{formatMoney(employee.netPayable.value)}</strong>
             </div>
+            {onDownloadSlip ? (
+              <div className="table-action-row card-action-row">
+                <button className="ghost-button compact-button" onClick={() => onDownloadSlip(employee.employeeId)} type="button">
+                  Download slip
+                </button>
+              </div>
+            ) : null}
           </article>
         ))}
       </div>

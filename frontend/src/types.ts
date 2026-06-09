@@ -186,6 +186,15 @@ export type AdminTracking = {
 
 export type PayrollSummary = {
   month: string;
+  advancePayments: Array<{
+    id: string;
+    employeeId: string;
+    employeeName: string;
+    paymentDate: string;
+    amount: { value: string };
+    note: string | null;
+    createdAt: string;
+  }>;
   employees: Array<{
     employeeId: string;
     employeeName: string;
@@ -194,13 +203,18 @@ export type PayrollSummary = {
     monthlySalary: { value: string };
     daysCounted: number;
     workedDays: number;
+    halfDays: number;
+    holidayDays: number;
+    workedDayUnits: { value: string };
     allowedLeaves: number;
     paidLeaveDays: number;
     unpaidLeaveDays: number;
-    payableDays: number;
+    payableDays: { value: string };
     dailyRate: { value: string };
     grossPayable: { value: string };
-    advancePaid: { value: string };
+    openingAdvance: { value: string };
+    monthAdvancePaid: { value: string };
+    totalAdvanceDeducted: { value: string };
     netPayable: { value: string };
   }>;
 };

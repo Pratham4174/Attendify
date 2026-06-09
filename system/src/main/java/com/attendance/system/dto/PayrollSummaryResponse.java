@@ -4,6 +4,7 @@ import java.util.List;
 
 public record PayrollSummaryResponse(
         String month,
+        List<SalaryAdvancePaymentRow> advancePayments,
         List<EmployeePayrollRow> employees
 ) {
     public record EmployeePayrollRow(
@@ -14,14 +15,30 @@ public record PayrollSummaryResponse(
             BigDecimalValue monthlySalary,
             int daysCounted,
             int workedDays,
+            int halfDays,
+            int holidayDays,
+            BigDecimalValue workedDayUnits,
             int allowedLeaves,
             int paidLeaveDays,
             int unpaidLeaveDays,
-            int payableDays,
+            BigDecimalValue payableDays,
             BigDecimalValue dailyRate,
             BigDecimalValue grossPayable,
-            BigDecimalValue advancePaid,
+            BigDecimalValue openingAdvance,
+            BigDecimalValue monthAdvancePaid,
+            BigDecimalValue totalAdvanceDeducted,
             BigDecimalValue netPayable
+    ) {
+    }
+
+    public record SalaryAdvancePaymentRow(
+            String id,
+            String employeeId,
+            String employeeName,
+            String paymentDate,
+            BigDecimalValue amount,
+            String note,
+            String createdAt
     ) {
     }
 

@@ -9,6 +9,8 @@ import com.attendance.system.dto.EmployeeResponse;
 import com.attendance.system.dto.EmployeeStatusRequest;
 import com.attendance.system.dto.EmployeeUpsertRequest;
 import com.attendance.system.dto.PayrollSummaryResponse;
+import com.attendance.system.dto.SalaryAdvancePaymentRequest;
+import com.attendance.system.dto.SalaryAdvancePaymentResponse;
 import com.attendance.system.model.AttendanceLocationLogEntity;
 import com.attendance.system.model.AttendanceRecordEntity;
 import com.attendance.system.model.BranchEntity;
@@ -17,6 +19,7 @@ import com.attendance.system.model.HolidayEntity;
 import com.attendance.system.model.LeaveRequestEntity;
 import com.attendance.system.model.LeaveStatus;
 import com.attendance.system.model.LeaveType;
+import com.attendance.system.model.SalaryAdvancePaymentEntity;
 import com.attendance.system.model.UserEntity;
 import com.attendance.system.model.UserRole;
 import com.attendance.system.repository.AttendanceLocationLogRepository;
@@ -25,6 +28,7 @@ import com.attendance.system.repository.BranchRepository;
 import com.attendance.system.repository.EmployeeRepository;
 import com.attendance.system.repository.HolidayRepository;
 import com.attendance.system.repository.LeaveRequestRepository;
+import com.attendance.system.repository.SalaryAdvancePaymentRepository;
 import com.attendance.system.repository.UserRepository;
 import com.attendance.system.security.AuthenticatedUser;
 import org.springframework.dao.DataAccessException;
@@ -58,6 +62,7 @@ public class AdminService {
     private final UserRepository userRepository;
     private final LeaveRequestRepository leaveRequestRepository;
     private final HolidayRepository holidayRepository;
+    private final SalaryAdvancePaymentRepository salaryAdvancePaymentRepository;
     private final AttendanceMapper mapper;
     private final TrackingProperties trackingProperties;
     private final PasswordEncoder passwordEncoder;
@@ -70,6 +75,7 @@ public class AdminService {
             UserRepository userRepository,
             LeaveRequestRepository leaveRequestRepository,
             HolidayRepository holidayRepository,
+            SalaryAdvancePaymentRepository salaryAdvancePaymentRepository,
             AttendanceMapper mapper,
             TrackingProperties trackingProperties,
             PasswordEncoder passwordEncoder
@@ -81,6 +87,7 @@ public class AdminService {
         this.userRepository = userRepository;
         this.leaveRequestRepository = leaveRequestRepository;
         this.holidayRepository = holidayRepository;
+        this.salaryAdvancePaymentRepository = salaryAdvancePaymentRepository;
         this.mapper = mapper;
         this.trackingProperties = trackingProperties;
         this.passwordEncoder = passwordEncoder;
@@ -303,11 +310,57 @@ public class AdminService {
             daysCounted = targetMonth.lengthOfMonth();
         }
 
+        List<SalaryAdvancePaymentEntity> monthAdvancePayments = salaryAdvancePaymentRepository
+                .findByVendor_IdAndPaymentDateBetweenOrderByPaymentDateDescCreatedAtDesc(user.vendorId(), startDate, endDate);
+        Map<UUID, BigDecimal> advanceTotalsByEmployee = new LinkedHashMap<>();
+        for (SalaryAdvancePaymentEntity payment : monthAdvancePayments) {
+            advanceTotalsByEmployee.merge(
+                    payment.getEmployee().getId(),
+                    safeMoney(payment.getAmount()),
+                    BigDecimal::add
+            );
+        }
+
         List<PayrollSummaryResponse.EmployeePayrollRow> rows = employeeRepository.findByVendor_IdOrderByNameAsc(user.vendorId()).stream()
                 .filter(employee -> !"REMOVED".equalsIgnoreCase(employee.getStatus()))
-                .map(employee -> buildPayrollRow(employee, startDate, completedThrough, endDate, daysCounted))
+                .map(employee -> buildPayrollRow(employee, startDate, completedThrough, endDate, daysCounted, advanceTotalsByEmployee))
                 .toList();
-        return new PayrollSummaryResponse(targetMonth.toString(), rows);
+        List<PayrollSummaryResponse.SalaryAdvancePaymentRow> advanceRows = monthAdvancePayments.stream()
+                .map(payment -> new PayrollSummaryResponse.SalaryAdvancePaymentRow(
+                        payment.getId().toString(),
+                        payment.getEmployee().getId().toString(),
+                        payment.getEmployee().getName(),
+                        payment.getPaymentDate().toString(),
+                        moneyValue(safeMoney(payment.getAmount())),
+                        payment.getNote(),
+                        payment.getCreatedAt().toString()
+                ))
+                .toList();
+        return new PayrollSummaryResponse(targetMonth.toString(), advanceRows, rows);
+    }
+
+    @Transactional
+    public SalaryAdvancePaymentResponse recordAdvancePayment(AuthenticatedUser user, SalaryAdvancePaymentRequest request) {
+        requireAdmin(user);
+        EmployeeEntity employee = loadEmployee(user.vendorId(), request.employeeId());
+        LocalDate paymentDate = parseDate(request.paymentDate());
+        SalaryAdvancePaymentEntity payment = new SalaryAdvancePaymentEntity();
+        payment.setVendor(employee.getVendor());
+        payment.setEmployee(employee);
+        payment.setPaymentDate(paymentDate);
+        payment.setAmount(scaleMoney(request.amount()));
+        payment.setNote(request.note() == null ? null : request.note().trim());
+        payment.setCreatedAt(OffsetDateTime.now(ZoneOffset.UTC));
+        SalaryAdvancePaymentEntity saved = salaryAdvancePaymentRepository.save(payment);
+        return new SalaryAdvancePaymentResponse(
+                saved.getId().toString(),
+                employee.getId().toString(),
+                employee.getName(),
+                saved.getPaymentDate().toString(),
+                saved.getAmount().toPlainString(),
+                saved.getNote(),
+                saved.getCreatedAt().toString()
+        );
     }
 
     private void requireAdmin(AuthenticatedUser user) {
@@ -377,11 +430,12 @@ public class AdminService {
             LocalDate startDate,
             LocalDate completedThrough,
             LocalDate endDate,
-            int daysCounted
+            int daysCounted,
+            Map<UUID, BigDecimal> advanceTotalsByEmployee
     ) {
         if (daysCounted == 0 || completedThrough.isBefore(startDate)) {
             BigDecimal monthlySalary = safeMoney(employee.getMonthlySalary());
-            BigDecimal advancePaid = safeMoney(employee.getAdvancePaid());
+            BigDecimal openingAdvance = safeMoney(employee.getAdvancePaid());
             return new PayrollSummaryResponse.EmployeePayrollRow(
                     employee.getId().toString(),
                     employee.getName(),
@@ -390,22 +444,31 @@ public class AdminService {
                     moneyValue(monthlySalary),
                     0,
                     0,
+                    0,
+                    0,
+                    moneyValue(BigDecimal.ZERO),
                     employee.getMonthlyLeaveAllowance() == null ? 0 : employee.getMonthlyLeaveAllowance(),
                     0,
                     0,
-                    0,
                     moneyValue(BigDecimal.ZERO),
                     moneyValue(BigDecimal.ZERO),
-                    moneyValue(advancePaid),
+                    moneyValue(BigDecimal.ZERO),
+                    moneyValue(openingAdvance),
+                    moneyValue(BigDecimal.ZERO),
+                    moneyValue(openingAdvance),
                     moneyValue(BigDecimal.ZERO)
             );
         }
 
-        Set<LocalDate> workedDates = attendanceRecordRepository
+        List<AttendanceRecordEntity> attendanceRows = attendanceRecordRepository
                 .findByEmployee_IdAndAttendanceDateBetweenOrderByAttendanceDateAsc(employee.getId(), startDate, completedThrough)
                 .stream()
-                .map(AttendanceRecordEntity::getAttendanceDate)
-                .collect(java.util.stream.Collectors.toCollection(HashSet::new));
+                .filter(record -> record.getAttendanceDate() != null)
+                .toList();
+        Map<LocalDate, AttendanceRecordEntity> attendanceByDate = new LinkedHashMap<>();
+        for (AttendanceRecordEntity record : attendanceRows) {
+            attendanceByDate.putIfAbsent(record.getAttendanceDate(), record);
+        }
 
         Set<LocalDate> holidayDates = holidayRepository
                 .findByVendor_IdAndHolidayDateBetweenOrderByHolidayDateAsc(employee.getVendor().getId(), startDate, completedThrough)
@@ -433,15 +496,21 @@ public class AdminService {
         }
 
         int workedDays = 0;
+        int halfDays = 0;
         int holidayDays = 0;
         int requestedPaidLeaveDays = 0;
         int requestedUnpaidLeaveDays = 0;
         int absenceDays = 0;
         for (LocalDate date = startDate; !date.isAfter(completedThrough); date = date.plusDays(1)) {
+            AttendanceRecordEntity attendanceRecord = attendanceByDate.get(date);
             if (holidayDates.contains(date)) {
                 holidayDays++;
-            } else if (workedDates.contains(date)) {
-                workedDays++;
+            } else if (attendanceRecord != null) {
+                if (isHalfDay(attendanceRecord)) {
+                    halfDays++;
+                } else {
+                    workedDays++;
+                }
             } else if (requestedPaidLeaveDates.contains(date)) {
                 requestedPaidLeaveDays++;
             } else if (requestedUnpaidLeaveDates.contains(date)) {
@@ -458,14 +527,20 @@ public class AdminService {
         int autoPaidAbsenceDays = Math.min(absenceDays, remainingAllowance);
         int paidLeaveDays = approvedPaidLeavesCounted + autoPaidAbsenceDays;
         int unpaidLeaveDays = requestedUnpaidLeaveDays + overflowApprovedPaidLeaves + Math.max(absenceDays - autoPaidAbsenceDays, 0);
-        int payableDays = workedDays + holidayDays + paidLeaveDays;
+        BigDecimal workedDayUnits = BigDecimal.valueOf(workedDays).add(BigDecimal.valueOf(halfDays).multiply(BigDecimal.valueOf(0.5)));
+        BigDecimal payableDays = workedDayUnits
+                .add(BigDecimal.valueOf(holidayDays))
+                .add(BigDecimal.valueOf(paidLeaveDays))
+                .setScale(2, RoundingMode.HALF_UP);
         BigDecimal monthlySalary = safeMoney(employee.getMonthlySalary());
         BigDecimal dailyRate = daysCounted == 0
                 ? BigDecimal.ZERO
                 : monthlySalary.divide(BigDecimal.valueOf(endDate.lengthOfMonth()), 2, RoundingMode.HALF_UP);
-        BigDecimal grossPayable = dailyRate.multiply(BigDecimal.valueOf(payableDays)).setScale(2, RoundingMode.HALF_UP);
-        BigDecimal advancePaid = safeMoney(employee.getAdvancePaid());
-        BigDecimal netPayable = grossPayable.subtract(advancePaid).max(BigDecimal.ZERO).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal grossPayable = dailyRate.multiply(payableDays).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal openingAdvance = safeMoney(employee.getAdvancePaid());
+        BigDecimal monthAdvancePaid = safeMoney(advanceTotalsByEmployee.get(employee.getId()));
+        BigDecimal totalAdvanceDeducted = openingAdvance.add(monthAdvancePaid).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal netPayable = grossPayable.subtract(totalAdvanceDeducted).max(BigDecimal.ZERO).setScale(2, RoundingMode.HALF_UP);
 
         return new PayrollSummaryResponse.EmployeePayrollRow(
                 employee.getId().toString(),
@@ -475,13 +550,18 @@ public class AdminService {
                 moneyValue(monthlySalary),
                 daysCounted,
                 workedDays,
+                halfDays,
+                holidayDays,
+                moneyValue(workedDayUnits),
                 allowedLeaves,
                 paidLeaveDays,
                 unpaidLeaveDays,
-                payableDays,
+                moneyValue(payableDays),
                 moneyValue(dailyRate),
                 moneyValue(grossPayable),
-                moneyValue(advancePaid),
+                moneyValue(openingAdvance),
+                moneyValue(monthAdvancePaid),
+                moneyValue(totalAdvanceDeducted),
                 moneyValue(netPayable)
         );
     }
@@ -492,6 +572,17 @@ public class AdminService {
 
     private BigDecimal safeMoney(BigDecimal amount) {
         return amount == null ? BigDecimal.ZERO : scaleMoney(amount);
+    }
+
+    private boolean isHalfDay(AttendanceRecordEntity record) {
+        if (record.getCheckInTime() == null) {
+            return false;
+        }
+        if (record.getCheckOutTime() == null) {
+            return true;
+        }
+        long minutesWorked = java.time.Duration.between(record.getCheckInTime(), record.getCheckOutTime()).toMinutes();
+        return minutesWorked < 6 * 60;
     }
 
     private BigDecimal scaleMoney(BigDecimal amount) {
@@ -506,5 +597,17 @@ public class AdminService {
         }
         return effectiveStart.datesUntil(effectiveEnd.plusDays(1))
                 .collect(java.util.stream.Collectors.toCollection(HashSet::new));
+    }
+
+    private LocalDate parseDate(String value) {
+        if (value == null || value.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Payment date is required.");
+        }
+
+        try {
+            return LocalDate.parse(value);
+        } catch (DateTimeParseException exception) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Payment date must use YYYY-MM-DD format.");
+        }
     }
 }

@@ -22,6 +22,8 @@ import com.attendance.system.dto.EmployeeResponse;
 import com.attendance.system.dto.EmployeeStatusRequest;
 import com.attendance.system.dto.EmployeeUpsertRequest;
 import com.attendance.system.dto.PayrollSummaryResponse;
+import com.attendance.system.dto.SalaryAdvancePaymentRequest;
+import com.attendance.system.dto.SalaryAdvancePaymentResponse;
 import com.attendance.system.security.AuthenticatedUser;
 import com.attendance.system.service.AdminService;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -100,6 +102,14 @@ public class AdminController {
             @RequestParam(required = false) String month
     ) {
         return adminService.payroll(currentUser(authentication), month);
+    }
+
+    @PostMapping("/advance-payments")
+    public SalaryAdvancePaymentResponse recordAdvancePayment(
+            Authentication authentication,
+            @Valid @RequestBody SalaryAdvancePaymentRequest request
+    ) {
+        return adminService.recordAdvancePayment(currentUser(authentication), request);
     }
 
     private AuthenticatedUser currentUser(Authentication authentication) {

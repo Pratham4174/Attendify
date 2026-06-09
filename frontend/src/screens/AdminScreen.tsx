@@ -13,6 +13,7 @@ import {
   formatWorkedHours,
   isLateCheckIn
 } from "../lib/format";
+import { downloadPayrollCsv, downloadSalarySlip } from "../lib/payroll";
 import type {
   AdminTracking,
   AttendancePreview,
@@ -73,6 +74,14 @@ export function AdminScreen({
   const [employeeSaving, setEmployeeSaving] = useState(false);
   const [payrollMonth, setPayrollMonth] = useState(() => formatMonthKey(new Date()));
   const [payroll, setPayroll] = useState<PayrollSummary | null>(null);
+  const [advancePaymentStatus, setAdvancePaymentStatus] = useState("");
+  const [advancePaymentSaving, setAdvancePaymentSaving] = useState(false);
+  const [advancePaymentForm, setAdvancePaymentForm] = useState({
+    employeeId: "",
+    paymentDate: formatLocalDateKey(new Date()),
+    amount: "",
+    note: ""
+  });
   const [activeTab, setActiveTab] = useState<AdminTab>("overview");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [leaveStatusMessage, setLeaveStatusMessage] = useState("");
@@ -150,6 +159,11 @@ export function AdminScreen({
           ? current
           : { ...current, branchId: branchData[0].id }
       );
+      setAdvancePaymentForm((current) =>
+        current.employeeId || !employeeData.length
+          ? current
+          : { ...current, employeeId: employeeData[0].id }
+      );
     } catch (error) {
       if (error instanceof ApiRequestError && (error.status === 401 || error.status === 403)) {
         onLogout();
@@ -166,6 +180,13 @@ export function AdminScreen({
 
   function updateEmployeeForm(key: keyof EmployeeFormState, value: string) {
     setEmployeeForm((current) => ({ ...current, [key]: value }));
+  }
+
+  function updateAdvancePaymentForm(
+    key: "employeeId" | "paymentDate" | "amount" | "note",
+    value: string
+  ) {
+    setAdvancePaymentForm((current) => ({ ...current, [key]: value }));
   }
 
   function updateHolidayForm(key: "name" | "holidayDate", value: string) {
@@ -342,6 +363,32 @@ export function AdminScreen({
       await loadAdminData();
     } catch (error) {
       setLeaveStatusMessage(error instanceof Error ? error.message : "Unable to remove holiday.");
+    }
+  }
+
+  async function submitAdvancePayment(event: React.FormEvent) {
+    event.preventDefault();
+    setAdvancePaymentSaving(true);
+    setAdvancePaymentStatus("");
+    try {
+      await apiFetch(session, "/admin/advance-payments", {
+        method: "POST",
+        body: JSON.stringify({
+          ...advancePaymentForm,
+          amount: Number(advancePaymentForm.amount || "0")
+        })
+      });
+      setAdvancePaymentStatus("Advance payment recorded successfully.");
+      setAdvancePaymentForm((current) => ({
+        ...current,
+        amount: "",
+        note: ""
+      }));
+      await loadAdminData();
+    } catch (error) {
+      setAdvancePaymentStatus(error instanceof Error ? error.message : "Unable to record advance payment.");
+    } finally {
+      setAdvancePaymentSaving(false);
     }
   }
 
@@ -709,20 +756,136 @@ export function AdminScreen({
                       label="Total payable"
                       value={formatMoney(payroll.employees.reduce((sum, employee) => sum + Number(employee.netPayable.value), 0))}
                     />
+                    <MetricCard
+                      label="Month advances"
+                      value={formatMoney(payroll.advancePayments.reduce((sum, payment) => sum + Number(payment.amount.value), 0))}
+                    />
                   </div>
                 ) : (
                   <EmptyState title="No payroll data yet" message="Payroll will appear here after employees are added with salary details." />
                 )}
               </section>
+              <section className="grid two-column">
+                <article className="panel">
+                  <div className="topbar">
+                    <div>
+                      <h3>Monthly export</h3>
+                      <p className="muted section-intro">
+                        Download a month-wise payroll report or a salary slip for each employee.
+                      </p>
+                    </div>
+                    {payroll?.employees.length ? (
+                      <button className="primary-button" onClick={() => downloadPayrollCsv(payroll)} type="button">
+                        Export CSV
+                      </button>
+                    ) : null}
+                  </div>
+                  <div className="info-card">
+                    <strong>Included in export</strong>
+                    <span className="muted">Worked days, half days, paid and unpaid leave breakup, advance deductions, and net payable.</span>
+                  </div>
+                </article>
+                <article className="panel">
+                  <h3>Add advance payment</h3>
+                  <p className="muted section-intro">
+                    Record any salary amount paid early during the month so it is settled from the final payout.
+                  </p>
+                  <form className="leave-form-grid" onSubmit={submitAdvancePayment}>
+                    <div className="grid two-column compact-grid">
+                      <label>
+                        Employee
+                        <select value={advancePaymentForm.employeeId} onChange={(event) => updateAdvancePaymentForm("employeeId", event.target.value)} required>
+                          <option value="" disabled>Select employee</option>
+                          {employees.map((employee) => (
+                            <option key={employee.id} value={employee.id}>{employee.name}</option>
+                          ))}
+                        </select>
+                      </label>
+                      <label>
+                        Payment date
+                        <input type="date" value={advancePaymentForm.paymentDate} onChange={(event) => updateAdvancePaymentForm("paymentDate", event.target.value)} required />
+                      </label>
+                    </div>
+                    <div className="grid two-column compact-grid">
+                      <label>
+                        Amount
+                        <input type="number" min="0" step="0.01" value={advancePaymentForm.amount} onChange={(event) => updateAdvancePaymentForm("amount", event.target.value)} placeholder="5000" required />
+                      </label>
+                      <label>
+                        Note
+                        <input value={advancePaymentForm.note} onChange={(event) => updateAdvancePaymentForm("note", event.target.value)} placeholder="Emergency support / travel / festival advance" />
+                      </label>
+                    </div>
+                    <div className="action-row">
+                      <button className="primary-button" disabled={advancePaymentSaving} type="submit">
+                        {advancePaymentSaving ? "Saving..." : "Record payment"}
+                      </button>
+                    </div>
+                    {advancePaymentStatus ? (
+                      <p className={advancePaymentStatus.includes("successfully") ? "status-text" : "error-text"}>
+                        {advancePaymentStatus}
+                      </p>
+                    ) : null}
+                  </form>
+                </article>
+              </section>
               <section className="panel">
                 <h3>Payroll details</h3>
                 <p className="muted section-intro">
-                  Owners can see monthly salary, worked days, excess leave deduction, and advance settlement in one report.
+                  Owners can see monthly salary, half-day deduction impact, paid and unpaid leave breakup, and advance settlement in one report.
                 </p>
                 {payroll?.employees.length ? (
-                  <AttendancePayrollTable payroll={payroll} />
+                  <AttendancePayrollTable payroll={payroll} onDownloadSlip={(employeeId) => downloadSalarySlip(payroll, employeeId)} />
                 ) : (
                   <EmptyState title="No salary records yet" message="Add salary details to employees and this section will show daily rate, gross, advance, and net payable." />
+                )}
+              </section>
+              <section className="panel">
+                <h3>Advance payment history</h3>
+                <p className="muted section-intro">
+                  Every early payment made during the month is listed here for payroll settlement.
+                </p>
+                {payroll?.advancePayments.length ? (
+                  <>
+                    <table className="data-table desktop-table">
+                      <thead>
+                        <tr>
+                          <th>Employee</th>
+                          <th>Date</th>
+                          <th>Amount</th>
+                          <th>Note</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {payroll.advancePayments.map((payment) => (
+                          <tr key={payment.id}>
+                            <td>{payment.employeeName}</td>
+                            <td>{payment.paymentDate}</td>
+                            <td>{formatMoney(payment.amount.value)}</td>
+                            <td>{payment.note ?? "No note"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    <div className="attendance-card-list payroll-card-list">
+                      {payroll.advancePayments.map((payment) => (
+                        <article className="attendance-card" key={payment.id}>
+                          <div className="attendance-card-header">
+                            <strong>{payment.employeeName}</strong>
+                            <span className="pill">{payment.paymentDate}</span>
+                          </div>
+                          <div className="attendance-card-grid">
+                            <span>Amount</span>
+                            <strong>{formatMoney(payment.amount.value)}</strong>
+                            <span>Note</span>
+                            <strong>{payment.note ?? "No note"}</strong>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <EmptyState title="No advance payments this month" message="Recorded salary advances will appear here and be settled in the payroll." />
                 )}
               </section>
             </>
