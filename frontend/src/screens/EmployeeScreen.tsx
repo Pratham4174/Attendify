@@ -138,6 +138,17 @@ export function EmployeeScreen({
   }, []);
 
   useEffect(() => {
+    if (!cameraReady || !videoRef.current || !streamRef.current) {
+      return;
+    }
+
+    videoRef.current.srcObject = streamRef.current;
+    void videoRef.current.play().catch(() => {
+      // The stream is already attached; some browsers may reject play() until the frame is ready.
+    });
+  }, [cameraReady, selfie]);
+
+  useEffect(() => {
     const tutorialKey = `attendify-tutorial-seen-${session.user.userId}`;
     const hasSeenTutorial = localStorage.getItem(tutorialKey);
 
@@ -328,14 +339,17 @@ export function EmployeeScreen({
   }
 
   async function startCamera() {
+    stopCameraStream();
     const stream = await navigator.mediaDevices.getUserMedia({
       video: { facingMode: "user" },
       audio: false
     });
-    stopCameraStream();
     streamRef.current = stream;
     if (videoRef.current) {
       videoRef.current.srcObject = stream;
+      void videoRef.current.play().catch(() => {
+        // Fallback handled by the cameraReady effect after render.
+      });
     }
     setCameraReady(true);
     setStatus("Camera is ready. Capture a fresh selfie to continue.");
