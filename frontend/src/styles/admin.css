@@ -309,7 +309,14 @@
 
 .payroll-action-grid {
   align-items: start;
+}
+
+.grid.two-column.payroll-action-grid {
   grid-template-columns: minmax(0, 1fr);
+}
+
+.payroll-action-grid > .panel {
+  min-width: 0;
 }
 
 .card-action-row {
