@@ -78,7 +78,10 @@ public class AttendanceMapper {
                 branch.getAddress(),
                 branch.getLatitude().doubleValue(),
                 branch.getLongitude().doubleValue(),
-                branch.getRadiusMeters().doubleValue()
+                branch.getRadiusMeters().doubleValue(),
+                branch.getShiftStartTime().toString(),
+                branch.getShiftEndTime().toString(),
+                branch.getGraceMinutes()
         );
     }
 }

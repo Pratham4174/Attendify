@@ -6,6 +6,9 @@ public record BranchResponse(
         String address,
         double latitude,
         double longitude,
-        double radiusMeters
+        double radiusMeters,
+        String shiftStartTime,
+        String shiftEndTime,
+        int graceMinutes
 ) {
 }

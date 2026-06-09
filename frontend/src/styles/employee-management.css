@@ -68,6 +68,14 @@
   color: var(--text-main);
 }
 
+.branch-management-grid {
+  align-items: start;
+}
+
+.branch-card-list {
+  gap: 14px;
+}
+
 @media (max-width: 840px) {
   .employee-import-actions {
     flex-direction: column;
@@ -76,5 +84,9 @@
 
   .file-picker {
     justify-content: center;
+  }
+
+  .branch-management-grid {
+    grid-template-columns: 1fr;
   }
 }

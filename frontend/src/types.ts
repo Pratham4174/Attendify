@@ -175,6 +175,9 @@ export type Branch = {
   latitude: number;
   longitude: number;
   radiusMeters: number;
+  shiftStartTime: string;
+  shiftEndTime: string;
+  graceMinutes: number;
 };
 
 export type AdminTracking = {

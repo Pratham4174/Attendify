@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.attendance.system.dto.AttendanceRowResponse;
 import com.attendance.system.dto.AdminTrackingResponse;
 import com.attendance.system.dto.BranchResponse;
+import com.attendance.system.dto.BranchUpsertRequest;
 import com.attendance.system.dto.DashboardSummaryResponse;
 import com.attendance.system.dto.EmployeeBranchTransferRequest;
 import com.attendance.system.dto.EmployeeBulkImportRequest;
@@ -121,6 +122,23 @@ public class AdminController {
     @GetMapping("/branches")
     public List<BranchResponse> branches(Authentication authentication) {
         return adminService.branches(currentUser(authentication));
+    }
+
+    @PostMapping("/branches")
+    public BranchResponse createBranch(
+            Authentication authentication,
+            @Valid @RequestBody BranchUpsertRequest request
+    ) {
+        return adminService.createBranch(currentUser(authentication), request);
+    }
+
+    @PutMapping("/branches/{branchId}")
+    public BranchResponse updateBranch(
+            Authentication authentication,
+            @PathVariable String branchId,
+            @Valid @RequestBody BranchUpsertRequest request
+    ) {
+        return adminService.updateBranch(currentUser(authentication), branchId, request);
     }
 
     @GetMapping("/attendance")

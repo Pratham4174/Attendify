@@ -4,6 +4,7 @@ import com.attendance.system.config.TrackingProperties;
 import com.attendance.system.dto.AttendanceRowResponse;
 import com.attendance.system.dto.AdminTrackingResponse;
 import com.attendance.system.dto.BranchResponse;
+import com.attendance.system.dto.BranchUpsertRequest;
 import com.attendance.system.dto.DashboardSummaryResponse;
 import com.attendance.system.dto.EmployeeBranchTransferRequest;
 import com.attendance.system.dto.EmployeeBulkImportRequest;
@@ -35,6 +36,7 @@ import com.attendance.system.repository.HolidayRepository;
 import com.attendance.system.repository.LeaveRequestRepository;
 import com.attendance.system.repository.SalaryAdvancePaymentRepository;
 import com.attendance.system.repository.UserRepository;
+import com.attendance.system.repository.VendorRepository;
 import com.attendance.system.security.AuthenticatedUser;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -46,6 +48,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.YearMonth;
@@ -67,6 +70,7 @@ public class AdminService {
     private final AttendanceRecordRepository attendanceRecordRepository;
     private final AttendanceLocationLogRepository attendanceLocationLogRepository;
     private final UserRepository userRepository;
+    private final VendorRepository vendorRepository;
     private final LeaveRequestRepository leaveRequestRepository;
     private final HolidayRepository holidayRepository;
     private final SalaryAdvancePaymentRepository salaryAdvancePaymentRepository;
@@ -80,6 +84,7 @@ public class AdminService {
             AttendanceRecordRepository attendanceRecordRepository,
             AttendanceLocationLogRepository attendanceLocationLogRepository,
             UserRepository userRepository,
+            VendorRepository vendorRepository,
             LeaveRequestRepository leaveRequestRepository,
             HolidayRepository holidayRepository,
             SalaryAdvancePaymentRepository salaryAdvancePaymentRepository,
@@ -92,6 +97,7 @@ public class AdminService {
         this.attendanceRecordRepository = attendanceRecordRepository;
         this.attendanceLocationLogRepository = attendanceLocationLogRepository;
         this.userRepository = userRepository;
+        this.vendorRepository = vendorRepository;
         this.leaveRequestRepository = leaveRequestRepository;
         this.holidayRepository = holidayRepository;
         this.salaryAdvancePaymentRepository = salaryAdvancePaymentRepository;
@@ -318,6 +324,23 @@ public class AdminService {
         return branchRepository.findByVendor_IdOrderByNameAsc(user.vendorId()).stream().map(mapper::toBranchResponse).toList();
     }
 
+    @Transactional
+    public BranchResponse createBranch(AuthenticatedUser user, BranchUpsertRequest request) {
+        requireAdmin(user);
+        BranchEntity branch = new BranchEntity();
+        branch.setVendor(loadVendor(user.vendorId()));
+        populateBranch(branch, request);
+        return mapper.toBranchResponse(branchRepository.save(branch));
+    }
+
+    @Transactional
+    public BranchResponse updateBranch(AuthenticatedUser user, String branchId, BranchUpsertRequest request) {
+        requireAdmin(user);
+        BranchEntity branch = loadBranch(user.vendorId(), branchId);
+        populateBranch(branch, request);
+        return mapper.toBranchResponse(branchRepository.save(branch));
+    }
+
     @Transactional(readOnly = true)
     public List<AttendanceRowResponse> attendance(AuthenticatedUser user) {
         requireAdmin(user);
@@ -480,6 +503,11 @@ public class AdminService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Branch not found."));
     }
 
+    private com.attendance.system.model.VendorEntity loadVendor(UUID vendorId) {
+        return vendorRepository.findById(vendorId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vendor not found."));
+    }
+
     private EmployeeEntity loadEmployee(UUID vendorId, String employeeId) {
         return employeeRepository.findByIdAndVendor_Id(UUID.fromString(employeeId), vendorId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Employee not found."));
@@ -560,6 +588,17 @@ public class AdminService {
         if (employee.getStatus() == null || employee.getStatus().isBlank()) {
             employee.setStatus("ACTIVE");
         }
+    }
+
+    private void populateBranch(BranchEntity branch, BranchUpsertRequest request) {
+        branch.setName(request.name().trim());
+        branch.setAddress(request.address().trim());
+        branch.setLatitude(request.latitude().setScale(7, RoundingMode.HALF_UP));
+        branch.setLongitude(request.longitude().setScale(7, RoundingMode.HALF_UP));
+        branch.setRadiusMeters(scaleMoney(request.radiusMeters()));
+        branch.setShiftStartTime(parseTime(request.shiftStartTime(), "Shift start time must use HH:MM format."));
+        branch.setShiftEndTime(parseTime(request.shiftEndTime(), "Shift end time must use HH:MM format."));
+        branch.setGraceMinutes(request.graceMinutes());
     }
 
     private PayrollSummaryResponse.EmployeePayrollRow buildPayrollRow(
@@ -745,6 +784,14 @@ public class AdminService {
             return LocalDate.parse(value);
         } catch (DateTimeParseException exception) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Payment date must use YYYY-MM-DD format.");
+        }
+    }
+
+    private LocalTime parseTime(String value, String errorMessage) {
+        try {
+            return LocalTime.parse(value);
+        } catch (DateTimeParseException exception) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
         }
     }
 }

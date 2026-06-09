@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { AttendancePayrollTable, AttendanceTable, TrackingLink } from "../components/AttendanceTable";
 import { AttendanceCorrectionTable } from "../components/AttendanceCorrections";
+import { BranchManagement } from "../components/BranchManagement";
 import { BulkEmployeeImport } from "../components/BulkEmployeeImport";
 import { EmployeeDirectory } from "../components/EmployeeDirectory";
 import { HolidayList, LeaveRequestTable } from "../components/LeaveManagement";
@@ -918,49 +919,12 @@ export function AdminScreen({
           ) : null}
 
           {activeTab === "branches" ? (
-            <section className="grid two-column">
-              <article className="panel">
-                <h3>Branch coverage</h3>
-                <p className="muted section-intro">A simple branch-by-branch view of today&apos;s presence.</p>
-                <div className="branch-list">
-                  {dashboard.branchSnapshots.length ? (
-                    dashboard.branchSnapshots.map((branch) => (
-                      <div className="branch-item" key={branch.branchId}>
-                        <div>
-                          <strong>{branch.branchName}</strong>
-                          <span>{branch.present} present / {branch.headcount} assigned</span>
-                        </div>
-                        <span className="pill">
-                          {Math.round((branch.present / Math.max(branch.headcount, 1)) * 100)}%
-                        </span>
-                      </div>
-                    ))
-                  ) : (
-                    <EmptyState title="No branch activity yet" message="Branch coverage will appear here after your first staff records and attendance entries are added." />
-                  )}
-                </div>
-              </article>
-
-              <article className="panel">
-                <h3>Configured branches</h3>
-                <p className="muted section-intro">Your attendance zones and branch details.</p>
-                <div className="branch-list">
-                  {branches.length ? (
-                    branches.map((branch) => (
-                      <div className="branch-item" key={branch.id}>
-                        <div>
-                          <strong>{branch.name}</strong>
-                          <span>{branch.address}</span>
-                        </div>
-                        <span className="pill">{branch.radiusMeters}m</span>
-                      </div>
-                    ))
-                  ) : (
-                    <EmptyState title="No branches yet" message="Add your first branch to start assigning employees and accepting attendance nearby." />
-                  )}
-                </div>
-              </article>
-            </section>
+            <BranchManagement
+              session={session}
+              branches={branches}
+              dashboard={dashboard}
+              onReload={loadAdminData}
+            />
           ) : null}
         </section>
       </div>

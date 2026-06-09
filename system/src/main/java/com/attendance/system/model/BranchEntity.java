@@ -13,6 +13,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
+import java.time.LocalTime;
 import java.util.UUID;
 
 @Entity
@@ -42,6 +43,15 @@ public class BranchEntity {
 
     @Column(name = "radius_meters", nullable = false, precision = 8, scale = 2)
     private BigDecimal radiusMeters;
+
+    @Column(name = "shift_start_time", nullable = false)
+    private LocalTime shiftStartTime = LocalTime.of(9, 0);
+
+    @Column(name = "shift_end_time", nullable = false)
+    private LocalTime shiftEndTime = LocalTime.of(18, 0);
+
+    @Column(name = "grace_minutes", nullable = false)
+    private Integer graceMinutes = 15;
 
     public UUID getId() {
         return id;
@@ -93,5 +103,29 @@ public class BranchEntity {
 
     public void setRadiusMeters(BigDecimal radiusMeters) {
         this.radiusMeters = radiusMeters;
+    }
+
+    public LocalTime getShiftStartTime() {
+        return shiftStartTime;
+    }
+
+    public void setShiftStartTime(LocalTime shiftStartTime) {
+        this.shiftStartTime = shiftStartTime;
+    }
+
+    public LocalTime getShiftEndTime() {
+        return shiftEndTime;
+    }
+
+    public void setShiftEndTime(LocalTime shiftEndTime) {
+        this.shiftEndTime = shiftEndTime;
+    }
+
+    public Integer getGraceMinutes() {
+        return graceMinutes;
+    }
+
+    public void setGraceMinutes(Integer graceMinutes) {
+        this.graceMinutes = graceMinutes;
     }
 }
