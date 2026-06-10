@@ -162,7 +162,7 @@ export function AdminEmployeeAttendance({
 
   return (
     <>
-      <section className="panel">
+      <section className="panel employee-attendance-panel">
         <div className="topbar">
           <div>
             <h3>Detailed employee attendance</h3>
@@ -215,8 +215,8 @@ export function AdminEmployeeAttendance({
             <MetricCard label="Average work time" value={formatMinutes(averageWorkedMinutes)} />
           </section>
 
-          <section className="panel">
-            <div className="topbar">
+          <section className="panel employee-attendance-panel">
+            <div className="topbar employee-attendance-header">
               <div>
                 <h3>{selectedEmployee.name}</h3>
                 <p className="muted section-intro">
@@ -225,35 +225,40 @@ export function AdminEmployeeAttendance({
               </div>
             </div>
             {records.length ? (
-              <div className="responsive-table-shell employee-attendance-table-shell force-table-view">
-                <table className="data-table desktop-table">
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Check-in</th>
-                      <th>Check-out</th>
-                      <th>Hours worked</th>
-                      <th>Status</th>
-                      <th>Evidence</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {records.map((record) => (
-                      <tr key={record.recordId}>
-                        <td>{record.date}</td>
-                        <td>{formatDateTime(record.checkInTime)}</td>
-                        <td>{formatDateTime(record.checkOutTime)}</td>
-                        <td>
-                          {record.date < new Date().toISOString().slice(0, 10) && !record.checkOutTime && record.status !== "Holiday" && record.status !== "Paid leave" && record.status !== "Auto paid leave" && record.status !== "Unpaid leave" && record.status !== "Not marked"
-                            ? "Absent"
-                            : formatWorkedHours(record.checkInTime, record.checkOutTime)}
-                        </td>
-                        <td>{record.status}</td>
-                        <td>{renderEvidence(record)}</td>
+              <div className="employee-attendance-table-card">
+                <div className="employee-attendance-table-note muted">
+                  Swipe left or right inside the table to review the full day details.
+                </div>
+                <div className="responsive-table-shell employee-attendance-table-shell force-table-view">
+                  <table className="data-table desktop-table">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Check-in</th>
+                        <th>Check-out</th>
+                        <th>Hours worked</th>
+                        <th>Status</th>
+                        <th>Evidence</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {records.map((record) => (
+                        <tr key={record.recordId}>
+                          <td>{record.date}</td>
+                          <td>{formatDateTime(record.checkInTime)}</td>
+                          <td>{formatDateTime(record.checkOutTime)}</td>
+                          <td>
+                            {record.date < new Date().toISOString().slice(0, 10) && !record.checkOutTime && record.status !== "Holiday" && record.status !== "Paid leave" && record.status !== "Auto paid leave" && record.status !== "Unpaid leave" && record.status !== "Not marked"
+                              ? "Absent"
+                              : formatWorkedHours(record.checkInTime, record.checkOutTime)}
+                          </td>
+                          <td>{record.status}</td>
+                          <td>{renderEvidence(record)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             ) : (
               <EmptyState

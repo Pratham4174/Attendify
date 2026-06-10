@@ -85,7 +85,7 @@
 }
 
 .employee-attendance-table-shell .data-table {
-  min-width: 680px;
+  min-width: 560px;
 }
 
 .data-table th,
@@ -495,8 +495,8 @@
 
   .employee-attendance-table-shell .data-table th,
   .employee-attendance-table-shell .data-table td {
-    padding: 12px 10px;
-    font-size: 0.9rem;
+    padding: 10px 8px;
+    font-size: 0.84rem;
   }
 
   .payroll-card-grid {
