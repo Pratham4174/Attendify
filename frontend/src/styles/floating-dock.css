@@ -8,9 +8,7 @@
 }
 
 .workspace-with-dock .admin-sidebar,
-.workspace-with-dock .employee-sidebar,
-.workspace-with-dock .admin-drawer-button,
-.workspace-with-dock .employee-drawer-button {
+.workspace-with-dock .employee-sidebar {
   display: none !important;
 }
 
