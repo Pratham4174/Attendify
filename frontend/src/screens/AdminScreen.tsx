@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AttendanceOverview } from "../components/AttendanceOverview";
 import { AdminEmployeeAttendance } from "../components/AdminEmployeeAttendance";
 import { AttendancePayrollTable, TrackingLink } from "../components/AttendanceTable";
@@ -99,6 +99,7 @@ export function AdminScreen({
     name: "",
     holidayDate: ""
   });
+  const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
   const [employeeForm, setEmployeeForm] = useState<EmployeeFormState>({
     employeeCode: "",
     name: "",
@@ -243,6 +244,55 @@ export function AdminScreen({
   useEffect(() => {
     void loadAdminData();
   }, [session, trackingDate, payrollMonth, onLogout]);
+
+  function shouldIgnoreSwipeTarget(target: EventTarget | null) {
+    if (!(target instanceof HTMLElement)) {
+      return false;
+    }
+
+    return Boolean(
+      target.closest(
+        "input, select, textarea, button, a, .responsive-table-shell, .floating-tab-dock, .image-modal-backdrop, .image-modal-card"
+      )
+    );
+  }
+
+  function handleContentTouchStart(event: React.TouchEvent<HTMLElement>) {
+    if (shouldIgnoreSwipeTarget(event.target)) {
+      swipeStartRef.current = null;
+      return;
+    }
+
+    const touch = event.changedTouches[0];
+    swipeStartRef.current = { x: touch.clientX, y: touch.clientY };
+  }
+
+  function handleContentTouchEnd(event: React.TouchEvent<HTMLElement>) {
+    if (!swipeStartRef.current || shouldIgnoreSwipeTarget(event.target)) {
+      swipeStartRef.current = null;
+      return;
+    }
+
+    const touch = event.changedTouches[0];
+    const deltaX = touch.clientX - swipeStartRef.current.x;
+    const deltaY = touch.clientY - swipeStartRef.current.y;
+    swipeStartRef.current = null;
+
+    if (Math.abs(deltaX) < 60 || Math.abs(deltaX) <= Math.abs(deltaY)) {
+      return;
+    }
+
+    const currentIndex = adminTabs.findIndex((tab) => tab.id === activeTab);
+    if (currentIndex === -1) {
+      return;
+    }
+
+    if (deltaX < 0 && currentIndex < adminTabs.length - 1) {
+      setActiveTab(adminTabs[currentIndex + 1].id);
+    } else if (deltaX > 0 && currentIndex > 0) {
+      setActiveTab(adminTabs[currentIndex - 1].id);
+    }
+  }
 
   function updateEmployeeForm(key: keyof EmployeeFormState, value: string) {
     setEmployeeForm((current) => ({ ...current, [key]: value }));
@@ -514,7 +564,11 @@ export function AdminScreen({
           </nav>
         </aside>
 
-        <section className="admin-content">
+        <section
+          className="admin-content"
+          onTouchEnd={handleContentTouchEnd}
+          onTouchStart={handleContentTouchStart}
+        >
           {activeTab === "overview" ? (
             <>
               <section className="metric-grid">
