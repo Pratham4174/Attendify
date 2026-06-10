@@ -67,6 +67,43 @@
   gap: 24px;
 }
 
+.tab-transition {
+  animation-duration: 220ms;
+  animation-timing-function: ease;
+}
+
+.tab-transition-left {
+  animation-name: tab-slide-left;
+}
+
+.tab-transition-right {
+  animation-name: tab-slide-right;
+}
+
+@keyframes tab-slide-left {
+  from {
+    opacity: 0.5;
+    transform: translateX(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes tab-slide-right {
+  from {
+    opacity: 0.5;
+    transform: translateX(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 .admin-drawer-button {
   display: none;
 }

@@ -92,6 +92,7 @@ export function AdminScreen({
     note: ""
   });
   const [activeTab, setActiveTab] = useState<AdminTab>("overview");
+  const [swipeTransitionDirection, setSwipeTransitionDirection] = useState<"left" | "right" | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [leaveStatusMessage, setLeaveStatusMessage] = useState("");
   const [holidaySaving, setHolidaySaving] = useState(false);
@@ -245,6 +246,18 @@ export function AdminScreen({
     void loadAdminData();
   }, [session, trackingDate, payrollMonth, onLogout]);
 
+  useEffect(() => {
+    if (!swipeTransitionDirection) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      setSwipeTransitionDirection(null);
+    }, 240);
+
+    return () => window.clearTimeout(timeout);
+  }, [activeTab, swipeTransitionDirection]);
+
   function shouldIgnoreSwipeTarget(target: EventTarget | null) {
     if (!(target instanceof HTMLElement)) {
       return false;
@@ -288,8 +301,10 @@ export function AdminScreen({
     }
 
     if (deltaX < 0 && currentIndex < adminTabs.length - 1) {
+      setSwipeTransitionDirection("left");
       setActiveTab(adminTabs[currentIndex + 1].id);
     } else if (deltaX > 0 && currentIndex > 0) {
+      setSwipeTransitionDirection("right");
       setActiveTab(adminTabs[currentIndex - 1].id);
     }
   }
@@ -565,7 +580,7 @@ export function AdminScreen({
         </aside>
 
         <section
-          className="admin-content"
+          className={`admin-content${swipeTransitionDirection ? ` tab-transition tab-transition-${swipeTransitionDirection}` : ""}`}
           onTouchEnd={handleContentTouchEnd}
           onTouchStart={handleContentTouchStart}
         >

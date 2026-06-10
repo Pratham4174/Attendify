@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type DockItem<T extends string> = {
   id: T;
@@ -28,6 +28,7 @@ export function FloatingTabDock<T extends string>({
   ariaLabel: string;
 }) {
   const [expanded, setExpanded] = useState(true);
+  const buttonRefs = useRef(new Map<T, HTMLButtonElement>());
 
   useEffect(() => {
     let previousScrollY = window.scrollY;
@@ -50,6 +51,15 @@ export function FloatingTabDock<T extends string>({
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    const activeButton = buttonRefs.current.get(activeTab);
+    activeButton?.scrollIntoView({
+      behavior: "smooth",
+      inline: "center",
+      block: "nearest"
+    });
+  }, [activeTab]);
+
   return (
     <nav
       aria-label={ariaLabel}
@@ -61,6 +71,13 @@ export function FloatingTabDock<T extends string>({
             key={item.id}
             className={`floating-tab-dock-button${activeTab === item.id ? " active" : ""}`}
             onClick={() => onSelect(item.id)}
+            ref={(node) => {
+              if (node) {
+                buttonRefs.current.set(item.id, node);
+              } else {
+                buttonRefs.current.delete(item.id);
+              }
+            }}
             type="button"
           >
             <span className="floating-tab-dock-label">{item.label}</span>
