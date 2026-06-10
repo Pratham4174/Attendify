@@ -121,11 +121,13 @@ export function AttendancePayrollTable({
 export function AttendanceTable({
   records,
   onPreviewImage,
-  emptyMessage
+  emptyMessage,
+  forceTableView = false
 }: {
   records: AttendanceRow[];
   onPreviewImage?: (preview: AttendancePreview) => void;
   emptyMessage?: string;
+  forceTableView?: boolean;
 }) {
   if (!records.length) {
     return (
@@ -138,58 +140,62 @@ export function AttendanceTable({
 
   return (
     <>
-      <table className="data-table desktop-table">
-        <thead>
-          <tr>
-            <th>Employee</th>
-            <th>Date</th>
-            <th>Check-in</th>
-            <th>Check-out</th>
-            <th>Hours worked</th>
-            <th>Status</th>
-            <th>Branch</th>
-            <th>Evidence</th>
-          </tr>
-        </thead>
-        <tbody>
-          {records.map((record) => (
-            <tr key={record.recordId}>
-              <td>{record.employeeName}</td>
-              <td>{record.date}</td>
-              <td>{formatDateTime(record.checkInTime)}</td>
-              <td>{formatDateTime(record.checkOutTime)}</td>
-              <td>{getWorkedHoursLabel(record)}</td>
-              <td>{record.status}</td>
-              <td>{record.branchName}</td>
-              <td>{renderEvidence(record, onPreviewImage)}</td>
+      <div className={forceTableView ? "responsive-table-shell force-table-view" : undefined}>
+        <table className="data-table desktop-table">
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th>Date</th>
+              <th>Check-in</th>
+              <th>Check-out</th>
+              <th>Hours worked</th>
+              <th>Status</th>
+              <th>Branch</th>
+              <th>Evidence</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <div className="attendance-card-list">
-        {records.map((record) => (
-          <article className="attendance-card" key={record.recordId}>
-            <div className="attendance-card-header">
-              <strong>{record.employeeName}</strong>
-              <span className="pill">{record.status}</span>
-            </div>
-            <div className="attendance-card-grid">
-              <span>Date</span>
-              <strong>{record.date}</strong>
-              <span>Branch</span>
-              <strong>{record.branchName}</strong>
-              <span>Check-in</span>
-              <strong>{formatDateTime(record.checkInTime)}</strong>
-              <span>Check-out</span>
-              <strong>{formatDateTime(record.checkOutTime)}</strong>
-              <span>Hours worked</span>
-              <strong>{getWorkedHoursLabel(record)}</strong>
-            </div>
-            <div className="attendance-card-evidence">{renderEvidence(record, onPreviewImage)}</div>
-          </article>
-        ))}
+          </thead>
+          <tbody>
+            {records.map((record) => (
+              <tr key={record.recordId}>
+                <td>{record.employeeName}</td>
+                <td>{record.date}</td>
+                <td>{formatDateTime(record.checkInTime)}</td>
+                <td>{formatDateTime(record.checkOutTime)}</td>
+                <td>{getWorkedHoursLabel(record)}</td>
+                <td>{record.status}</td>
+                <td>{record.branchName}</td>
+                <td>{renderEvidence(record, onPreviewImage)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
+
+      {!forceTableView ? (
+        <div className="attendance-card-list">
+          {records.map((record) => (
+            <article className="attendance-card" key={record.recordId}>
+              <div className="attendance-card-header">
+                <strong>{record.employeeName}</strong>
+                <span className="pill">{record.status}</span>
+              </div>
+              <div className="attendance-card-grid">
+                <span>Date</span>
+                <strong>{record.date}</strong>
+                <span>Branch</span>
+                <strong>{record.branchName}</strong>
+                <span>Check-in</span>
+                <strong>{formatDateTime(record.checkInTime)}</strong>
+                <span>Check-out</span>
+                <strong>{formatDateTime(record.checkOutTime)}</strong>
+                <span>Hours worked</span>
+                <strong>{getWorkedHoursLabel(record)}</strong>
+              </div>
+              <div className="attendance-card-evidence">{renderEvidence(record, onPreviewImage)}</div>
+            </article>
+          ))}
+        </div>
+      ) : null}
     </>
   );
 }

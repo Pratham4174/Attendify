@@ -75,6 +75,15 @@
   display: table;
 }
 
+.responsive-table-shell {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.responsive-table-shell .data-table {
+  min-width: 860px;
+}
+
 .data-table th,
 .data-table td {
   text-align: left;
@@ -474,6 +483,10 @@
 
   .attendance-card-grid {
     grid-template-columns: 1fr;
+  }
+
+  .responsive-table-shell.force-table-view .desktop-table {
+    display: table;
   }
 
   .payroll-card-grid {

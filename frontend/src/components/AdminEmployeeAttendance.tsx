@@ -180,6 +180,7 @@ export function AdminEmployeeAttendance({
               records={records}
               onPreviewImage={onPreviewImage}
               emptyMessage="No attendance activity appears for this employee in the selected month."
+              forceTableView
             />
           </section>
         </>
