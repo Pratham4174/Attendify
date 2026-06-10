@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { AttendanceOverview } from "../components/AttendanceOverview";
 import { AttendancePayrollTable, TrackingLink } from "../components/AttendanceTable";
@@ -5,7 +6,7 @@ import { AttendanceCorrectionTable } from "../components/AttendanceCorrections";
 import { BranchManagement } from "../components/BranchManagement";
 import { BulkEmployeeImport } from "../components/BulkEmployeeImport";
 import { EmployeeDirectory } from "../components/EmployeeDirectory";
-import { FloatingTabDock } from "../components/FloatingTabDock";
+import { DockIcon, FloatingTabDock } from "../components/FloatingTabDock";
 import { HolidayList, LeaveRequestTable } from "../components/LeaveManagement";
 import { ActionList, EmptyState, LoadingWorkspace, MetricCard } from "../components/shared";
 import { apiFetch, apiFetchVoid, ApiRequestError } from "../lib/api";
@@ -108,17 +109,67 @@ export function AdminScreen({
     advancePaid: "0"
   });
 
-  const adminTabs: Array<{ id: AdminTab; label: string; compactLabel: string }> = [
-    { id: "overview", label: "Overview", compactLabel: "Home" },
-    { id: "add-employee", label: "Add employee", compactLabel: "Add" },
-    { id: "employees", label: "View employees", compactLabel: "Team" },
-    { id: "inactive-employees", label: "Inactive employees", compactLabel: "Off" },
-    { id: "corrections", label: "Corrections", compactLabel: "Fix" },
-    { id: "leave", label: "Leave management", compactLabel: "Leave" },
-    { id: "payroll", label: "Payroll", compactLabel: "Pay" },
-    { id: "attendance", label: "Attendance", compactLabel: "Log" },
-    { id: "tracking", label: "Tracking", compactLabel: "Track" },
-    { id: "branches", label: "Branches", compactLabel: "Branch" }
+  const adminTabs: Array<{ id: AdminTab; label: string; compactLabel: string; icon: ReactNode }> = [
+    {
+      id: "overview",
+      label: "Overview",
+      compactLabel: "Home",
+      icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5Z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
+    },
+    {
+      id: "add-employee",
+      label: "Add employee",
+      compactLabel: "Add",
+      icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" strokeLinecap="round" strokeWidth="2"/></svg></DockIcon>
+    },
+    {
+      id: "employees",
+      label: "View employees",
+      compactLabel: "Team",
+      icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M16 19a4 4 0 0 0-8 0M12 12a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM20 19a3.5 3.5 0 0 0-3-3.46M17 5.5a3.5 3.5 0 0 1 0 7M4 19a3.5 3.5 0 0 1 3-3.46M7 12.5a3.5 3.5 0 0 1 0-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
+    },
+    {
+      id: "inactive-employees",
+      label: "Inactive employees",
+      compactLabel: "Off",
+      icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M4 4l16 16M9 9a3 3 0 1 0 4.24 4.24M6.5 17.5a6.5 6.5 0 0 1 9.19 0" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
+    },
+    {
+      id: "corrections",
+      label: "Corrections",
+      compactLabel: "Fix",
+      icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="m4 20 4.5-1 9-9a2.12 2.12 0 1 0-3-3l-9 9L4 20Zm10-12 3 3" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
+    },
+    {
+      id: "leave",
+      label: "Leave management",
+      compactLabel: "Leave",
+      icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M7 4v4M17 4v4M4 10h16M6 6h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
+    },
+    {
+      id: "payroll",
+      label: "Payroll",
+      compactLabel: "Pay",
+      icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M12 3v18M17 7.5c0-1.66-2.24-3-5-3s-5 1.34-5 3 2.24 3 5 3 5 1.34 5 3-2.24 3-5 3-5-1.34-5-3" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
+    },
+    {
+      id: "attendance",
+      label: "Attendance",
+      compactLabel: "Log",
+      icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M8 11.5 11 14.5 16 9.5M6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
+    },
+    {
+      id: "tracking",
+      label: "Tracking",
+      compactLabel: "Track",
+      icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M12 21s6-4.35 6-10a6 6 0 1 0-12 0c0 5.65 6 10 6 10Zm0-8.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
+    },
+    {
+      id: "branches",
+      label: "Branches",
+      compactLabel: "Branch",
+      icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M4 20h16M6 20V8l6-4 6 4v12M10 12h4M10 16h4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
+    }
   ];
 
   function resetEmployeeForm(nextBranches: Branch[] = branches) {

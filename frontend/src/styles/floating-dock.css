@@ -110,6 +110,20 @@
   display: none;
 }
 
+.floating-tab-dock-icon {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.floating-tab-dock-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+}
+
 .floating-tab-dock.compact .floating-tab-dock-track {
   padding: 7px 8px;
   background: linear-gradient(135deg, rgba(15, 23, 42, 0.54), rgba(37, 99, 235, 0.18));
@@ -126,7 +140,9 @@
 }
 
 .floating-tab-dock.compact .floating-tab-dock-compact-label {
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 @media (max-width: 720px) {

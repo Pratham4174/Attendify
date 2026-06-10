@@ -1,10 +1,20 @@
+import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 
 type DockItem<T extends string> = {
   id: T;
   label: string;
   compactLabel?: string;
+  icon?: ReactNode;
 };
+
+export function DockIcon({
+  children
+}: {
+  children: ReactNode;
+}) {
+  return <span className="floating-tab-dock-icon">{children}</span>;
+}
 
 export function FloatingTabDock<T extends string>({
   items,
@@ -55,7 +65,7 @@ export function FloatingTabDock<T extends string>({
           >
             <span className="floating-tab-dock-label">{item.label}</span>
             <span className="floating-tab-dock-compact-label">
-              {item.compactLabel ?? item.label}
+              {item.icon ?? item.compactLabel ?? item.label}
             </span>
           </button>
         ))}

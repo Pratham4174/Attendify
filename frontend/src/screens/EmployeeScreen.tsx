@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import { apiFetch, ApiRequestError } from "../lib/api";
 import { buildAttendanceStatusRecords } from "../lib/attendanceStatus";
@@ -10,7 +11,7 @@ import {
 } from "../lib/format";
 import { AttendanceTable } from "../components/AttendanceTable";
 import { AttendanceCorrectionTable } from "../components/AttendanceCorrections";
-import { FloatingTabDock } from "../components/FloatingTabDock";
+import { DockIcon, FloatingTabDock } from "../components/FloatingTabDock";
 import { HolidayList, LeaveRequestTable } from "../components/LeaveManagement";
 import { LoadingWorkspace, MetricCard, ProfileAvatar } from "../components/shared";
 import type { AttendanceCorrection, EmployeeLeaveWorkspace, EmployeeOverview, Session } from "../types";
@@ -593,13 +594,43 @@ export function EmployeeScreen({
   }).length;
   const lastActionTime =
     overview.todayAttendance?.checkOutTime ?? overview.todayAttendance?.checkInTime ?? null;
-  const employeeTabs: Array<{ id: EmployeeTab; label: string; compactLabel: string }> = [
-    { id: "mark", label: "Mark attendance", compactLabel: "Mark" },
-    { id: "today", label: "Today's status", compactLabel: "Today" },
-    { id: "history", label: "Attendance history", compactLabel: "History" },
-    { id: "corrections", label: "Corrections", compactLabel: "Fix" },
-    { id: "leaves", label: "Leaves", compactLabel: "Leave" },
-    { id: "help", label: "How it works", compactLabel: "Help" }
+  const employeeTabs: Array<{ id: EmployeeTab; label: string; compactLabel: string; icon: ReactNode }> = [
+    {
+      id: "mark",
+      label: "Mark attendance",
+      compactLabel: "Mark",
+      icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M12 21s6-4.35 6-10a6 6 0 1 0-12 0c0 5.65 6 10 6 10Zm0-8.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
+    },
+    {
+      id: "today",
+      label: "Today's status",
+      compactLabel: "Today",
+      icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M12 7v5l3 3M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
+    },
+    {
+      id: "history",
+      label: "Attendance history",
+      compactLabel: "History",
+      icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M8 6h10M8 12h10M8 18h10M4 6h.01M4 12h.01M4 18h.01" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
+    },
+    {
+      id: "corrections",
+      label: "Corrections",
+      compactLabel: "Fix",
+      icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="m4 20 4.5-1 9-9a2.12 2.12 0 1 0-3-3l-9 9L4 20Zm10-12 3 3" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
+    },
+    {
+      id: "leaves",
+      label: "Leaves",
+      compactLabel: "Leave",
+      icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M7 4v4M17 4v4M4 10h16M6 6h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
+    },
+    {
+      id: "help",
+      label: "How it works",
+      compactLabel: "Help",
+      icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M9.09 9a3 3 0 1 1 5.82 1c0 2-3 2-3 4M12 17h.01M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0Z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
+    }
   ];
   const tutorialSteps = [
     {
