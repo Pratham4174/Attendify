@@ -333,6 +333,24 @@
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
+.branch-management-grid label,
+.branch-policy-grid label,
+.branch-management-grid input,
+.branch-management-grid select {
+  min-width: 0;
+}
+
+.branch-management-grid input[type="time"],
+.branch-management-grid input[type="date"],
+.branch-management-grid input[type="month"],
+.branch-management-grid input[type="number"],
+.branch-management-grid input[type="text"],
+.branch-management-grid select {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
 .form-helper-text {
   margin: -4px 0 0;
   font-size: 0.92rem;
