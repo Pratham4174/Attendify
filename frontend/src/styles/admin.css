@@ -84,6 +84,10 @@
   min-width: 860px;
 }
 
+.employee-attendance-table-shell .data-table {
+  min-width: 680px;
+}
+
 .data-table th,
 .data-table td {
   text-align: left;
@@ -487,6 +491,12 @@
 
   .responsive-table-shell.force-table-view .desktop-table {
     display: table;
+  }
+
+  .employee-attendance-table-shell .data-table th,
+  .employee-attendance-table-shell .data-table td {
+    padding: 12px 10px;
+    font-size: 0.9rem;
   }
 
   .payroll-card-grid {

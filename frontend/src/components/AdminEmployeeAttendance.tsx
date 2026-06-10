@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { buildAttendanceStatusRecords } from "../lib/attendanceStatus";
-import { formatMonthKey } from "../lib/format";
+import { formatDateTime, formatMonthKey, formatTimeOnly, formatWorkedHours } from "../lib/format";
 import type { AttendancePreview, AttendanceRow, Employee, Holiday, LeaveRequest } from "../types";
-import { AttendanceTable } from "./AttendanceTable";
 import { EmptyState, MetricCard } from "./shared";
 
 function getWorkedMinutes(record: AttendanceRow) {
@@ -112,6 +111,55 @@ export function AdminEmployeeAttendance({
     (record) => record.status === "Absent" || record.status === "Not marked"
   ).length;
 
+  function renderEvidence(record: AttendanceRow) {
+    if (!record.checkInPhotoRef && !record.checkOutPhotoRef) {
+      return <span className="muted">No evidence</span>;
+    }
+
+    return (
+      <div className="evidence-stack evidence-thumbnail-stack">
+        {record.checkInPhotoRef ? (
+          <div className="evidence-item">
+            <button
+              className="evidence-thumb-button"
+              onClick={() =>
+                onPreviewImage?.({
+                  image: record.checkInPhotoRef!,
+                  label: "Check-in proof",
+                  time: record.checkInTime,
+                  employeeName: record.employeeName
+                })
+              }
+              type="button"
+            >
+              <img alt="Check-in evidence" src={record.checkInPhotoRef} />
+            </button>
+            <span>In · {formatTimeOnly(record.checkInTime)}</span>
+          </div>
+        ) : null}
+        {record.checkOutPhotoRef ? (
+          <div className="evidence-item">
+            <button
+              className="evidence-thumb-button"
+              onClick={() =>
+                onPreviewImage?.({
+                  image: record.checkOutPhotoRef!,
+                  label: "Check-out proof",
+                  time: record.checkOutTime,
+                  employeeName: record.employeeName
+                })
+              }
+              type="button"
+            >
+              <img alt="Check-out evidence" src={record.checkOutPhotoRef} />
+            </button>
+            <span>Out · {formatTimeOnly(record.checkOutTime)}</span>
+          </div>
+        ) : null}
+      </div>
+    );
+  }
+
   return (
     <>
       <section className="panel">
@@ -176,12 +224,43 @@ export function AdminEmployeeAttendance({
                 </p>
               </div>
             </div>
-            <AttendanceTable
-              records={records}
-              onPreviewImage={onPreviewImage}
-              emptyMessage="No attendance activity appears for this employee in the selected month."
-              forceTableView
-            />
+            {records.length ? (
+              <div className="responsive-table-shell employee-attendance-table-shell force-table-view">
+                <table className="data-table desktop-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Check-in</th>
+                      <th>Check-out</th>
+                      <th>Hours worked</th>
+                      <th>Status</th>
+                      <th>Evidence</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {records.map((record) => (
+                      <tr key={record.recordId}>
+                        <td>{record.date}</td>
+                        <td>{formatDateTime(record.checkInTime)}</td>
+                        <td>{formatDateTime(record.checkOutTime)}</td>
+                        <td>
+                          {record.date < new Date().toISOString().slice(0, 10) && !record.checkOutTime && record.status !== "Holiday" && record.status !== "Paid leave" && record.status !== "Auto paid leave" && record.status !== "Unpaid leave" && record.status !== "Not marked"
+                            ? "Absent"
+                            : formatWorkedHours(record.checkInTime, record.checkOutTime)}
+                        </td>
+                        <td>{record.status}</td>
+                        <td>{renderEvidence(record)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <EmptyState
+                title="Nothing to show yet"
+                message="No attendance activity appears for this employee in the selected month."
+              />
+            )}
           </section>
         </>
       )}
