@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { AttendanceOverview } from "../components/AttendanceOverview";
+import { AdminEmployeeAttendance } from "../components/AdminEmployeeAttendance";
 import { AttendancePayrollTable, TrackingLink } from "../components/AttendanceTable";
 import { AttendanceCorrectionTable } from "../components/AttendanceCorrections";
 import { BranchManagement } from "../components/BranchManagement";
@@ -55,6 +56,7 @@ type AdminTab =
   | "leave"
   | "payroll"
   | "attendance"
+  | "employee-attendance"
   | "tracking"
   | "branches";
 
@@ -157,6 +159,12 @@ export function AdminScreen({
       label: "Attendance",
       compactLabel: "Log",
       icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M8 11.5 11 14.5 16 9.5M6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
+    },
+    {
+      id: "employee-attendance",
+      label: "Employee attendance",
+      compactLabel: "Month",
+      icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M7 4v4M17 4v4M4 10h16M6 6h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2ZM9 14h6" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
     },
     {
       id: "tracking",
@@ -473,6 +481,15 @@ export function AdminScreen({
           </button>
         </div>
       </header>
+
+      {drawerOpen ? (
+        <button
+          aria-label="Close menu"
+          className="workspace-drawer-backdrop"
+          onClick={() => setDrawerOpen(false)}
+          type="button"
+        />
+      ) : null}
 
       <div className="admin-shell">
         <aside className={`admin-sidebar${drawerOpen ? " open" : ""}`}>
@@ -946,6 +963,16 @@ export function AdminScreen({
               employees={activeEmployees}
               leaveRequests={leaveRequests}
               holidays={holidays}
+              onPreviewImage={setPreviewImage}
+            />
+          ) : null}
+
+          {activeTab === "employee-attendance" ? (
+            <AdminEmployeeAttendance
+              attendance={attendance}
+              employees={activeEmployees}
+              holidays={holidays}
+              leaveRequests={leaveRequests}
               onPreviewImage={setPreviewImage}
             />
           ) : null}

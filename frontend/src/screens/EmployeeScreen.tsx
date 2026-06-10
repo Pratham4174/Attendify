@@ -729,6 +729,15 @@ export function EmployeeScreen({
         </div>
       ) : null}
 
+      {drawerOpen ? (
+        <button
+          aria-label="Close menu"
+          className="workspace-drawer-backdrop"
+          onClick={() => setDrawerOpen(false)}
+          type="button"
+        />
+      ) : null}
+
       <div className="employee-shell">
         <aside className={`employee-sidebar${drawerOpen ? " open" : ""}`}>
           <div className="employee-sidebar-header">

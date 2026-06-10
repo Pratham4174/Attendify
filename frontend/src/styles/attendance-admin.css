@@ -122,6 +122,28 @@
   text-align: right;
 }
 
+.detailed-attendance-filter-bar {
+  grid-template-columns: minmax(0, 1.5fr) minmax(180px, 260px) minmax(180px, 1fr);
+}
+
+.attendance-inline-summary {
+  display: grid;
+  gap: 8px;
+  align-self: stretch;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(239, 246, 255, 0.72);
+  border: 1px solid rgba(37, 99, 235, 0.1);
+}
+
+.attendance-inline-summary .label {
+  font-size: 0.84rem;
+}
+
+.detailed-attendance-metric-grid {
+  margin-top: 0;
+}
+
 @media (max-width: 1100px) {
   .attendance-metric-grid,
   .attendance-day-grid {
@@ -131,6 +153,7 @@
 
 @media (max-width: 840px) {
   .attendance-filter-bar,
+  .detailed-attendance-filter-bar,
   .attendance-metric-grid,
   .attendance-day-grid {
     grid-template-columns: 1fr;
