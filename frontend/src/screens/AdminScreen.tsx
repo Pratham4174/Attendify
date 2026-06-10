@@ -449,21 +449,46 @@ export function AdminScreen({
           {activeTab === "overview" ? (
             <>
               <section className="metric-grid">
-                <MetricCard label="Total employees" value={dashboard.cards.totalEmployees} />
-                <MetricCard label="Present today" value={dashboard.cards.presentToday} />
-                <MetricCard label="Checked out" value={dashboard.cards.checkedOutToday} />
-                <MetricCard label="Absent today" value={dashboard.cards.absentToday} />
+                <MetricCard label="Present today" value={todayAttendance.length} />
+                <MetricCard label="Absent today" value={absentEmployees.length} />
+                <MetricCard label="Late today" value={lateArrivals.length} />
+                <MetricCard label="Forgot checkout" value={checkedInEmployees.length} />
+              </section>
+
+              <section className="panel">
+                <div className="topbar">
+                  <div>
+                    <h3>Today&apos;s action center</h3>
+                    <p className="muted section-intro">
+                      See who is present, absent, late, or still missing checkout without opening any other tab.
+                    </p>
+                  </div>
+                  <span className="pill">{todayKey}</span>
+                </div>
               </section>
 
               <section className="grid two-column payroll-action-grid">
                 <article className="panel">
-                  <h3>Needs attention today</h3>
-                  <p className="muted section-intro">Start here to follow up with missing staff.</p>
+                  <h3>Present today</h3>
+                  <p className="muted section-intro">Everyone who has already marked attendance today.</p>
+                  <ActionList
+                    items={todayAttendance.map(
+                      (record) => `${record.employeeName} · ${record.branchName} · ${formatTimeOnly(record.checkInTime)}`
+                    )}
+                    emptyMessage="No one has marked attendance yet today."
+                  />
+                </article>
+                <article className="panel">
+                  <h3>Absent today</h3>
+                  <p className="muted section-intro">People who have still not marked attendance today.</p>
                   <ActionList
                     items={absentEmployees.map((employee) => `${employee.name} · ${employee.designation}`)}
                     emptyMessage="Everyone assigned today has already marked attendance."
                   />
                 </article>
+              </section>
+
+              <section className="grid two-column payroll-action-grid">
                 <article className="panel">
                   <h3>Late arrivals</h3>
                   <p className="muted section-intro">Quick reminders for check-ins that happened later than usual.</p>
@@ -478,13 +503,13 @@ export function AdminScreen({
 
               <section className="grid two-column">
                 <article className="panel">
-                  <h3>Currently checked in</h3>
-                  <p className="muted section-intro">People who are still marked as on shift.</p>
+                  <h3>Forgot checkout</h3>
+                  <p className="muted section-intro">People who checked in but have still not checked out.</p>
                   <ActionList
                     items={checkedInEmployees.map(
                       (record) => `${record.employeeName} · ${record.branchName} · ${formatTimeOnly(record.checkInTime)}`
                     )}
-                    emptyMessage="No one is currently marked as checked in."
+                    emptyMessage="No one is pending checkout right now."
                   />
                 </article>
                 <article className="panel">
