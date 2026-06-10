@@ -5,6 +5,7 @@ import { AttendanceCorrectionTable } from "../components/AttendanceCorrections";
 import { BranchManagement } from "../components/BranchManagement";
 import { BulkEmployeeImport } from "../components/BulkEmployeeImport";
 import { EmployeeDirectory } from "../components/EmployeeDirectory";
+import { FloatingTabDock } from "../components/FloatingTabDock";
 import { HolidayList, LeaveRequestTable } from "../components/LeaveManagement";
 import { ActionList, EmptyState, LoadingWorkspace, MetricCard } from "../components/shared";
 import { apiFetch, apiFetchVoid, ApiRequestError } from "../lib/api";
@@ -107,17 +108,17 @@ export function AdminScreen({
     advancePaid: "0"
   });
 
-  const adminTabs: Array<{ id: AdminTab; label: string }> = [
-    { id: "overview", label: "Overview" },
-    { id: "add-employee", label: "Add employee" },
-    { id: "employees", label: "View employees" },
-    { id: "inactive-employees", label: "Inactive employees" },
-    { id: "corrections", label: "Corrections" },
-    { id: "leave", label: "Leave management" },
-    { id: "payroll", label: "Payroll" },
-    { id: "attendance", label: "Attendance" },
-    { id: "tracking", label: "Tracking" },
-    { id: "branches", label: "Branches" }
+  const adminTabs: Array<{ id: AdminTab; label: string; compactLabel: string }> = [
+    { id: "overview", label: "Overview", compactLabel: "Home" },
+    { id: "add-employee", label: "Add employee", compactLabel: "Add" },
+    { id: "employees", label: "View employees", compactLabel: "Team" },
+    { id: "inactive-employees", label: "Inactive employees", compactLabel: "Off" },
+    { id: "corrections", label: "Corrections", compactLabel: "Fix" },
+    { id: "leave", label: "Leave management", compactLabel: "Leave" },
+    { id: "payroll", label: "Payroll", compactLabel: "Pay" },
+    { id: "attendance", label: "Attendance", compactLabel: "Log" },
+    { id: "tracking", label: "Tracking", compactLabel: "Track" },
+    { id: "branches", label: "Branches", compactLabel: "Branch" }
   ];
 
   function resetEmployeeForm(nextBranches: Branch[] = branches) {
@@ -399,7 +400,7 @@ export function AdminScreen({
   const lateArrivals = todayAttendance.filter((record) => isLateCheckIn(record.checkInTime));
 
   return (
-    <main className="workspace">
+    <main className="workspace workspace-with-dock">
       <header className="topbar">
         <div>
           <span className="eyebrow">ATTENDIFY admin view</span>
@@ -988,6 +989,16 @@ export function AdminScreen({
           </div>
         </div>
       ) : null}
+
+      <FloatingTabDock
+        activeTab={activeTab}
+        ariaLabel="Admin workspace tabs"
+        items={adminTabs}
+        onSelect={(tab) => {
+          setActiveTab(tab);
+          setDrawerOpen(false);
+        }}
+      />
     </main>
   );
 }

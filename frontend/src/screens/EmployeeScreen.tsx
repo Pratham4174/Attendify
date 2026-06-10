@@ -10,6 +10,7 @@ import {
 } from "../lib/format";
 import { AttendanceTable } from "../components/AttendanceTable";
 import { AttendanceCorrectionTable } from "../components/AttendanceCorrections";
+import { FloatingTabDock } from "../components/FloatingTabDock";
 import { HolidayList, LeaveRequestTable } from "../components/LeaveManagement";
 import { LoadingWorkspace, MetricCard, ProfileAvatar } from "../components/shared";
 import type { AttendanceCorrection, EmployeeLeaveWorkspace, EmployeeOverview, Session } from "../types";
@@ -592,13 +593,13 @@ export function EmployeeScreen({
   }).length;
   const lastActionTime =
     overview.todayAttendance?.checkOutTime ?? overview.todayAttendance?.checkInTime ?? null;
-  const employeeTabs: Array<{ id: EmployeeTab; label: string }> = [
-    { id: "mark", label: "Mark attendance" },
-    { id: "today", label: "Today's status" },
-    { id: "history", label: "Attendance history" },
-    { id: "corrections", label: "Corrections" },
-    { id: "leaves", label: "Leaves" },
-    { id: "help", label: "How it works" }
+  const employeeTabs: Array<{ id: EmployeeTab; label: string; compactLabel: string }> = [
+    { id: "mark", label: "Mark attendance", compactLabel: "Mark" },
+    { id: "today", label: "Today's status", compactLabel: "Today" },
+    { id: "history", label: "Attendance history", compactLabel: "History" },
+    { id: "corrections", label: "Corrections", compactLabel: "Fix" },
+    { id: "leaves", label: "Leaves", compactLabel: "Leave" },
+    { id: "help", label: "How it works", compactLabel: "Help" }
   ];
   const tutorialSteps = [
     {
@@ -620,7 +621,7 @@ export function EmployeeScreen({
   ];
 
   return (
-    <main className="workspace">
+    <main className="workspace workspace-with-dock">
       <header className="topbar">
         <div>
           <span className="eyebrow">ATTENDIFY employee view</span>
@@ -1144,6 +1145,16 @@ export function EmployeeScreen({
           </div>
         </div>
       ) : null}
+
+      <FloatingTabDock
+        activeTab={activeTab}
+        ariaLabel="Employee workspace tabs"
+        items={employeeTabs}
+        onSelect={(tab) => {
+          setActiveTab(tab);
+          setDrawerOpen(false);
+        }}
+      />
     </main>
   );
 }
