@@ -6,21 +6,46 @@ import { LoginScreen } from "./screens/LoginScreen";
 import type { Session } from "./types";
 
 function App() {
-  const [showSplash, setShowSplash] = useState(true);
   const [session, setSession] = useState<Session | null>(() => {
     const cached = localStorage.getItem("attendance-session");
     return cached ? (JSON.parse(cached) as Session) : null;
   });
+  const [showSplash, setShowSplash] = useState(() => !localStorage.getItem("attendance-session"));
+  const [splashMinimumElapsed, setSplashMinimumElapsed] = useState(false);
+  const [splashReady, setSplashReady] = useState(false);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => {
+    if (session) {
       setShowSplash(false);
-    }, 2100);
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => {
+      setSplashMinimumElapsed(true);
+    }, 1600);
 
     return () => {
       window.clearTimeout(timer);
     };
   }, []);
+
+  useEffect(() => {
+    if (session) {
+      return undefined;
+    }
+
+    if (splashMinimumElapsed && splashReady) {
+      const timer = window.setTimeout(() => {
+        setShowSplash(false);
+      }, 140);
+
+      return () => {
+        window.clearTimeout(timer);
+      };
+    }
+
+    return undefined;
+  }, [session, splashMinimumElapsed, splashReady]);
 
   useEffect(() => {
     if (session) {
@@ -32,7 +57,7 @@ function App() {
 
   return (
     <div className="app-shell">
-      <SplashScreen visible={showSplash} />
+      <SplashScreen onReady={() => setSplashReady(true)} visible={!session && showSplash} />
       <div className="background-orb background-orb-one" />
       <div className="background-orb background-orb-two" />
       {!session ? (

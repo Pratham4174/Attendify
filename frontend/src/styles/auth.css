@@ -104,66 +104,9 @@
   justify-items: start;
 }
 
-.auth-brand-mark {
-  position: relative;
-  width: 160px;
-  height: 160px;
-  border-radius: 36px;
-  background: linear-gradient(145deg, rgba(219, 234, 254, 0.95), rgba(255, 255, 255, 0.9));
-  border: 1px solid rgba(37, 99, 235, 0.12);
-  box-shadow: 0 20px 42px rgba(37, 99, 235, 0.12);
-  overflow: hidden;
-}
-
-.auth-brand-mark::before,
-.auth-brand-mark::after {
-  content: "";
-  position: absolute;
-  border-radius: 999px;
-  background: linear-gradient(180deg, rgba(37, 99, 235, 0.96), rgba(96, 165, 250, 0.72));
-}
-
-.auth-brand-mark::before {
-  width: 24px;
-  height: 112px;
-  left: 46px;
-  top: 24px;
-}
-
-.auth-brand-mark::after {
-  width: 24px;
-  height: 86px;
-  right: 46px;
-  top: 50px;
-}
-
-.auth-brand-dot {
-  position: absolute;
-  display: block;
-  border-radius: 999px;
-  background: rgba(37, 99, 235, 0.12);
-}
-
-.auth-brand-dot-one {
-  width: 76px;
-  height: 76px;
-  top: -10px;
-  right: -12px;
-}
-
-.auth-brand-dot-two {
-  width: 68px;
-  height: 68px;
-  left: -14px;
-  bottom: 12px;
-}
-
-.auth-brand-dot-three {
-  width: 44px;
-  height: 44px;
-  right: 24px;
-  bottom: 22px;
-  background: rgba(37, 99, 235, 0.18);
+.auth-brand-logo {
+  width: min(100%, 380px);
+  filter: drop-shadow(0 22px 44px rgba(29, 78, 216, 0.14));
 }
 
 .auth-feature-grid {
@@ -239,22 +182,8 @@
     gap: 16px;
   }
 
-  .auth-brand-mark {
-    width: 136px;
-    height: 136px;
-    border-radius: 30px;
-  }
-
-  .auth-brand-mark::before {
-    height: 92px;
-    left: 38px;
-    top: 22px;
-  }
-
-  .auth-brand-mark::after {
-    height: 72px;
-    right: 38px;
-    top: 42px;
+  .auth-brand-logo {
+    width: min(100%, 320px);
   }
 }
 

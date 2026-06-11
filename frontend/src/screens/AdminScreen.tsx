@@ -9,7 +9,7 @@ import { BulkEmployeeImport } from "../components/BulkEmployeeImport";
 import { EmployeeDirectory } from "../components/EmployeeDirectory";
 import { DockIcon, FloatingTabDock } from "../components/FloatingTabDock";
 import { HolidayList, LeaveRequestTable } from "../components/LeaveManagement";
-import { ActionList, EmptyState, LoadingWorkspace, MetricCard } from "../components/shared";
+import { ActionList, BrandLogo, EmptyState, LoadingWorkspace, MetricCard } from "../components/shared";
 import { apiFetch, apiFetchVoid, ApiRequestError } from "../lib/api";
 import {
   formatDateTime,
@@ -526,12 +526,15 @@ export function AdminScreen({
   return (
     <main className="workspace workspace-with-dock">
       <header className="topbar">
-        <div>
-          <span className="eyebrow">PEEPLIFY admin view</span>
-          <h2>{session.user.name}</h2>
-          <p className="muted">
-            Track today&apos;s attendance, review proof, and focus on what needs attention first.
-          </p>
+        <div className="workspace-brand-lockup">
+          <BrandLogo className="brand-logo-compact" />
+          <div>
+            <span className="eyebrow">PEEPLIFY admin view</span>
+            <h2>{session.user.name}</h2>
+            <p className="muted">
+              Track today&apos;s attendance, review proof, and focus on what needs attention first.
+            </p>
+          </div>
         </div>
         <div className="admin-header-actions">
           <button

@@ -133,6 +133,24 @@ select {
   font-weight: 800;
 }
 
+.brand-logo {
+  display: block;
+  width: min(100%, 220px);
+  height: auto;
+}
+
+.brand-logo-compact {
+  width: 96px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 10px 22px rgba(29, 78, 216, 0.12));
+}
+
+.workspace-brand-lockup {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
 .login-card h2,
 .panel h3,
 .topbar h2 {
@@ -417,6 +435,10 @@ input[type="time"] {
     align-items: flex-start;
   }
 
+  .workspace-brand-lockup {
+    align-items: flex-start;
+  }
+
   .metric-grid {
     grid-template-columns: 1fr 1fr;
   }
@@ -447,6 +469,10 @@ input[type="time"] {
 
   .metric-grid {
     grid-template-columns: 1fr;
+  }
+
+  .brand-logo-compact {
+    width: 82px;
   }
 
   input,

@@ -13,7 +13,7 @@ import { AttendanceTable } from "../components/AttendanceTable";
 import { AttendanceCorrectionTable } from "../components/AttendanceCorrections";
 import { DockIcon, FloatingTabDock } from "../components/FloatingTabDock";
 import { HolidayList, LeaveRequestTable } from "../components/LeaveManagement";
-import { LoadingWorkspace, MetricCard, ProfileAvatar } from "../components/shared";
+import { BrandLogo, LoadingWorkspace, MetricCard, ProfileAvatar } from "../components/shared";
 import type { AttendanceCorrection, EmployeeLeaveWorkspace, EmployeeOverview, Session } from "../types";
 
 type EmployeeTab = "mark" | "today" | "history" | "corrections" | "leaves" | "help";
@@ -654,12 +654,15 @@ export function EmployeeScreen({
   return (
     <main className="workspace workspace-with-dock">
       <header className="topbar">
-        <div>
-          <span className="eyebrow">PEEPLIFY employee view</span>
-          <h2>{overview.employee.name}</h2>
-          <p className="muted">
-            {overview.employee.designation} at {overview.branch.name} for {session.user.vendorName}
-          </p>
+        <div className="workspace-brand-lockup">
+          <BrandLogo className="brand-logo-compact" />
+          <div>
+            <span className="eyebrow">PEEPLIFY employee view</span>
+            <h2>{overview.employee.name}</h2>
+            <p className="muted">
+              {overview.employee.designation} at {overview.branch.name} for {session.user.vendorName}
+            </p>
+          </div>
         </div>
         <div className="employee-header-actions">
           <button

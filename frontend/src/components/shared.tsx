@@ -1,4 +1,15 @@
 import type { ReactNode } from "react";
+import brandLogo from "../assets/peeplify-logo.png";
+
+export function BrandLogo({
+  alt = "PEEPLIFY logo",
+  className = ""
+}: {
+  alt?: string;
+  className?: string;
+}) {
+  return <img alt={alt} className={`brand-logo ${className}`.trim()} src={brandLogo} />;
+}
 
 export function RequiredLabel({ children }: { children: ReactNode }) {
   return (
@@ -46,7 +57,10 @@ export function LoadingWorkspace({ title, lines }: { title: string; lines: numbe
   return (
     <main className="workspace">
       <section className="panel">
-        <span className="eyebrow">PEEPLIFY</span>
+        <div className="workspace-brand-lockup">
+          <BrandLogo className="brand-logo-compact" />
+          <span className="eyebrow">PEEPLIFY</span>
+        </div>
         <h2>{title}</h2>
         <div className="loading-stack">
           {Array.from({ length: lines }, (_, index) => (

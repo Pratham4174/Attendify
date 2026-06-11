@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { API_BASE, extractError } from "../lib/api";
 import type { EmployeeSeedForm, LoginResponse, RegistrationSummary, Session } from "../types";
-import { RequiredLabel } from "../components/shared";
+import { BrandLogo, RequiredLabel } from "../components/shared";
 
 type PropertyFormState = {
   propertyCode: string;
@@ -247,11 +247,7 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
       <section className="hero-panel auth-brand-panel">
         <div className="auth-brand-stack">
           <span className="eyebrow">PEEPLIFY</span>
-          <div className="auth-brand-mark">
-            <span className="auth-brand-dot auth-brand-dot-one" />
-            <span className="auth-brand-dot auth-brand-dot-two" />
-            <span className="auth-brand-dot auth-brand-dot-three" />
-          </div>
+          <BrandLogo className="auth-brand-logo" />
         </div>
         <div className="auth-feature-grid">
           <div className="auth-feature-card">
