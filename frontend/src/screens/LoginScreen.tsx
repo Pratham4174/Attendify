@@ -246,7 +246,7 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
     <main className="login-layout">
       <section className="hero-panel auth-brand-panel">
         <div className="auth-brand-stack">
-          <span className="eyebrow">ATTENDIFY</span>
+          <span className="eyebrow">PEEPLIFY</span>
           <div className="auth-brand-mark">
             <span className="auth-brand-dot auth-brand-dot-one" />
             <span className="auth-brand-dot auth-brand-dot-two" />
@@ -300,7 +300,7 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
             {!forgotPasswordMode ? (
               <>
                 <h2>Sign in</h2>
-                <p className="muted section-intro auth-section-intro">Use your work email to open your ATTENDIFY workspace.</p>
+                <p className="muted section-intro auth-section-intro">Use your work email to open your PEEPLIFY workspace.</p>
                 <form onSubmit={handleLogin}>
                   <label>
                     Email
@@ -320,7 +320,7 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
                       type="password"
                       placeholder="password"
                     />
-                    <span className="field-hint">Enter the password linked to your ATTENDIFY account.</span>
+                    <span className="field-hint">Enter the password linked to your PEEPLIFY account.</span>
                   </label>
                   <div className="auth-inline-actions">
                     <button
@@ -495,7 +495,7 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
                   required
                   placeholder="Create a password"
                 />
-                <span className="field-hint">Pick a password you will remember for your first ATTENDIFY admin account.</span>
+                <span className="field-hint">Pick a password you will remember for your first PEEPLIFY admin account.</span>
               </label>
               <label>
                 <RequiredLabel>Admin phone</RequiredLabel>

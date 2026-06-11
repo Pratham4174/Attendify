@@ -46,7 +46,7 @@ export function LoadingWorkspace({ title, lines }: { title: string; lines: numbe
   return (
     <main className="workspace">
       <section className="panel">
-        <span className="eyebrow">ATTENDIFY</span>
+        <span className="eyebrow">PEEPLIFY</span>
         <h2>{title}</h2>
         <div className="loading-stack">
           {Array.from({ length: lines }, (_, index) => (

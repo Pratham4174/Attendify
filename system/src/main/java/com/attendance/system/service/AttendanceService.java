@@ -144,7 +144,7 @@ public class AttendanceService {
     @Transactional
     public LocationPingResponse recordLocationPing(AuthenticatedUser user, LocationPingRequest request) {
         if (!trackingProperties.enabled()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tracking is not enabled for this ATTENDIFY workspace.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tracking is not enabled for this PEEPLIFY workspace.");
         }
 
         EmployeeEntity employee = requireEmployeeUser(user);

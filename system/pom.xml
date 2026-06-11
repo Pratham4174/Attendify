@@ -14,8 +14,8 @@
     <groupId>com.attendance</groupId>
     <artifactId>system</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>attendify-system</name>
-    <description>ATTENDIFY multi-tenant attendance platform</description>
+    <name>peeplify-system</name>
+    <description>PEEPLIFY multi-tenant attendance platform</description>
 
     <properties>
         <java.version>21</java.version>

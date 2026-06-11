@@ -133,7 +133,7 @@ export function AttendanceTable({
     return (
       <EmptyState
         title="Nothing to show yet"
-        message={emptyMessage ?? "Attendance records will appear here once your team starts using ATTENDIFY."}
+        message={emptyMessage ?? "Attendance records will appear here once your team starts using PEEPLIFY."}
       />
     );
   }

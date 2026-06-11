@@ -149,7 +149,7 @@ export function parseEmployeeImportText(raw: string, branches: Branch[]): Parsed
     if (missingFields.length) {
       row.error = `Missing ${missingFields.join(", ")}.`;
     } else if (!row.branchId) {
-      row.error = `Unknown branch "${row.branchLabel}". Use a branch name exactly as listed in ATTENDIFY.`;
+      row.error = `Unknown branch "${row.branchLabel}". Use a branch name exactly as listed in PEEPLIFY.`;
     } else if (Number.isNaN(Number(row.monthlySalary)) || Number(row.monthlySalary) < 0) {
       row.error = "Monthly salary must be a valid non-negative number.";
     } else if (
@@ -175,7 +175,7 @@ export function downloadEmployeeImportTemplate() {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = "attendify-employee-import-template.csv";
+  link.download = "peeplify-employee-import-template.csv";
   link.click();
   URL.revokeObjectURL(url);
 }

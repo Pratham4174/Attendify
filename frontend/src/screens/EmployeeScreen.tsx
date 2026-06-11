@@ -162,7 +162,7 @@ export function EmployeeScreen({
   }, [cameraReady, selfie]);
 
   useEffect(() => {
-    const tutorialKey = `attendify-tutorial-seen-${session.user.userId}`;
+    const tutorialKey = `peeplify-tutorial-seen-${session.user.userId}`;
     const hasSeenTutorial = localStorage.getItem(tutorialKey);
 
     if (!hasSeenTutorial) {
@@ -550,7 +550,7 @@ export function EmployeeScreen({
       return (
         <main className="workspace">
           <section className="panel">
-            <span className="eyebrow">ATTENDIFY</span>
+            <span className="eyebrow">PEEPLIFY</span>
             <h2>Unable to open your workspace</h2>
             <p className="error-text">{loadError}</p>
             <div className="action-row">
@@ -635,7 +635,7 @@ export function EmployeeScreen({
   const tutorialSteps = [
     {
       title: "Allow location",
-      detail: "Tap the location button so ATTENDIFY can check that you are near your branch."
+      detail: "Tap the location button so PEEPLIFY can check that you are near your branch."
     },
     {
       title: "Start camera",
@@ -655,7 +655,7 @@ export function EmployeeScreen({
     <main className="workspace workspace-with-dock">
       <header className="topbar">
         <div>
-          <span className="eyebrow">ATTENDIFY employee view</span>
+          <span className="eyebrow">PEEPLIFY employee view</span>
           <h2>{overview.employee.name}</h2>
           <p className="muted">
             {overview.employee.designation} at {overview.branch.name} for {session.user.vendorName}
@@ -684,7 +684,7 @@ export function EmployeeScreen({
                 <span className="eyebrow">Profile setup</span>
                 <h3>Add your profile image</h3>
                 <p className="muted">
-                  Capture a live profile image before using your ATTENDIFY portal. The owner will see this in the employee directory.
+                  Capture a live profile image before using your PEEPLIFY portal. The owner will see this in the employee directory.
                 </p>
               </div>
             </div>

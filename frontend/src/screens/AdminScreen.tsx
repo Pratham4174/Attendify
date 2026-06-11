@@ -492,7 +492,7 @@ export function AdminScreen({
       return (
         <main className="workspace">
           <section className="panel">
-            <span className="eyebrow">ATTENDIFY</span>
+            <span className="eyebrow">PEEPLIFY</span>
             <h2>Unable to open your dashboard</h2>
             <p className="error-text">{loadError}</p>
             <div className="action-row">
@@ -527,7 +527,7 @@ export function AdminScreen({
     <main className="workspace workspace-with-dock">
       <header className="topbar">
         <div>
-          <span className="eyebrow">ATTENDIFY admin view</span>
+          <span className="eyebrow">PEEPLIFY admin view</span>
           <h2>{session.user.name}</h2>
           <p className="muted">
             Track today&apos;s attendance, review proof, and focus on what needs attention first.
