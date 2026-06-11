@@ -93,57 +93,77 @@
 
 .auth-brand-panel {
   display: grid;
-  gap: 22px;
+  gap: 18px;
   align-content: start;
   min-height: auto;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top, rgba(191, 219, 254, 0.35), transparent 42%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(247, 251, 255, 0.94) 100%);
 }
 
 .auth-brand-stack {
   display: grid;
-  gap: 14px;
+  gap: 10px;
   justify-items: center;
 }
 
 .auth-brand-logo {
-  width: min(100%, 380px);
-  filter: drop-shadow(0 22px 44px rgba(29, 78, 216, 0.14));
+  width: min(100%, 240px);
+  filter: drop-shadow(0 18px 36px rgba(29, 78, 216, 0.14));
 }
 
 .auth-brand-fullform {
   margin: 0;
-  color: var(--text-main);
-  font-size: 0.98rem;
-  font-weight: 600;
-  line-height: 1.4;
+  color: #4f6789;
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.35;
   text-align: center;
+  max-width: 30ch;
 }
 
 .auth-feature-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
 }
 
 .auth-feature-card {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  justify-items: center;
   gap: 8px;
-  padding: 12px 14px;
+  padding: 14px 10px 12px;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(37, 99, 235, 0.08);
-  min-height: 0;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(37, 99, 235, 0.1);
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.06);
+  min-height: 108px;
 }
 
 .auth-feature-card strong {
-  font-size: 0.98rem;
+  font-size: 0.94rem;
+  line-height: 1.1;
 }
 
-.auth-feature-card span {
-  color: var(--text-soft);
-  font-size: 0.9rem;
-  white-space: nowrap;
+.auth-feature-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  color: var(--primary);
+  background: rgba(219, 234, 254, 0.9);
+}
+
+.auth-feature-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.auth-feature-icon svg path {
+  stroke: currentColor;
 }
 
 .employee-seed-card {
@@ -206,27 +226,22 @@
   }
 
   .auth-brand-logo {
-    width: min(100%, 210px);
+    width: min(100%, 170px);
   }
 
   .auth-brand-fullform {
-    font-size: 0.88rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 100%;
+    font-size: 0.76rem;
+    max-width: 34ch;
   }
 
   .auth-feature-grid {
-    grid-template-columns: 1fr;
     gap: 8px;
     max-width: 100%;
   }
 
   .auth-feature-card {
-    justify-content: center;
-    padding: 12px 16px;
-    min-height: 58px;
+    min-height: 92px;
+    padding: 12px 8px 10px;
   }
 }
 
@@ -255,26 +270,18 @@
   }
 
   .auth-brand-logo {
-    width: min(100%, 176px);
+    width: min(100%, 152px);
   }
 
   .auth-brand-fullform {
-    font-size: 0.78rem;
+    font-size: 0.72rem;
+    max-width: 30ch;
   }
 
   .auth-feature-card {
-    gap: 10px;
-    padding: 11px 14px;
-  }
-
-  .auth-feature-card strong {
-    min-width: 90px;
-    text-align: right;
-  }
-
-  .auth-feature-card span {
-    min-width: 0;
-    text-align: left;
+    min-height: 84px;
+    border-radius: 16px;
+    gap: 7px;
   }
 
   .employee-seed-card {

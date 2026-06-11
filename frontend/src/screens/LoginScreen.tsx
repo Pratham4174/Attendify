@@ -253,16 +253,30 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
         </div>
         <div className="auth-feature-grid">
           <div className="auth-feature-card">
+            <span className="auth-feature-icon" aria-hidden="true">
+              <svg fill="none" viewBox="0 0 24 24">
+                <path d="M12 21s6-4.35 6-10a6 6 0 1 0-12 0c0 5.65 6 10 6 10Z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+                <path d="M12 13a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+              </svg>
+            </span>
             <strong>Check in</strong>
-            <span>Fast mobile flow</span>
           </div>
           <div className="auth-feature-card">
+            <span className="auth-feature-icon" aria-hidden="true">
+              <svg fill="none" viewBox="0 0 24 24">
+                <path d="M12 3 5 6v5c0 4.5 3 8.5 7 10 4-1.5 7-5.5 7-10V6l-7-3Z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+                <path d="M9 11.5h6" strokeLinecap="round" strokeWidth="2" />
+              </svg>
+            </span>
             <strong>Proof</strong>
-            <span>GPS and selfie</span>
           </div>
           <div className="auth-feature-card">
+            <span className="auth-feature-icon" aria-hidden="true">
+              <svg fill="none" viewBox="0 0 24 24">
+                <path d="M4 12h16M4 7h10M4 17h12" strokeLinecap="round" strokeWidth="2" />
+              </svg>
+            </span>
             <strong>Review</strong>
-            <span>Clear owner view</span>
           </div>
         </div>
       </section>
