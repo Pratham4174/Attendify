@@ -22,7 +22,7 @@ function App() {
 
     const timer = window.setTimeout(() => {
       setSplashMinimumElapsed(true);
-    }, 1600);
+    }, 3000);
 
     return () => {
       window.clearTimeout(timer);

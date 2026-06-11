@@ -246,8 +246,10 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
     <main className="login-layout">
       <section className="hero-panel auth-brand-panel">
         <div className="auth-brand-stack">
-          <span className="eyebrow">PEEPLIFY</span>
           <BrandLogo className="auth-brand-logo" />
+          <p className="auth-brand-fullform">
+            People Entry, Evidence, Payroll, Leave, Insights For You
+          </p>
         </div>
         <div className="auth-feature-grid">
           <div className="auth-feature-card">
