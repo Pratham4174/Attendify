@@ -826,26 +826,43 @@ export function EmployeeScreen({
                   </div>
                 </div>
 
-                <div className="camera-panel single-camera-panel">
-                  {selfie ? (
-                    <img alt="Captured selfie" src={selfie} />
-                  ) : cameraReady ? (
-                    <video autoPlay muted playsInline ref={videoRef} />
-                  ) : (
-                    <div className="empty-media">Lock GPS inside the branch area to open the live camera here.</div>
-                  )}
+                <div className="camera-preview-shell">
+                  <div className="camera-panel single-camera-panel">
+                    {selfie ? (
+                      <img alt="Captured selfie" src={selfie} />
+                    ) : cameraReady ? (
+                      <video autoPlay muted playsInline ref={videoRef} />
+                    ) : (
+                      <div className="empty-media">Lock GPS inside the branch area to open the live camera here.</div>
+                    )}
+                  </div>
+                  <div className="camera-side-actions">
+                    <button
+                      className="primary-button"
+                      disabled={loading || insideGeofence !== true || !cameraReady || !!selfie}
+                      onClick={captureSelfie}
+                      type="button"
+                    >
+                      Capture selfie
+                    </button>
+                    <button
+                      className="ghost-button"
+                      disabled={loading || !selfie}
+                      onClick={retakeSelfie}
+                      type="button"
+                    >
+                      Retake
+                    </button>
+                  </div>
                 </div>
 
                 <div className="status-card-row attendance-insight-row">
                   <div className={`status-chip highlight-chip${insideGeofence === false ? " warning" : insideGeofence ? " success" : ""}`}>
                     {insideGeofence === null
-                      ? "Lock your location to check branch distance"
+                      ? "Waiting for location"
                       : insideGeofence
                         ? `Inside branch area · ${geofenceDistance?.toFixed(1)}m`
                         : `Outside branch area · ${geofenceDistance?.toFixed(1)}m`}
-                  </div>
-                  <div className="status-chip">
-                    Allowed range · {effectiveGeofenceLimit.toFixed(1)}m including GPS tolerance
                   </div>
                 </div>
 
@@ -864,28 +881,12 @@ export function EmployeeScreen({
                   </div>
                   <div className="action-row attendance-action-row">
                     <button
-                      className="primary-button"
-                      disabled={loading || insideGeofence !== true || !cameraReady || !!selfie}
-                      onClick={captureSelfie}
-                      type="button"
-                    >
-                      Capture selfie
-                    </button>
-                    <button
                       className="secondary-button"
                       disabled={loading || insideGeofence !== true || !selfie}
                       onClick={() => void submitAttendance(canCheckOut ? "check-out" : "check-in")}
                       type="button"
                     >
                       {loading ? "Saving..." : canCheckOut ? "Check out" : "Check in"}
-                    </button>
-                    <button
-                      className="ghost-button"
-                      disabled={loading || !selfie}
-                      onClick={retakeSelfie}
-                      type="button"
-                    >
-                      Retake
                     </button>
                   </div>
                 </div>

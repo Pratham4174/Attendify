@@ -98,6 +98,24 @@
   grid-template-columns: 1fr;
 }
 
+.camera-preview-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.camera-side-actions {
+  display: grid;
+  gap: 12px;
+  align-content: center;
+}
+
+.camera-side-actions .primary-button,
+.camera-side-actions .ghost-button {
+  width: 100%;
+}
+
 .camera-panel video,
 .camera-panel img,
 .evidence-stack img {
@@ -194,7 +212,6 @@
   gap: 12px;
 }
 
-.attendance-action-row .primary-button,
 .attendance-action-row .secondary-button,
 .attendance-action-row .ghost-button {
   width: auto;
@@ -457,6 +474,15 @@
   .camera-panel {
     grid-template-columns: 1fr;
   }
+
+  .camera-preview-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .camera-side-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: stretch;
+  }
 }
 
 @media (max-width: 720px) {
@@ -484,9 +510,10 @@
     min-height: 180px;
   }
 
-  .attendance-action-row .primary-button,
   .attendance-action-row .secondary-button,
-  .attendance-action-row .ghost-button {
+  .attendance-action-row .ghost-button,
+  .camera-side-actions .primary-button,
+  .camera-side-actions .ghost-button {
     width: 100%;
     min-width: 0;
   }
