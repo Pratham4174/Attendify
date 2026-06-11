@@ -1,7 +1,7 @@
 import { useState } from "react";
+import { BrandLogo, RequiredLabel } from "../components/shared";
 import { API_BASE, extractError } from "../lib/api";
 import type { EmployeeSeedForm, LoginResponse, RegistrationSummary, Session } from "../types";
-import { BrandLogo, RequiredLabel } from "../components/shared";
 
 type PropertyFormState = {
   propertyCode: string;
@@ -303,7 +303,7 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
                 setForgotPasswordMode(false);
               }}
             >
-              Register property
+              Register Property/Business
             </button>
           </div>
         </div>
