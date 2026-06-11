@@ -1,9 +1,7 @@
 import type { ReactNode } from "react";
-import splashLogo from "../assets/peeplify-logo.png";
 
 type SplashScreenProps = {
   visible: boolean;
-  onReady: () => void;
 };
 
 const splashFeatures: Array<{ label: string; accent: string; icon: ReactNode }> = [
@@ -61,19 +59,19 @@ const splashFeatures: Array<{ label: string; accent: string; icon: ReactNode }> 
   }
 ];
 
-export function SplashScreen({ visible, onReady }: SplashScreenProps) {
+export function SplashScreen({ visible }: SplashScreenProps) {
   return (
     <div className={`splash-screen${visible ? " is-visible" : " is-hidden"}`} aria-hidden={!visible}>
       <div className="splash-screen__backdrop" />
       <div className="splash-screen__card">
         <div className="splash-screen__hero">
-          <img
-            alt="PEEPLIFY logo"
-            className="splash-screen__logo"
-            onError={onReady}
-            onLoad={onReady}
-            src={splashLogo}
-          />
+          <div className="splash-screen__monogram" aria-hidden="true">
+            <span className="splash-screen__monogram-ring" />
+            <span className="splash-screen__monogram-stem" />
+            <span className="splash-screen__monogram-person splash-screen__monogram-person--center" />
+            <span className="splash-screen__monogram-person splash-screen__monogram-person--left" />
+            <span className="splash-screen__monogram-person splash-screen__monogram-person--right" />
+          </div>
           <h1 className="splash-screen__wordmark">peeplify</h1>
           <div className="splash-screen__tagline">
             <span />

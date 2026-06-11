@@ -12,7 +12,6 @@ function App() {
   });
   const [showSplash, setShowSplash] = useState(() => !localStorage.getItem("attendance-session"));
   const [splashMinimumElapsed, setSplashMinimumElapsed] = useState(false);
-  const [splashReady, setSplashReady] = useState(false);
 
   useEffect(() => {
     if (session) {
@@ -34,7 +33,7 @@ function App() {
       return undefined;
     }
 
-    if (splashMinimumElapsed && splashReady) {
+    if (splashMinimumElapsed) {
       const timer = window.setTimeout(() => {
         setShowSplash(false);
       }, 140);
@@ -45,7 +44,7 @@ function App() {
     }
 
     return undefined;
-  }, [session, splashMinimumElapsed, splashReady]);
+  }, [session, splashMinimumElapsed]);
 
   useEffect(() => {
     if (session) {
@@ -57,7 +56,7 @@ function App() {
 
   return (
     <div className="app-shell">
-      <SplashScreen onReady={() => setSplashReady(true)} visible={!session && showSplash} />
+      <SplashScreen visible={!session && showSplash} />
       <div className="background-orb background-orb-one" />
       <div className="background-orb background-orb-two" />
       {!session ? (

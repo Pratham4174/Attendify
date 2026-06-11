@@ -94,14 +94,14 @@
 .auth-brand-panel {
   display: grid;
   gap: 22px;
-  align-content: center;
-  min-height: 100%;
+  align-content: start;
+  min-height: auto;
 }
 
 .auth-brand-stack {
   display: grid;
   gap: 14px;
-  justify-items: start;
+  justify-items: center;
 }
 
 .auth-brand-logo {
@@ -115,6 +115,7 @@
   font-size: 0.98rem;
   font-weight: 600;
   line-height: 1.4;
+  text-align: center;
 }
 
 .auth-feature-grid {
@@ -155,14 +156,21 @@
 @media (max-width: 1024px) {
   .login-layout {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
 
   .auth-brand-panel {
     order: 1;
+    max-width: 760px;
+    width: 100%;
+    margin: 0 auto;
   }
 
   .auth-panel {
     order: 2;
+    max-width: 760px;
+    width: 100%;
+    margin: 0 auto;
   }
 }
 
@@ -193,12 +201,12 @@
 
   .auth-brand-panel {
     gap: 12px;
-    padding-top: 16px;
-    padding-bottom: 16px;
+    padding-top: 18px;
+    padding-bottom: 18px;
   }
 
   .auth-brand-logo {
-    width: min(100%, 240px);
+    width: min(100%, 210px);
   }
 
   .auth-brand-fullform {
@@ -206,16 +214,19 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    width: 100%;
   }
 
   .auth-feature-grid {
     grid-template-columns: 1fr;
     gap: 8px;
+    max-width: 100%;
   }
 
   .auth-feature-card {
-    justify-content: flex-start;
-    padding: 10px 14px;
+    justify-content: center;
+    padding: 12px 16px;
+    min-height: 58px;
   }
 }
 
@@ -240,14 +251,30 @@
   .auth-brand-panel {
     padding-top: 14px;
     padding-bottom: 14px;
+    gap: 10px;
   }
 
   .auth-brand-logo {
-    width: min(100%, 190px);
+    width: min(100%, 176px);
   }
 
   .auth-brand-fullform {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
+  }
+
+  .auth-feature-card {
+    gap: 10px;
+    padding: 11px 14px;
+  }
+
+  .auth-feature-card strong {
+    min-width: 90px;
+    text-align: right;
+  }
+
+  .auth-feature-card span {
+    min-width: 0;
+    text-align: left;
   }
 
   .employee-seed-card {
