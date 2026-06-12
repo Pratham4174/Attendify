@@ -389,9 +389,9 @@ public class PublicBillingService {
                 commonFeatures(),
                 List.of(
                         billingOption("MONTHLY", 1, 0, "Monthly", monthlyAmount),
-                        billingOption("QUARTERLY", 3, 10, "Quarterly", monthlyAmount),
-                        billingOption("HALF_YEARLY", 6, 20, "Half-yearly", monthlyAmount),
-                        billingOption("YEARLY", 12, 25, "Yearly", monthlyAmount)
+                        billingOption("QUARTERLY", 3, 5, "Quarterly", monthlyAmount),
+                        billingOption("HALF_YEARLY", 6, 10, "Half-yearly", monthlyAmount),
+                        billingOption("YEARLY", 12, 15, "Yearly", monthlyAmount)
                 )
         );
     }
@@ -459,21 +459,21 @@ public class PublicBillingService {
         return List.of(
                 new Plan("starter-10", 10, 1, List.of(
                         new BillingOption("MONTHLY", new BigDecimal("1199.00"), 1),
-                        new BillingOption("QUARTERLY", new BigDecimal("3237.00"), 3),
-                        new BillingOption("HALF_YEARLY", new BigDecimal("5755.00"), 6),
-                        new BillingOption("YEARLY", new BigDecimal("10791.00"), 12)
+                        new BillingOption("QUARTERLY", new BigDecimal("3417.00"), 3),
+                        new BillingOption("HALF_YEARLY", new BigDecimal("6475.00"), 6),
+                        new BillingOption("YEARLY", new BigDecimal("12230.00"), 12)
                 )),
                 new Plan("growth-25", 25, 1, List.of(
                         new BillingOption("MONTHLY", new BigDecimal("1999.00"), 1),
-                        new BillingOption("QUARTERLY", new BigDecimal("5397.00"), 3),
-                        new BillingOption("HALF_YEARLY", new BigDecimal("9595.00"), 6),
-                        new BillingOption("YEARLY", new BigDecimal("17991.00"), 12)
+                        new BillingOption("QUARTERLY", new BigDecimal("5697.00"), 3),
+                        new BillingOption("HALF_YEARLY", new BigDecimal("10795.00"), 6),
+                        new BillingOption("YEARLY", new BigDecimal("20390.00"), 12)
                 )),
                 new Plan("business-50", 50, 10, List.of(
                         new BillingOption("MONTHLY", new BigDecimal("2999.00"), 1),
-                        new BillingOption("QUARTERLY", new BigDecimal("8097.00"), 3),
-                        new BillingOption("HALF_YEARLY", new BigDecimal("14395.00"), 6),
-                        new BillingOption("YEARLY", new BigDecimal("26991.00"), 12)
+                        new BillingOption("QUARTERLY", new BigDecimal("8547.00"), 3),
+                        new BillingOption("HALF_YEARLY", new BigDecimal("16195.00"), 6),
+                        new BillingOption("YEARLY", new BigDecimal("30590.00"), 12)
                 ))
         );
     }

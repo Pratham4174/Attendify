@@ -602,36 +602,50 @@ export function PropertyRegistrationFlow({
             {pricing?.plans.map((plan) => {
               const active = selectedPlanCode === plan.code;
               return (
-                <button
+                <article
                   key={plan.code}
                   className={`public-plan-card${active ? " active" : ""}${plan.customPlan ? " custom" : ""}`}
-                  type="button"
-                  onClick={() => setSelectedPlanCode(plan.code)}
                 >
-                  <div className="public-plan-header">
-                    <div>
+                  <button
+                    className="public-plan-toggle"
+                    type="button"
+                    onClick={() => setSelectedPlanCode(plan.code)}
+                  >
+                    <div className="public-plan-toggle-main">
                       <strong>{plan.label}</strong>
-                      <span>{plan.description}</span>
+                      <span>{plan.employeeLimit ? `${plan.employeeLimit} employees` : "50+ employees"}</span>
                     </div>
-                    {plan.customPlan ? <span className="plan-badge neutral">Talk to us</span> : null}
-                  </div>
-                  <div className="public-plan-meta">
-                    <span>{plan.employeeLimit ? `${plan.employeeLimit} employees` : "50+ employees"}</span>
-                    <span>{plan.multipleBranchesIncluded ? "Multiple branches" : `${plan.maxBranches} branch included`}</span>
-                  </div>
-                  {!plan.customPlan ? (
-                    <div className="public-plan-prices">
-                      <strong>{formatAmount(plan.billingOptions[0]?.amount ?? "0")}</strong>
-                      <span>monthly</span>
+                    <div className="public-plan-toggle-side">
+                      {!plan.customPlan ? (
+                        <span className="public-plan-inline-price">
+                          {formatAmount(plan.billingOptions[0]?.amount ?? "0")} / month
+                        </span>
+                      ) : (
+                        <span className="plan-badge neutral">Talk to us</span>
+                      )}
+                      <span className={`public-plan-chevron${active ? " active" : ""}`} aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none">
+                          <path d="m6 9 6 6 6-6" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+                        </svg>
+                      </span>
+                    </div>
+                  </button>
+                  {active ? (
+                    <div className="public-plan-body">
+                      <p className="public-plan-summary">{plan.description}</p>
+                      <div className="public-plan-meta">
+                        <span>{plan.multipleBranchesIncluded ? "Multiple branches included" : `${plan.maxBranches} branch included`}</span>
+                        <span>All core features included</span>
+                      </div>
+                      <div className="public-plan-features compact">
+                        {plan.features.map((feature) => (
+                          <span key={feature}>{feature}</span>
+                        ))}
+                        {plan.multipleBranchesIncluded ? <span>Multiple branch access included</span> : null}
+                      </div>
                     </div>
                   ) : null}
-                  <div className="public-plan-features">
-                    {plan.features.map((feature) => (
-                      <span key={feature}>{feature}</span>
-                    ))}
-                    {plan.multipleBranchesIncluded ? <span>Multiple branch access included</span> : null}
-                  </div>
-                </button>
+                </article>
               );
             })}
           </div>

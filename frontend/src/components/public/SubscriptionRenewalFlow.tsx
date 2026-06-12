@@ -307,24 +307,43 @@ export function SubscriptionRenewalFlow({
 
         <div className="public-plan-grid">
           {pricing?.plans.map((plan) => (
-            <button
+            <article
               key={plan.code}
               className={`public-plan-card${selectedPlanCode === plan.code ? " active" : ""}`}
-              type="button"
-              onClick={() => setSelectedPlanCode(plan.code)}
             >
-              <div className="public-plan-header">
-                <div>
+              <button
+                className="public-plan-toggle"
+                type="button"
+                onClick={() => setSelectedPlanCode(plan.code)}
+              >
+                <div className="public-plan-toggle-main">
                   <strong>{plan.label}</strong>
-                  <span>{plan.description}</span>
+                  <span>{plan.employeeLimit ? `${plan.employeeLimit} employees` : ""}</span>
                 </div>
-                {plan.multipleBranchesIncluded ? <span className="plan-badge">Multiple branches</span> : null}
-              </div>
-              <div className="public-plan-prices">
-                <strong>{formatAmount(plan.billingOptions[0]?.amount ?? "0")}</strong>
-                <span>monthly</span>
-              </div>
-            </button>
+                <div className="public-plan-toggle-side">
+                  <span className="public-plan-inline-price">
+                    {formatAmount(plan.billingOptions[0]?.amount ?? "0")} / month
+                  </span>
+                  <span
+                    className={`public-plan-chevron${selectedPlanCode === plan.code ? " active" : ""}`}
+                    aria-hidden="true"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <path d="m6 9 6 6 6-6" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+                    </svg>
+                  </span>
+                </div>
+              </button>
+              {selectedPlanCode === plan.code ? (
+                <div className="public-plan-body">
+                  <p className="public-plan-summary">{plan.description}</p>
+                  <div className="public-plan-meta">
+                    <span>{plan.multipleBranchesIncluded ? "Multiple branches included" : `${plan.maxBranches} branch included`}</span>
+                    <span>All core features included</span>
+                  </div>
+                </div>
+              ) : null}
+            </article>
           ))}
         </div>
 
