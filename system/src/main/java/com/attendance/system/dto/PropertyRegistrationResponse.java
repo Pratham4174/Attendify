@@ -5,6 +5,10 @@ public record PropertyRegistrationResponse(
         String vendorId,
         String branchId,
         int employeesCreated,
-        String adminEmail
+        String adminEmail,
+        String subscriptionPlanCode,
+        String subscriptionBillingCycle,
+        String accessExpiresAt,
+        String trialEndsAt
 ) {
 }

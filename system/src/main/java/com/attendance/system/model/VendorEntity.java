@@ -10,6 +10,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.util.UUID;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "vendors")
@@ -28,6 +29,27 @@ public class VendorEntity {
 
     @Column(nullable = false, length = 20)
     private String status;
+
+    @Column(name = "subscription_plan_code", length = 40)
+    private String subscriptionPlanCode;
+
+    @Column(name = "subscription_billing_cycle", length = 20)
+    private String subscriptionBillingCycle;
+
+    @Column(name = "subscription_status", length = 20)
+    private String subscriptionStatus;
+
+    @Column(name = "max_employees")
+    private Integer maxEmployees;
+
+    @Column(name = "max_branches")
+    private Integer maxBranches;
+
+    @Column(name = "trial_ends_at")
+    private OffsetDateTime trialEndsAt;
+
+    @Column(name = "access_expires_at")
+    private OffsetDateTime accessExpiresAt;
 
     public UUID getId() {
         return id;
@@ -55,5 +77,61 @@ public class VendorEntity {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getSubscriptionPlanCode() {
+        return subscriptionPlanCode;
+    }
+
+    public void setSubscriptionPlanCode(String subscriptionPlanCode) {
+        this.subscriptionPlanCode = subscriptionPlanCode;
+    }
+
+    public String getSubscriptionBillingCycle() {
+        return subscriptionBillingCycle;
+    }
+
+    public void setSubscriptionBillingCycle(String subscriptionBillingCycle) {
+        this.subscriptionBillingCycle = subscriptionBillingCycle;
+    }
+
+    public String getSubscriptionStatus() {
+        return subscriptionStatus;
+    }
+
+    public void setSubscriptionStatus(String subscriptionStatus) {
+        this.subscriptionStatus = subscriptionStatus;
+    }
+
+    public Integer getMaxEmployees() {
+        return maxEmployees;
+    }
+
+    public void setMaxEmployees(Integer maxEmployees) {
+        this.maxEmployees = maxEmployees;
+    }
+
+    public Integer getMaxBranches() {
+        return maxBranches;
+    }
+
+    public void setMaxBranches(Integer maxBranches) {
+        this.maxBranches = maxBranches;
+    }
+
+    public OffsetDateTime getTrialEndsAt() {
+        return trialEndsAt;
+    }
+
+    public void setTrialEndsAt(OffsetDateTime trialEndsAt) {
+        this.trialEndsAt = trialEndsAt;
+    }
+
+    public OffsetDateTime getAccessExpiresAt() {
+        return accessExpiresAt;
+    }
+
+    public void setAccessExpiresAt(OffsetDateTime accessExpiresAt) {
+        this.accessExpiresAt = accessExpiresAt;
     }
 }

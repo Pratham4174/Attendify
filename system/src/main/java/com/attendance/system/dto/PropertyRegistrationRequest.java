@@ -12,6 +12,7 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 
 public record PropertyRegistrationRequest(
+        @NotBlank String checkoutSessionId,
         @NotBlank @Size(max = 80) String propertyCode,
         @NotBlank @Size(max = 140) String propertyName,
         @NotBlank @Size(max = 140) String adminName,

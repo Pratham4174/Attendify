@@ -4,6 +4,7 @@ import com.attendance.system.dto.PropertyRegistrationRequest;
 import com.attendance.system.dto.PropertyRegistrationResponse;
 import com.attendance.system.model.BranchEntity;
 import com.attendance.system.model.EmployeeEntity;
+import com.attendance.system.model.PublicCheckoutSessionEntity;
 import com.attendance.system.model.UserEntity;
 import com.attendance.system.model.UserRole;
 import com.attendance.system.model.VendorEntity;
@@ -31,23 +32,33 @@ public class PropertyRegistrationService {
     private final EmployeeRepository employeeRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PublicBillingService publicBillingService;
 
     public PropertyRegistrationService(
             VendorRepository vendorRepository,
             BranchRepository branchRepository,
             EmployeeRepository employeeRepository,
             UserRepository userRepository,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            PublicBillingService publicBillingService
     ) {
         this.vendorRepository = vendorRepository;
         this.branchRepository = branchRepository;
         this.employeeRepository = employeeRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.publicBillingService = publicBillingService;
     }
 
     @Transactional
     public PropertyRegistrationResponse register(PropertyRegistrationRequest request) {
+        PublicCheckoutSessionEntity checkoutSession = publicBillingService.requireUnlockedSession(request.checkoutSessionId());
+        if (request.employees().size() > checkoutSession.getEmployeeCount()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Your selected plan allows up to %d employees.".formatted(checkoutSession.getEmployeeCount())
+            );
+        }
         String propertyCode = request.propertyCode().trim().toLowerCase(Locale.ROOT);
         if (vendorRepository.existsByCode(propertyCode)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Property code is already registered.");
@@ -76,7 +87,16 @@ public class PropertyRegistrationService {
         vendor.setCode(propertyCode);
         vendor.setName(request.propertyName().trim());
         vendor.setStatus("ACTIVE");
+        vendor.setSubscriptionPlanCode(checkoutSession.getPlanCode());
+        vendor.setSubscriptionBillingCycle(checkoutSession.getBillingCycle());
+        vendor.setSubscriptionStatus("TRIAL".equals(checkoutSession.getAccessMode()) ? "TRIAL_ACTIVE" : "ACTIVE");
+        vendor.setMaxEmployees(checkoutSession.getEmployeeCount());
+        vendor.setMaxBranches("business-50".equals(checkoutSession.getPlanCode()) ? 10 : 1);
+        vendor.setTrialEndsAt(checkoutSession.getTrialEndsAt());
+        vendor.setAccessExpiresAt(checkoutSession.getAccessExpiresAt());
         vendor = vendorRepository.save(vendor);
+        checkoutSession.setVendor(vendor);
+        checkoutSession.setStatus("CONSUMED");
 
         BranchEntity branch = new BranchEntity();
         branch.setVendor(vendor);
@@ -127,7 +147,11 @@ public class PropertyRegistrationService {
                 vendor.getId().toString(),
                 branch.getId().toString(),
                 createdEmployees,
-                admin.getEmail()
+                admin.getEmail(),
+                vendor.getSubscriptionPlanCode(),
+                vendor.getSubscriptionBillingCycle(),
+                vendor.getAccessExpiresAt() == null ? null : vendor.getAccessExpiresAt().toString(),
+                vendor.getTrialEndsAt() == null ? null : vendor.getTrialEndsAt().toString()
         );
     }
 }

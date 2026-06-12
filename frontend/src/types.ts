@@ -263,6 +263,62 @@ export type RegistrationSummary = {
   employeesCreated: number;
 };
 
+export type PricingOption = {
+  billingCycle: string;
+  billingMonths: number;
+  discountPercent: number;
+  displayLabel: string;
+  amount: string;
+};
+
+export type PricingPlan = {
+  code: string;
+  label: string;
+  description: string;
+  employeeLimit: number | null;
+  maxBranches: number;
+  multipleBranchesIncluded: boolean;
+  customPlan: boolean;
+  features: string[];
+  billingOptions: PricingOption[];
+};
+
+export type PricingCatalog = {
+  freeTrialDays: number;
+  plans: PricingPlan[];
+};
+
+export type PublicCheckoutSessionResponse = {
+  checkoutSessionId: string;
+  planCode: string;
+  billingCycle: string;
+  accessMode: string;
+  paymentRequired: boolean;
+  amount: string;
+  currency: string;
+  cashfreeEnvironment: string;
+  paymentSessionId: string | null;
+  cashfreeOrderId: string | null;
+  trialEndsAt: string | null;
+  accessExpiresAt: string | null;
+  message: string;
+};
+
+export type PublicCheckoutSessionVerificationResponse = {
+  checkoutSessionId: string;
+  planCode: string;
+  billingCycle: string;
+  accessMode: string;
+  status: string;
+  paymentStatus: string;
+  unlocked: boolean;
+  employeeCount: number | null;
+  maxBranches: number | null;
+  trialEndsAt: string | null;
+  accessExpiresAt: string | null;
+  message: string;
+};
+
 export type AttendancePreview = {
   image: string;
   label: string;
