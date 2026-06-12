@@ -13,6 +13,7 @@ import { AttendanceTable } from "../components/AttendanceTable";
 import { AttendanceCorrectionTable } from "../components/AttendanceCorrections";
 import { DockIcon, FloatingTabDock } from "../components/FloatingTabDock";
 import { HolidayList, LeaveRequestTable } from "../components/LeaveManagement";
+import { SupportRequestModal } from "../components/SupportRequestModal";
 import { BrandLogo, LoadingWorkspace, MetricCard, ProfileAvatar } from "../components/shared";
 import type { AttendanceCorrection, EmployeeLeaveWorkspace, EmployeeOverview, Session } from "../types";
 
@@ -43,6 +44,7 @@ export function EmployeeScreen({
   const [trackingMessage, setTrackingMessage] = useState("");
   const [activeTab, setActiveTab] = useState<EmployeeTab>("mark");
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [supportOpen, setSupportOpen] = useState(false);
   const [historyMonth, setHistoryMonth] = useState(() => formatMonthKey(new Date()));
   const [leaveStatus, setLeaveStatus] = useState("");
   const [leaveSaving, setLeaveSaving] = useState(false);
@@ -665,6 +667,9 @@ export function EmployeeScreen({
           </div>
         </div>
         <div className="employee-header-actions">
+          <button className="ghost-button" onClick={() => setSupportOpen(true)} type="button">
+            Need help?
+          </button>
           <button
             className="ghost-button employee-drawer-button"
             onClick={() => setDrawerOpen((current) => !current)}
@@ -740,6 +745,18 @@ export function EmployeeScreen({
           type="button"
         />
       ) : null}
+
+      <SupportRequestModal
+        initialValues={{
+          contactName: overview.employee.name,
+          contactEmail: session.user.email,
+          companyName: session.user.vendorName,
+          employeeCount: "1",
+          message: "Need help with attendance, leave, or account access."
+        }}
+        onClose={() => setSupportOpen(false)}
+        open={supportOpen}
+      />
 
       <div className="employee-shell">
         <aside className={`employee-sidebar${drawerOpen ? " open" : ""}`}>

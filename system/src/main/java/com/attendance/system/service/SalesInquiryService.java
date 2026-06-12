@@ -49,9 +49,9 @@ public class SalesInquiryService {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(salesContactEmail);
-            message.setSubject("Peeplify custom pricing inquiry");
+            message.setSubject("Peeplify contact request");
             message.setText("""
-                    New custom plan inquiry
+                    New Peeplify contact request
 
                     Name: %s
                     Email: %s

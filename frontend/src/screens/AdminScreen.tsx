@@ -10,6 +10,7 @@ import { BulkEmployeeImport } from "../components/BulkEmployeeImport";
 import { EmployeeDirectory } from "../components/EmployeeDirectory";
 import { DockIcon, FloatingTabDock } from "../components/FloatingTabDock";
 import { HolidayList, LeaveRequestTable } from "../components/LeaveManagement";
+import { SupportRequestModal } from "../components/SupportRequestModal";
 import { ActionList, BrandLogo, EmptyState, LoadingWorkspace, MetricCard } from "../components/shared";
 import { apiFetch, apiFetchVoid, ApiRequestError } from "../lib/api";
 import {
@@ -154,6 +155,7 @@ export function AdminScreen({
   const [activeTab, setActiveTab] = useState<AdminTab>("overview");
   const [swipeTransitionDirection, setSwipeTransitionDirection] = useState<"left" | "right" | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [supportOpen, setSupportOpen] = useState(false);
   const [leaveStatusMessage, setLeaveStatusMessage] = useState("");
   const [holidaySaving, setHolidaySaving] = useState(false);
   const [holidayForm, setHolidayForm] = useState({
@@ -617,6 +619,9 @@ export function AdminScreen({
           </div>
         </div>
         <div className="admin-header-actions">
+          <button className="ghost-button" onClick={() => setSupportOpen(true)} type="button">
+            Need help?
+          </button>
           <button
             className="ghost-button admin-drawer-button"
             onClick={() => setDrawerOpen((current) => !current)}
@@ -1286,6 +1291,18 @@ export function AdminScreen({
           setActiveTab(tab);
           setDrawerOpen(false);
         }}
+      />
+
+      <SupportRequestModal
+        initialValues={{
+          contactName: session.user.name,
+          contactEmail: session.user.email,
+          companyName: session.user.vendorName,
+          employeeCount: String((subscription?.currentPlan.employeeUsed ?? activeEmployees.length) || 1),
+          message: "Need help with onboarding, billing, or workspace setup."
+        }}
+        onClose={() => setSupportOpen(false)}
+        open={supportOpen}
       />
     </main>
   );

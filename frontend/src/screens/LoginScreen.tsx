@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import { ContactRequestForm } from "../components/ContactRequestForm";
 import { PropertyRegistrationFlow } from "../components/public/PropertyRegistrationFlow";
+import { PublicContentPage, type PublicPageKey } from "../components/public/PublicContentPage";
 import { SubscriptionRenewalFlow } from "../components/public/SubscriptionRenewalFlow";
 import { BrandLogo } from "../components/shared";
 import { API_BASE, extractError } from "../lib/api";
@@ -24,6 +26,7 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
   const [registrationStatus, setRegistrationStatus] = useState("");
   const [registrationSummary, setRegistrationSummary] = useState<RegistrationSummary | null>(null);
   const [renewalStatus, setRenewalStatus] = useState("");
+  const [publicPage, setPublicPage] = useState<PublicPageKey | null>(null);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
@@ -35,7 +38,20 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
       }
       setForgotPasswordMode(false);
     }
+
+    const hash = window.location.hash.replace("#", "") as PublicPageKey | "";
+    if (["pricing", "features", "contact", "privacy", "terms", "refund"].includes(hash)) {
+      setPublicPage(hash as PublicPageKey);
+    }
   }, []);
+
+  useEffect(() => {
+    if (publicPage) {
+      window.history.replaceState({}, document.title, `${window.location.pathname}#${publicPage}`);
+      return;
+    }
+    window.history.replaceState({}, document.title, `${window.location.pathname}`);
+  }, [publicPage]);
 
   async function handleLogin(event: React.FormEvent) {
     event.preventDefault();
@@ -128,8 +144,28 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
     setPassword(adminPassword);
   }
 
+  if (publicPage) {
+    return <PublicContentPage onBack={() => setPublicPage(null)} page={publicPage} />;
+  }
+
   return (
-    <main className="login-layout">
+    <>
+      <header className="public-site-nav">
+        <div className="public-site-brand">
+          <BrandLogo className="brand-logo-compact" />
+          <strong>PEEPLIFY</strong>
+        </div>
+        <nav className="public-site-links">
+          <button className="auth-text-button" onClick={() => setPublicPage("pricing")} type="button">Pricing</button>
+          <button className="auth-text-button" onClick={() => setPublicPage("features")} type="button">Features</button>
+          <button className="auth-text-button" onClick={() => setPublicPage("contact")} type="button">Contact / Demo</button>
+          <button className="auth-text-button" onClick={() => setPublicPage("privacy")} type="button">Privacy</button>
+          <button className="auth-text-button" onClick={() => setPublicPage("terms")} type="button">Terms</button>
+          <button className="auth-text-button" onClick={() => setPublicPage("refund")} type="button">Refund</button>
+        </nav>
+      </header>
+
+      <main className="login-layout">
       <section className="hero-panel auth-brand-panel">
         <div className="auth-brand-stack">
           <BrandLogo className="auth-brand-logo" />
@@ -353,6 +389,24 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
           </>
         )}
       </section>
-    </main>
+      </main>
+
+      <section className="public-site-support">
+        <ContactRequestForm
+          heading="Need help?"
+          intro="Ask for a demo, onboarding help, or commercial support before you start using Peeplify."
+          submitLabel="Send request"
+        />
+      </section>
+
+      <footer className="public-site-footer">
+        <button className="auth-text-button" onClick={() => setPublicPage("pricing")} type="button">Pricing</button>
+        <button className="auth-text-button" onClick={() => setPublicPage("features")} type="button">Features</button>
+        <button className="auth-text-button" onClick={() => setPublicPage("contact")} type="button">Contact / Demo</button>
+        <button className="auth-text-button" onClick={() => setPublicPage("privacy")} type="button">Privacy policy</button>
+        <button className="auth-text-button" onClick={() => setPublicPage("terms")} type="button">Terms of service</button>
+        <button className="auth-text-button" onClick={() => setPublicPage("refund")} type="button">Refund policy</button>
+      </footer>
+    </>
   );
 }

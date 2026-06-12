@@ -12,7 +12,7 @@ public record SalesInquiryRequest(
         @Email @NotBlank @Size(max = 160) String contactEmail,
         @NotBlank @Size(max = 30) String contactPhone,
         @NotBlank @Size(max = 140) String companyName,
-        @NotNull @Min(51) @Max(10000) Integer employeeCount,
+        @NotNull @Min(1) @Max(10000) Integer employeeCount,
         @Size(max = 1000) String message
 ) {
 }

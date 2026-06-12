@@ -4,6 +4,13 @@
   display: grid;
 }
 
+.public-site-nav,
+.public-site-brand,
+.public-site-links,
+.public-site-footer {
+  display: flex;
+}
+
 .employee-seed-list,
 .admin-form-grid {
   gap: 14px;
@@ -43,6 +50,82 @@
   background: #ffffff;
   color: var(--primary-strong);
   box-shadow: 0 10px 24px rgba(37, 99, 235, 0.12);
+}
+
+.public-site-nav {
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 18px 24px 10px;
+}
+
+.public-site-brand {
+  align-items: center;
+  gap: 10px;
+  color: var(--primary-strong);
+}
+
+.public-site-links,
+.public-site-footer {
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.public-site-support {
+  width: min(1180px, calc(100vw - 32px));
+  margin: 12px auto 0;
+}
+
+.public-site-footer {
+  justify-content: center;
+  padding: 18px 24px 32px;
+}
+
+.public-page-shell {
+  width: min(1180px, calc(100vw - 32px));
+  margin: 20px auto 32px;
+}
+
+.public-page-panel {
+  display: grid;
+  gap: 20px;
+}
+
+.public-page-grid,
+.public-legal-stack {
+  display: grid;
+  gap: 14px;
+}
+
+.public-page-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.public-page-card {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+  border-radius: 20px;
+  background: rgba(239, 246, 255, 0.82);
+  border: 1px solid rgba(37, 99, 235, 0.08);
+}
+
+.public-page-price-list {
+  display: grid;
+  gap: 8px;
+}
+
+.public-page-price-row {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.support-modal-card {
+  width: min(92vw, 760px);
 }
 
 .auth-section-intro {
@@ -432,6 +515,10 @@
 }
 
 @media (max-width: 1024px) {
+  .public-site-nav {
+    padding-inline: 18px;
+  }
+
   .login-layout {
     grid-template-columns: 1fr;
     gap: 20px;
@@ -453,6 +540,15 @@
 }
 
 @media (max-width: 720px) {
+  .public-site-nav {
+    padding-inline: 16px;
+  }
+
+  .public-site-support,
+  .public-page-shell {
+    width: min(100vw - 20px, 1180px);
+  }
+
   .auth-panel {
     gap: 18px;
   }
@@ -505,6 +601,11 @@
   .public-checkout-actions,
   .public-billing-options {
     grid-template-columns: 1fr;
+  }
+
+  .public-site-links,
+  .public-site-footer {
+    gap: 8px;
   }
 }
 
