@@ -370,6 +370,23 @@
   margin-top: 16px;
 }
 
+.billing-upgrade-prompt {
+  margin-top: 16px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: rgba(239, 246, 255, 0.78);
+  border: 1px solid rgba(37, 99, 235, 0.14);
+  display: grid;
+  gap: 10px;
+}
+
+.billing-usage-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
 .tracking-card-summary {
   color: var(--text-soft);
 }
@@ -584,6 +601,7 @@
   }
 
   .topbar,
+  .billing-usage-banner,
   .table-action-row,
   .tracking-card-header,
   .tracking-card-summary,

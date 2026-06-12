@@ -33,6 +33,7 @@ import type {
   Holiday,
   LeaveRequest,
   PayrollSummary,
+  SubscriptionDashboard,
   Session
 } from "../types";
 
@@ -85,6 +86,7 @@ export function AdminScreen({
   const [employeeSaving, setEmployeeSaving] = useState(false);
   const [payrollMonth, setPayrollMonth] = useState(() => formatMonthKey(new Date()));
   const [payroll, setPayroll] = useState<PayrollSummary | null>(null);
+  const [subscription, setSubscription] = useState<SubscriptionDashboard | null>(null);
   const [advancePaymentStatus, setAdvancePaymentStatus] = useState("");
   const [advancePaymentSaving, setAdvancePaymentSaving] = useState(false);
   const [advancePaymentForm, setAdvancePaymentForm] = useState({
@@ -123,6 +125,24 @@ export function AdminScreen({
       icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5Z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
     },
     {
+      id: "attendance",
+      label: "Attendance",
+      compactLabel: "Log",
+      icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M8 11.5 11 14.5 16 9.5M6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
+    },
+    {
+      id: "employee-attendance",
+      label: "Employee attendance",
+      compactLabel: "Month",
+      icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M7 4v4M17 4v4M4 10h16M6 6h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2ZM9 14h6" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
+    },
+    {
+      id: "payroll",
+      label: "Payroll",
+      compactLabel: "Pay",
+      icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M12 3v18M17 7.5c0-1.66-2.24-3-5-3s-5 1.34-5 3 2.24 3 5 3 5 1.34 5 3-2.24 3-5 3-5-1.34-5-3" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
+    },
+    {
       id: "add-employee",
       label: "Add employee",
       compactLabel: "Add",
@@ -153,28 +173,10 @@ export function AdminScreen({
       icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M7 4v4M17 4v4M4 10h16M6 6h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
     },
     {
-      id: "payroll",
-      label: "Payroll",
-      compactLabel: "Pay",
-      icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M12 3v18M17 7.5c0-1.66-2.24-3-5-3s-5 1.34-5 3 2.24 3 5 3 5 1.34 5 3-2.24 3-5 3-5-1.34-5-3" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
-    },
-    {
       id: "subscription",
       label: "Subscription",
       compactLabel: "Plan",
       icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M12 2 4 6v6c0 5 3.4 9.74 8 11 4.6-1.26 8-6 8-11V6l-8-4Zm-3 10 2 2 4-4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
-    },
-    {
-      id: "attendance",
-      label: "Attendance",
-      compactLabel: "Log",
-      icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M8 11.5 11 14.5 16 9.5M6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
-    },
-    {
-      id: "employee-attendance",
-      label: "Employee attendance",
-      compactLabel: "Month",
-      icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M7 4v4M17 4v4M4 10h16M6 6h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2ZM9 14h6" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
     },
     {
       id: "tracking",
@@ -209,7 +211,7 @@ export function AdminScreen({
   async function loadAdminData() {
     try {
       setLoadError("");
-      const [dashboardData, employeeData, branchData, attendanceData, trackingData, payrollData, correctionData, leaveData, holidayData] = await Promise.all([
+      const [dashboardData, employeeData, branchData, attendanceData, trackingData, payrollData, correctionData, leaveData, holidayData, subscriptionData] = await Promise.all([
         apiFetch<Dashboard>(session, "/admin/dashboard"),
         apiFetch<Employee[]>(session, "/admin/employees"),
         apiFetch<Branch[]>(session, "/admin/branches"),
@@ -218,7 +220,8 @@ export function AdminScreen({
         apiFetch<PayrollSummary>(session, `/admin/payroll?month=${payrollMonth}`),
         apiFetch<AttendanceCorrection[]>(session, "/admin/corrections"),
         apiFetch<LeaveRequest[]>(session, "/admin/leaves"),
-        apiFetch<Holiday[]>(session, "/admin/holidays")
+        apiFetch<Holiday[]>(session, "/admin/holidays"),
+        apiFetch<SubscriptionDashboard>(session, "/admin/subscription")
       ]);
 
       setDashboard(dashboardData);
@@ -230,6 +233,7 @@ export function AdminScreen({
       setCorrections(correctionData);
       setLeaveRequests(leaveData);
       setHolidays(holidayData);
+      setSubscription(subscriptionData);
       setEmployeeForm((current) =>
         current.branchId || !branchData.length
           ? current
@@ -529,6 +533,10 @@ export function AdminScreen({
   const todayKey = formatLocalDateKey(new Date());
   const activeEmployees = employees.filter((employee) => employee.status === "ACTIVE");
   const inactiveEmployees = employees.filter((employee) => employee.status === "INACTIVE");
+  const employeeLimit = subscription?.currentPlan.employeeLimit ?? null;
+  const employeeUsed = subscription?.currentPlan.employeeUsed ?? activeEmployees.length;
+  const employeeLimitReached = employeeLimit !== null && !editingEmployeeId && employeeUsed >= employeeLimit;
+  const remainingEmployeeSlots = employeeLimit === null ? null : Math.max(employeeLimit - employeeUsed, 0);
   const todayAttendance = attendance.filter((record) => record.date === todayKey);
   const todayAttendanceIds = new Set(todayAttendance.map((record) => record.employeeId));
   const absentEmployees = activeEmployees.filter(
@@ -657,6 +665,20 @@ export function AdminScreen({
                 </article>
               </section>
 
+              {subscription ? (
+                <section className="panel billing-usage-banner">
+                  <div>
+                    <h3>Plan usage</h3>
+                    <p className="muted section-intro">
+                      Employees: {subscription.currentPlan.employeeUsed}/{subscription.currentPlan.employeeLimit ?? "Custom"} · Branches: {subscription.currentPlan.branchUsed}/{subscription.currentPlan.branchLimit || 1}
+                    </p>
+                  </div>
+                  <button className="ghost-button" onClick={() => setActiveTab("subscription")} type="button">
+                    Upgrade plan
+                  </button>
+                </section>
+              ) : null}
+
               <section className="grid two-column">
                 <article className="panel">
                   <h3>Forgot checkout</h3>
@@ -698,6 +720,25 @@ export function AdminScreen({
                     </button>
                   ) : null}
                 </div>
+
+                {subscription ? (
+                  <div className="info-card">
+                    <strong>Employee usage</strong>
+                    <span className="muted">
+                      {subscription.currentPlan.employeeUsed}/{subscription.currentPlan.employeeLimit ?? "Custom"} employees used on your current plan.
+                    </span>
+                  </div>
+                ) : null}
+
+                {employeeLimitReached ? (
+                  <div className="billing-upgrade-prompt">
+                    <strong>Employee limit reached</strong>
+                    <span className="muted">Upgrade your plan to add another employee.</span>
+                    <button className="ghost-button compact-button" onClick={() => setActiveTab("subscription")} type="button">
+                      Upgrade plan
+                    </button>
+                  </div>
+                ) : null}
                 <form className="admin-form-grid" onSubmit={handleEmployeeSubmit}>
                   <div className="grid two-column compact-grid">
                     <label>
@@ -749,7 +790,7 @@ export function AdminScreen({
                     </label>
                   </div>
                   <div className="action-row">
-                    <button className="primary-button" disabled={employeeSaving} type="submit">
+                    <button className="primary-button" disabled={employeeSaving || employeeLimitReached} type="submit">
                       {employeeSaving ? "Saving..." : editingEmployeeId ? "Update employee" : "Add employee"}
                     </button>
                     <span className="muted">New employees can sign in with their email and starter password `password`.</span>
@@ -761,7 +802,14 @@ export function AdminScreen({
                   ) : null}
                 </form>
               </section>
-              <BulkEmployeeImport session={session} branches={branches} onReload={loadAdminData} />
+              <BulkEmployeeImport
+                session={session}
+                branches={branches}
+                onReload={loadAdminData}
+                disabled={employeeLimitReached}
+                disabledMessage="Your current plan allows no more employee slots. Upgrade the plan before importing more staff."
+                remainingSlots={remainingEmployeeSlots}
+              />
             </>
           ) : null}
 
@@ -1140,6 +1188,8 @@ export function AdminScreen({
               branches={branches}
               dashboard={dashboard}
               onReload={loadAdminData}
+              subscription={subscription}
+              onUpgradePlan={() => setActiveTab("subscription")}
             />
           ) : null}
         </section>

@@ -10,11 +10,17 @@ import type { Branch, EmployeeBulkImportResponse, Session } from "../types";
 export function BulkEmployeeImport({
   session,
   branches,
-  onReload
+  onReload,
+  disabled = false,
+  disabledMessage = "",
+  remainingSlots = null
 }: {
   session: Session;
   branches: Branch[];
   onReload: () => Promise<void>;
+  disabled?: boolean;
+  disabledMessage?: string;
+  remainingSlots?: number | null;
 }) {
   const [rawInput, setRawInput] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
@@ -28,6 +34,7 @@ export function BulkEmployeeImport({
 
   const validRows = previewRows.filter((row) => !row.error);
   const invalidRows = previewRows.filter((row) => row.error);
+  const exceedsRemainingSlots = remainingSlots !== null && validRows.length > remainingSlots;
 
   async function loadFile(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -43,6 +50,11 @@ export function BulkEmployeeImport({
   }
 
   async function submitImport() {
+    if (disabled) {
+      setStatusMessage(disabledMessage || "Your plan limit has been reached. Upgrade to add more employees.");
+      return;
+    }
+
     if (!validRows.length) {
       setStatusMessage("Add at least one valid employee row before importing.");
       return;
@@ -50,6 +62,11 @@ export function BulkEmployeeImport({
 
     if (invalidRows.length) {
       setStatusMessage("Fix the highlighted rows first, then import again.");
+      return;
+    }
+
+    if (exceedsRemainingSlots) {
+      setStatusMessage(`Your current plan has only ${remainingSlots} employee slot${remainingSlots === 1 ? "" : "s"} left. Reduce the import or upgrade the plan.`);
       return;
     }
 
@@ -100,12 +117,23 @@ export function BulkEmployeeImport({
         </button>
       </div>
 
+      {remainingSlots !== null ? (
+        <div className="info-card">
+          <strong>Employee slots left</strong>
+          <span className="muted">
+            {remainingSlots > 0
+              ? `${remainingSlots} more employee${remainingSlots === 1 ? "" : "s"} can be added on your current plan.`
+              : "No employee slots are left on your current plan. Upgrade before importing more staff."}
+          </span>
+        </div>
+      ) : null}
+
       <div className="employee-import-actions">
         <label className="file-picker">
           <span>Upload CSV</span>
-          <input accept=".csv,.txt" onChange={(event) => void loadFile(event)} type="file" />
+          <input accept=".csv,.txt" disabled={disabled} onChange={(event) => void loadFile(event)} type="file" />
         </label>
-        <button className="primary-button" disabled={importing || !previewRows.length} onClick={() => void submitImport()} type="button">
+        <button className="primary-button" disabled={disabled || importing || !previewRows.length || exceedsRemainingSlots} onClick={() => void submitImport()} type="button">
           {importing ? "Importing..." : "Import valid rows"}
         </button>
       </div>
@@ -115,6 +143,7 @@ export function BulkEmployeeImport({
         <textarea
           placeholder="employeeCode, name, designation, email, phone, branch, monthlySalary, monthlyLeaveAllowance, advancePaid"
           rows={8}
+          disabled={disabled}
           value={rawInput}
           onChange={(event) => {
             setRawInput(event.target.value);
@@ -134,6 +163,12 @@ export function BulkEmployeeImport({
       {statusMessage ? (
         <p className={statusMessage.includes("successfully") || statusMessage.includes("imported") ? "status-text" : "error-text"}>
           {statusMessage}
+        </p>
+      ) : null}
+
+      {exceedsRemainingSlots ? (
+        <p className="error-text">
+          This import has {validRows.length} valid rows but only {remainingSlots} employee slot{remainingSlots === 1 ? "" : "s"} remain on your current plan.
         </p>
       ) : null}
 

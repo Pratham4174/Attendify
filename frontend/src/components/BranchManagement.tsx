@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { apiFetch } from "../lib/api";
-import type { Branch, Dashboard, Session } from "../types";
+import type { Branch, Dashboard, Session, SubscriptionDashboard } from "../types";
 import { EmptyState } from "./shared";
 
 type BranchFormState = {
@@ -35,17 +35,24 @@ export function BranchManagement({
   session,
   branches,
   dashboard,
-  onReload
+  onReload,
+  subscription,
+  onUpgradePlan
 }: {
   session: Session;
   branches: Branch[];
   dashboard: Dashboard;
   onReload: () => Promise<void>;
+  subscription: SubscriptionDashboard | null;
+  onUpgradePlan: () => void;
 }) {
   const [editingBranchId, setEditingBranchId] = useState<string | null>(null);
   const [branchForm, setBranchForm] = useState<BranchFormState>(buildEmptyBranchForm);
   const [branchSaving, setBranchSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
+  const branchLimit = subscription?.currentPlan.branchLimit ?? 1;
+  const branchUsed = subscription?.currentPlan.branchUsed ?? branches.length;
+  const branchLimitReached = !editingBranchId && branchUsed >= branchLimit;
 
   function updateBranchForm(key: keyof BranchFormState, value: string) {
     setBranchForm((current) => ({ ...current, [key]: value }));
@@ -76,6 +83,11 @@ export function BranchManagement({
 
   async function handleBranchSubmit(event: React.FormEvent) {
     event.preventDefault();
+    if (branchLimitReached) {
+      setStatusMessage("Your current plan has reached its branch limit. Upgrade to add another branch.");
+      return;
+    }
+
     setBranchSaving(true);
     setStatusMessage("");
 
@@ -150,6 +162,23 @@ export function BranchManagement({
             ) : null}
           </div>
 
+          <div className="info-card">
+            <strong>Branch usage</strong>
+            <span className="muted">
+              {branchUsed}/{branchLimit} branches used on your current plan.
+            </span>
+          </div>
+
+          {branchLimitReached ? (
+            <div className="billing-upgrade-prompt">
+              <strong>Branch limit reached</strong>
+              <span className="muted">Upgrade your plan to create another branch.</span>
+              <button className="ghost-button compact-button" onClick={onUpgradePlan} type="button">
+                Upgrade plan
+              </button>
+            </div>
+          ) : null}
+
           <form className="admin-form-grid" onSubmit={handleBranchSubmit}>
             <div className="grid two-column compact-grid">
               <label>
@@ -204,7 +233,7 @@ export function BranchManagement({
             </p>
 
             <div className="action-row">
-              <button className="primary-button" disabled={branchSaving} type="submit">
+              <button className="primary-button" disabled={branchSaving || branchLimitReached} type="submit">
                 {branchSaving ? "Saving..." : editingBranchId ? "Update branch" : "Add branch"}
               </button>
             </div>
