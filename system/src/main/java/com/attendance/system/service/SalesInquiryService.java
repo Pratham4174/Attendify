@@ -4,6 +4,7 @@ import com.attendance.system.dto.SalesInquiryRequest;
 import com.attendance.system.model.SalesInquiryEntity;
 import com.attendance.system.repository.SalesInquiryRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.Nullable;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -15,12 +16,13 @@ import java.time.ZoneOffset;
 @Service
 public class SalesInquiryService {
     private final SalesInquiryRepository salesInquiryRepository;
+    @Nullable
     private final JavaMailSender javaMailSender;
     private final String salesContactEmail;
 
     public SalesInquiryService(
             SalesInquiryRepository salesInquiryRepository,
-            JavaMailSender javaMailSender,
+            @Nullable JavaMailSender javaMailSender,
             @Value("${app.sales.contact-email}") String salesContactEmail
     ) {
         this.salesInquiryRepository = salesInquiryRepository;
@@ -39,6 +41,10 @@ public class SalesInquiryService {
         inquiry.setMessage(request.message() == null ? null : request.message().trim());
         inquiry.setCreatedAt(OffsetDateTime.now(ZoneOffset.UTC));
         salesInquiryRepository.save(inquiry);
+
+        if (javaMailSender == null) {
+            return;
+        }
 
         try {
             SimpleMailMessage message = new SimpleMailMessage();
