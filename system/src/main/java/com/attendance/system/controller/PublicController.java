@@ -8,6 +8,7 @@ import com.attendance.system.dto.PublicCheckoutSessionCreateRequest;
 import com.attendance.system.dto.PublicCheckoutSessionResponse;
 import com.attendance.system.dto.PublicCheckoutSessionVerificationResponse;
 import com.attendance.system.dto.SalesInquiryRequest;
+import com.attendance.system.dto.SubscriptionRenewalRequest;
 import com.attendance.system.service.PublicBillingService;
 import com.attendance.system.service.PropertyRegistrationService;
 import com.attendance.system.service.SalesInquiryService;
@@ -44,6 +45,11 @@ public class PublicController {
     @PostMapping("/checkout-sessions")
     public PublicCheckoutSessionResponse createCheckoutSession(@Valid @RequestBody PublicCheckoutSessionCreateRequest request) {
         return publicBillingService.createCheckoutSession(request);
+    }
+
+    @PostMapping("/subscription-renewals")
+    public PublicCheckoutSessionResponse createSubscriptionRenewal(@Valid @RequestBody SubscriptionRenewalRequest request) {
+        return publicBillingService.createSubscriptionRenewal(request);
     }
 
     @PostMapping("/checkout-sessions/{orderId}/verify")

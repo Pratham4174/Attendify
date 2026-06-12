@@ -21,9 +21,14 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final VendorAccessEnforcementFilter vendorAccessEnforcementFilter;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(
+            JwtAuthenticationFilter jwtAuthenticationFilter,
+            VendorAccessEnforcementFilter vendorAccessEnforcementFilter
+    ) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.vendorAccessEnforcementFilter = vendorAccessEnforcementFilter;
     }
 
     @Bean
@@ -38,13 +43,15 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/public/property-registration").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/public/pricing").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/public/checkout-sessions").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/public/subscription-renewals").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/public/checkout-sessions/*/verify").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/public/sales-inquiries").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/", "/index.html", "/assets/**", "/favicon.ico").permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(vendorAccessEnforcementFilter, JwtAuthenticationFilter.class);
         return http.build();
     }
 

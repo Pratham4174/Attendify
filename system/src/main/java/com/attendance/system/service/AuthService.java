@@ -20,11 +20,18 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final VendorAccessPolicyService vendorAccessPolicyService;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
+    public AuthService(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            JwtService jwtService,
+            VendorAccessPolicyService vendorAccessPolicyService
+    ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.vendorAccessPolicyService = vendorAccessPolicyService;
     }
 
     @Transactional(readOnly = true)
@@ -36,6 +43,8 @@ public class AuthService {
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials.");
         }
+
+        vendorAccessPolicyService.assertLoginAllowed(user);
 
         return new LoginResponse(jwtService.generateToken(user), toUserSummary(user));
     }
@@ -63,6 +72,7 @@ public class AuthService {
     public LoginResponse.UserSummary currentUser(AuthenticatedUser authenticatedUser) {
         UserEntity user = userRepository.findById(authenticatedUser.userId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found."));
+        vendorAccessPolicyService.assertLoginAllowed(user);
         return toUserSummary(user);
     }
 

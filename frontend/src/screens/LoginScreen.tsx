@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { PropertyRegistrationFlow } from "../components/public/PropertyRegistrationFlow";
+import { SubscriptionRenewalFlow } from "../components/public/SubscriptionRenewalFlow";
 import { BrandLogo } from "../components/shared";
 import { API_BASE, extractError } from "../lib/api";
 import type { LoginResponse, RegistrationSummary, Session } from "../types";
@@ -10,6 +11,7 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [forgotPasswordMode, setForgotPasswordMode] = useState(false);
+  const [renewalMode, setRenewalMode] = useState(false);
   const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
   const [forgotPasswordStatus, setForgotPasswordStatus] = useState("");
   const [forgotPasswordForm, setForgotPasswordForm] = useState({
@@ -21,11 +23,16 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
   const [registrationMode, setRegistrationMode] = useState(false);
   const [registrationStatus, setRegistrationStatus] = useState("");
   const [registrationSummary, setRegistrationSummary] = useState<RegistrationSummary | null>(null);
+  const [renewalStatus, setRenewalStatus] = useState("");
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
     if (query.has("checkout_session_id")) {
-      setRegistrationMode(true);
+      if (query.get("renew") === "1") {
+        setRenewalMode(true);
+      } else {
+        setRegistrationMode(true);
+      }
       setForgotPasswordMode(false);
     }
   }, []);
@@ -43,7 +50,14 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
       });
 
       if (!response.ok) {
-        throw new Error(await extractError(response));
+        const message = await extractError(response);
+        if (response.status === 402) {
+          setRenewalMode(true);
+          setForgotPasswordMode(false);
+          setRegistrationMode(false);
+          setRenewalStatus(message);
+        }
+        throw new Error(message);
       }
 
       onLogin((await response.json()) as LoginResponse);
@@ -185,6 +199,12 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
               <>
                 <h2>Sign in</h2>
                 <p className="muted section-intro auth-section-intro">Use your work email to open your PEEPLIFY workspace.</p>
+                {renewalMode ? (
+                  <div className="info-card">
+                    <strong>Workspace renewal needed</strong>
+                    <span>{renewalStatus || "Your current plan has expired. Renew it below to continue using PEEPLIFY."}</span>
+                  </div>
+                ) : null}
                 <form onSubmit={handleLogin}>
                   <label>
                     Email
@@ -238,6 +258,21 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
                     {loading ? "Signing in..." : "Access workspace"}
                   </button>
                 </form>
+                {renewalMode ? (
+                  <SubscriptionRenewalFlow
+                    initialEmail={email}
+                    onBack={() => {
+                      setRenewalMode(false);
+                      setRenewalStatus("");
+                      setError("");
+                    }}
+                    onRenewed={(message) => {
+                      setRenewalStatus(message);
+                      setRenewalMode(false);
+                      setError("");
+                    }}
+                  />
+                ) : null}
               </>
             ) : (
               <>

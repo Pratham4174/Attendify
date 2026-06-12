@@ -45,6 +45,7 @@ com/attendance/system/dto/LocationPingRequest.class
 com/attendance/system/config/AttendanceImageStorageProperties$R2.class
 com/attendance/system/repository/LeaveRequestRepository.class
 com/attendance/system/service/AttendanceImageStorageService.class
+com/attendance/system/service/VendorAccessPolicyService.class
 com/attendance/system/model/AttendanceCorrectionAuditEntity.class
 com/attendance/system/dto/EmployeeOverviewResponse.class
 com/attendance/system/dto/DashboardSummaryResponse$BranchAttendanceSnapshot.class
@@ -63,6 +64,7 @@ com/attendance/system/service/InlineAttendanceImageStorageService.class
 com/attendance/system/dto/PayrollSummaryResponse$BigDecimalValue.class
 com/attendance/system/dto/AttendanceRequest.class
 com/attendance/system/dto/PublicCheckoutSessionResponse.class
+com/attendance/system/dto/SubscriptionRenewalRequest.class
 com/attendance/system/dto/AttendanceCorrectionAuditResponse.class
 com/attendance/system/dto/PublicCheckoutSessionVerificationResponse.class
 com/attendance/system/controller/AuthController.class
@@ -87,6 +89,7 @@ com/attendance/system/config/AttendanceImageStorageConfiguration.class
 com/attendance/system/service/SalesInquiryService.class
 com/attendance/system/dto/DashboardSummaryResponse.class
 com/attendance/system/model/UserRole.class
+com/attendance/system/security/VendorAccessEnforcementFilter.class
 com/attendance/system/model/AttendanceCorrectionRequestEntity.class
 com/attendance/system/controller/PublicController.class
 com/attendance/system/dto/EmployeeBranchTransferRequest.class

@@ -5,8 +5,14 @@ import com.attendance.system.dto.PricingCatalogResponse;
 import com.attendance.system.dto.PublicCheckoutSessionCreateRequest;
 import com.attendance.system.dto.PublicCheckoutSessionResponse;
 import com.attendance.system.dto.PublicCheckoutSessionVerificationResponse;
+import com.attendance.system.dto.SubscriptionRenewalRequest;
 import com.attendance.system.model.PublicCheckoutSessionEntity;
+import com.attendance.system.model.UserEntity;
+import com.attendance.system.model.UserRole;
+import com.attendance.system.model.VendorEntity;
 import com.attendance.system.repository.PublicCheckoutSessionRepository;
+import com.attendance.system.repository.UserRepository;
+import com.attendance.system.repository.VendorRepository;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -29,14 +35,20 @@ public class PublicBillingService {
     private static final int FREE_TRIAL_DAYS = 3;
     private static final String CURRENCY = "INR";
     private final PublicCheckoutSessionRepository publicCheckoutSessionRepository;
+    private final VendorRepository vendorRepository;
+    private final UserRepository userRepository;
     private final CashfreeProperties cashfreeProperties;
     private final RestClient restClient;
 
     public PublicBillingService(
             PublicCheckoutSessionRepository publicCheckoutSessionRepository,
+            VendorRepository vendorRepository,
+            UserRepository userRepository,
             CashfreeProperties cashfreeProperties
     ) {
         this.publicCheckoutSessionRepository = publicCheckoutSessionRepository;
+        this.vendorRepository = vendorRepository;
+        this.userRepository = userRepository;
         this.cashfreeProperties = cashfreeProperties;
         this.restClient = RestClient.builder().baseUrl(cashfreeProperties.apiBaseUrl()).build();
     }
@@ -171,6 +183,97 @@ public class PublicBillingService {
     }
 
     @Transactional
+    public PublicCheckoutSessionResponse createSubscriptionRenewal(SubscriptionRenewalRequest request) {
+        String propertyCode = request.propertyCode().trim().toLowerCase(Locale.ROOT);
+        VendorEntity vendor = vendorRepository.findByCode(propertyCode)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Property code was not found."));
+
+        UserEntity adminUser = userRepository.findByEmailIgnoreCase(request.adminEmail().trim().toLowerCase(Locale.ROOT))
+                .filter(UserEntity::isActive)
+                .filter(user -> user.getRole() == UserRole.VENDOR_ADMIN)
+                .filter(user -> user.getVendor().getId().equals(vendor.getId()))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Admin email does not match this property."));
+
+        Plan plan = requirePlan(request.planCode(), planEmployeeLimit(request.planCode()));
+        BillingOption billing = requireBilling(plan, normalizeBillingCycle(request.billingCycle(), "PAID"));
+
+        PublicCheckoutSessionEntity session = new PublicCheckoutSessionEntity();
+        session.setVendor(vendor);
+        session.setPlanCode(plan.code());
+        session.setBillingCycle(billing.billingCycle());
+        session.setAccessMode("PAID");
+        session.setStatus("CREATED");
+        session.setCustomerName(request.customerName().trim());
+        session.setCustomerEmail(adminUser.getEmail());
+        session.setCustomerPhone(request.customerPhone().trim());
+        session.setCompanyName(vendor.getName());
+        session.setEmployeeCount(plan.employeeLimit());
+        session.setAmount(billing.amount());
+        session.setCurrency(CURRENCY);
+        session.setCreatedAt(OffsetDateTime.now(ZoneOffset.UTC));
+        session.setPaymentStatus("PENDING");
+
+        String orderId = "peeplify-renew-" + UUID.randomUUID().toString().replace("-", "").substring(0, 16);
+        session.setCashfreeOrderId(orderId);
+
+        Map<String, Object> response;
+        try {
+            if (!cashfreeProperties.enabled() || blank(cashfreeProperties.clientId()) || blank(cashfreeProperties.clientSecret())) {
+                throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Payments are not configured yet. Please enable Cashfree credentials first.");
+            }
+
+            response = restClient.post()
+                    .uri("/pg/orders")
+                    .header("x-client-id", cashfreeProperties.clientId())
+                    .header("x-client-secret", cashfreeProperties.clientSecret())
+                    .header("x-api-version", "2023-08-01")
+                    .body(Map.of(
+                            "order_id", orderId,
+                            "order_amount", billing.amount(),
+                            "order_currency", CURRENCY,
+                            "customer_details", Map.of(
+                                    "customer_id", "renew-" + vendor.getId().toString().substring(0, 8),
+                                    "customer_name", session.getCustomerName(),
+                                    "customer_email", session.getCustomerEmail(),
+                                    "customer_phone", session.getCustomerPhone()
+                            ),
+                            "order_meta", Map.of(
+                                    "return_url", cashfreeProperties.returnBaseUrl() + "?checkout_session_id=" + orderId + "&renew=1"
+                            )
+                    ))
+                    .retrieve()
+                    .body(Map.class);
+        } catch (ResponseStatusException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Unable to start the payment session right now.");
+        }
+
+        Object paymentSessionId = response == null ? null : response.get("payment_session_id");
+        if (paymentSessionId == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Cashfree did not return a payment session.");
+        }
+
+        session.setPaymentSessionId(paymentSessionId.toString());
+        PublicCheckoutSessionEntity saved = publicCheckoutSessionRepository.save(session);
+        return new PublicCheckoutSessionResponse(
+                saved.getId().toString(),
+                saved.getPlanCode(),
+                saved.getBillingCycle(),
+                saved.getAccessMode(),
+                true,
+                saved.getAmount().toPlainString(),
+                saved.getCurrency(),
+                cashfreeProperties.environment(),
+                saved.getPaymentSessionId(),
+                saved.getCashfreeOrderId(),
+                null,
+                null,
+                "Renewal payment session created successfully."
+        );
+    }
+
+    @Transactional
     public PublicCheckoutSessionVerificationResponse verifyCheckoutSession(String checkoutOrderId) {
         PublicCheckoutSessionEntity session = publicCheckoutSessionRepository.findByCashfreeOrderId(checkoutOrderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Payment session was not found."));
@@ -233,6 +336,18 @@ public class PublicBillingService {
         session.setPaymentStatus("PAID");
         session.setVerifiedAt(OffsetDateTime.now(ZoneOffset.UTC));
         session.setAccessExpiresAt(accessExpiresAt);
+        if (session.getVendor() != null) {
+            VendorEntity vendor = session.getVendor();
+            vendor.setSubscriptionPlanCode(session.getPlanCode());
+            vendor.setSubscriptionBillingCycle(session.getBillingCycle());
+            vendor.setSubscriptionStatus("ACTIVE");
+            vendor.setMaxEmployees(plan.employeeLimit());
+            vendor.setMaxBranches(plan.maxBranches());
+            vendor.setTrialEndsAt(null);
+            vendor.setAccessExpiresAt(accessExpiresAt);
+            vendor.setStatus("ACTIVE");
+            session.setStatus("CONSUMED");
+        }
         publicCheckoutSessionRepository.save(session);
 
         return new PublicCheckoutSessionVerificationResponse(
@@ -247,7 +362,9 @@ public class PublicBillingService {
                 plan.maxBranches(),
                 session.getTrialEndsAt() == null ? null : session.getTrialEndsAt().toString(),
                 accessExpiresAt.toString(),
-                "Payment verified. You can now continue with property setup."
+                session.getVendor() == null
+                        ? "Payment verified. You can now continue with property setup."
+                        : "Payment verified. Your workspace has been renewed. Please sign in again."
         );
     }
 
@@ -328,6 +445,14 @@ public class PublicBillingService {
                 .findFirst()
                 .filter(plan -> plan.employeeLimit() == null || employeeCount <= plan.employeeLimit())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please select a valid plan for your team size."));
+    }
+
+    private int planEmployeeLimit(String planCode) {
+        return plans().stream()
+                .filter(plan -> plan.code().equalsIgnoreCase(planCode))
+                .findFirst()
+                .map(Plan::employeeLimit)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please select a valid plan."));
     }
 
     private List<Plan> plans() {
