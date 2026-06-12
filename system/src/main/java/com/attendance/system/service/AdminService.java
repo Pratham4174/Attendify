@@ -541,6 +541,7 @@ public class AdminService {
     }
 
     private EmployeeResponse createEmployeeInternal(AuthenticatedUser user, EmployeeUpsertRequest request) {
+        enforceEmployeeLimit(user.vendorId());
         String email = request.email().trim().toLowerCase(Locale.ROOT);
         String employeeCode = request.employeeCode().trim().toUpperCase(Locale.ROOT);
         if (employeeRepository.existsByEmailIgnoreCase(email) || userRepository.existsByEmailIgnoreCase(email)) {
@@ -566,6 +567,22 @@ public class AdminService {
         employeeUser.setActive(true);
         userRepository.save(employeeUser);
         return mapper.toEmployeeResponse(employee, true);
+    }
+
+    private void enforceEmployeeLimit(UUID vendorId) {
+        com.attendance.system.model.VendorEntity vendor = loadVendor(vendorId);
+        Integer maxEmployees = vendor.getMaxEmployees();
+        if (maxEmployees == null || maxEmployees <= 0) {
+            return;
+        }
+
+        long currentEmployees = employeeRepository.countByVendor_IdAndStatusNot(vendorId, "REMOVED");
+        if (currentEmployees >= maxEmployees) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Your current plan allows up to %d employees. Please upgrade to add more.".formatted(maxEmployees)
+            );
+        }
     }
 
     private void populateEmployee(

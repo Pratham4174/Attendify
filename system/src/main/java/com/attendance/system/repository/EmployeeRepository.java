@@ -12,4 +12,5 @@ public interface EmployeeRepository extends JpaRepository<EmployeeEntity, UUID> 
     Optional<EmployeeEntity> findByIdAndVendor_Id(UUID id, UUID vendorId);
     boolean existsByEmailIgnoreCase(String email);
     boolean existsByEmployeeCodeIgnoreCaseAndVendor_Id(String employeeCode, UUID vendorId);
+    long countByVendor_IdAndStatusNot(UUID vendorId, String status);
 }
