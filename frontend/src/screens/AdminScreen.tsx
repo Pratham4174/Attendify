@@ -230,8 +230,8 @@ export function AdminScreen({
     },
     {
       id: "subscription",
-      label: "Subscription",
-      compactLabel: "Plan",
+      label: "Billing",
+      compactLabel: "Bill",
       icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M12 2 4 6v6c0 5 3.4 9.74 8 11 4.6-1.26 8-6 8-11V6l-8-4Zm-3 10 2 2 4-4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
     },
     {

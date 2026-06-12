@@ -17,6 +17,15 @@ type CheckoutFormState = {
   customerPhone: string;
 };
 
+type CustomPlanFormState = {
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string;
+  companyName: string;
+  employeeCount: string;
+  message: string;
+};
+
 function cycleDescription(label: string, discountPercent: number) {
   return discountPercent > 0 ? `${label} · ${discountPercent}% off` : label;
 }
@@ -38,6 +47,16 @@ export function AdminSubscriptionDashboard({
   const [checkoutForm, setCheckoutForm] = useState<CheckoutFormState>({
     customerPhone: ""
   });
+  const [customPlanForm, setCustomPlanForm] = useState<CustomPlanFormState>({
+    contactName: session.user.name,
+    contactEmail: session.user.email,
+    contactPhone: "",
+    companyName: session.user.vendorName,
+    employeeCount: "60",
+    message: ""
+  });
+  const [customPlanSubmitting, setCustomPlanSubmitting] = useState(false);
+  const [customPlanStatus, setCustomPlanStatus] = useState("");
 
   const selectedPlan = useMemo<PricingPlan | null>(
     () => pricing?.plans.find((plan) => plan.code === selectedPlanCode && !plan.customPlan) ?? null,
@@ -190,10 +209,45 @@ export function AdminSubscriptionDashboard({
     setSubmitting(false);
   }
 
+  async function submitCustomPlanInquiry(event: React.FormEvent) {
+    event.preventDefault();
+    setCustomPlanSubmitting(true);
+    setCustomPlanStatus("");
+    setError("");
+
+    try {
+      const response = await fetch(`${API_BASE}/public/sales-inquiries`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          contactName: customPlanForm.contactName.trim(),
+          contactEmail: customPlanForm.contactEmail.trim(),
+          contactPhone: customPlanForm.contactPhone.trim(),
+          companyName: customPlanForm.companyName.trim(),
+          employeeCount: Number(customPlanForm.employeeCount || "0"),
+          message: customPlanForm.message.trim()
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(await extractError(response));
+      }
+
+      const body = (await response.json()) as { message?: string };
+      setCustomPlanStatus(body.message ?? "Your custom plan request has been sent.");
+    } catch (submitError) {
+      setCustomPlanStatus(submitError instanceof Error ? submitError.message : "Unable to send your custom plan request.");
+    } finally {
+      setCustomPlanSubmitting(false);
+    }
+  }
+
   if (loading) {
     return (
       <section className="panel">
-        <h3>Subscription management</h3>
+        <h3>Billing</h3>
         <p className="muted section-intro">Loading your current plan, renewal date, and payment history.</p>
       </section>
     );
@@ -202,7 +256,7 @@ export function AdminSubscriptionDashboard({
   if (!dashboard || !pricing) {
     return (
       <section className="panel">
-        <h3>Subscription management</h3>
+        <h3>Billing</h3>
         <p className="error-text">{error || "Unable to load subscription details."}</p>
       </section>
     );
@@ -216,9 +270,9 @@ export function AdminSubscriptionDashboard({
       <section className="panel">
         <div className="topbar">
           <div>
-            <h3>Subscription management</h3>
+            <h3>Billing</h3>
             <p className="muted section-intro">
-              Review your active plan, see how much capacity is left, renew early, or move up to a bigger package.
+              Keep plan details, limits, trial or expiry status, renewals, payment history, and custom-plan contact in one place.
             </p>
           </div>
           <span className="pill">{currentPlan.subscriptionStatus}</span>
@@ -418,6 +472,86 @@ export function AdminSubscriptionDashboard({
             <EmptyState title="No payment history yet" message="Your trial and paid subscription records will appear here once checkout sessions are created." />
           )}
         </article>
+      </section>
+
+      <section className="panel">
+        <div className="topbar">
+          <div>
+            <h3>Contact sales for a custom plan</h3>
+            <p className="muted section-intro">
+              Use this when you need more than 50 employees, tailored rollout help, or a custom billing arrangement.
+            </p>
+          </div>
+          <span className="pill">Custom plan</span>
+        </div>
+        <form className="admin-form-grid" onSubmit={(event) => void submitCustomPlanInquiry(event)}>
+          <div className="grid two-column compact-grid">
+            <label>
+              Contact name
+              <input
+                onChange={(event) => setCustomPlanForm((current) => ({ ...current, contactName: event.target.value }))}
+                required
+                value={customPlanForm.contactName}
+              />
+            </label>
+            <label>
+              Work email
+              <input
+                onChange={(event) => setCustomPlanForm((current) => ({ ...current, contactEmail: event.target.value }))}
+                required
+                type="email"
+                value={customPlanForm.contactEmail}
+              />
+            </label>
+          </div>
+          <div className="grid three-column compact-grid">
+            <label>
+              Phone
+              <input
+                onChange={(event) => setCustomPlanForm((current) => ({ ...current, contactPhone: event.target.value }))}
+                required
+                value={customPlanForm.contactPhone}
+              />
+            </label>
+            <label>
+              Company name
+              <input
+                onChange={(event) => setCustomPlanForm((current) => ({ ...current, companyName: event.target.value }))}
+                required
+                value={customPlanForm.companyName}
+              />
+            </label>
+            <label>
+              Employees needed
+              <input
+                min="51"
+                onChange={(event) => setCustomPlanForm((current) => ({ ...current, employeeCount: event.target.value }))}
+                required
+                type="number"
+                value={customPlanForm.employeeCount}
+              />
+            </label>
+          </div>
+          <label>
+            What do you need?
+            <textarea
+              onChange={(event) => setCustomPlanForm((current) => ({ ...current, message: event.target.value }))}
+              placeholder="Tell us about branches, rollout timeline, payroll needs, or support expectations."
+              rows={4}
+              value={customPlanForm.message}
+            />
+          </label>
+          <div className="action-row">
+            <button className="primary-button" disabled={customPlanSubmitting} type="submit">
+              {customPlanSubmitting ? "Sending..." : "Contact sales"}
+            </button>
+          </div>
+          {customPlanStatus ? (
+            <p className={customPlanStatus.toLowerCase().includes("thanks") || customPlanStatus.toLowerCase().includes("sent") ? "status-text" : "error-text"}>
+              {customPlanStatus}
+            </p>
+          ) : null}
+        </form>
       </section>
     </>
   );
