@@ -387,6 +387,36 @@
   gap: 16px;
 }
 
+.billing-reminder-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  border-radius: 20px;
+  border: 1px solid transparent;
+}
+
+.billing-reminder-banner strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.billing-reminder-banner p {
+  margin: 0;
+  color: var(--text-soft);
+}
+
+.billing-reminder-warning {
+  background: rgba(254, 249, 195, 0.76);
+  border-color: rgba(202, 138, 4, 0.18);
+}
+
+.billing-reminder-danger {
+  background: rgba(254, 226, 226, 0.82);
+  border-color: rgba(220, 38, 38, 0.16);
+}
+
 .tracking-card-summary {
   color: var(--text-soft);
 }
@@ -602,6 +632,7 @@
 
   .topbar,
   .billing-usage-banner,
+  .billing-reminder-banner,
   .table-action-row,
   .tracking-card-header,
   .tracking-card-summary,

@@ -49,6 +49,62 @@ type EmployeeFormState = {
   advancePaid: string;
 };
 
+type RenewalBanner = {
+  tone: "warning" | "danger";
+  title: string;
+  message: string;
+};
+
+function buildRenewalBanner(subscription: SubscriptionDashboard | null): RenewalBanner | null {
+  if (!subscription) {
+    return null;
+  }
+
+  const currentPlan = subscription.currentPlan;
+  const expirySource = currentPlan.trialEndsAt ?? currentPlan.renewalDate;
+  if (!expirySource) {
+    return null;
+  }
+
+  const expiryDate = new Date(expirySource);
+  if (Number.isNaN(expiryDate.getTime())) {
+    return null;
+  }
+
+  const now = new Date();
+  const diffMs = expiryDate.getTime() - now.getTime();
+  const daysRemaining = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  const isTrial = currentPlan.subscriptionStatus.toLowerCase().includes("trial");
+
+  if (daysRemaining <= 0) {
+    return {
+      tone: "danger",
+      title: isTrial ? "Free access expired" : "Subscription expired",
+      message: isTrial
+        ? "Your 3-day free access has ended. Renew a plan now to keep using Peeplify."
+        : "Your workspace plan has expired. Renew now to keep attendance, payroll, and employee access active."
+    };
+  }
+
+  if (daysRemaining <= 3) {
+    return {
+      tone: "danger",
+      title: `${daysRemaining} day${daysRemaining === 1 ? "" : "s"} left`,
+      message: `Your ${isTrial ? "free access" : "current plan"} will expire on ${formatDateTime(expirySource)}. Renew now to avoid interruption.`
+    };
+  }
+
+  if (daysRemaining <= 7) {
+    return {
+      tone: "warning",
+      title: `${daysRemaining} days left`,
+      message: `Your ${isTrial ? "free access" : "current plan"} expires on ${formatDateTime(expirySource)}. Plan the renewal before the last day.`
+    };
+  }
+
+  return null;
+}
+
 type AdminTab =
   | "overview"
   | "add-employee"
@@ -537,6 +593,7 @@ export function AdminScreen({
   const employeeUsed = subscription?.currentPlan.employeeUsed ?? activeEmployees.length;
   const employeeLimitReached = employeeLimit !== null && !editingEmployeeId && employeeUsed >= employeeLimit;
   const remainingEmployeeSlots = employeeLimit === null ? null : Math.max(employeeLimit - employeeUsed, 0);
+  const renewalBanner = buildRenewalBanner(subscription);
   const todayAttendance = attendance.filter((record) => record.date === todayKey);
   const todayAttendanceIds = new Set(todayAttendance.map((record) => record.employeeId));
   const absentEmployees = activeEmployees.filter(
@@ -610,6 +667,18 @@ export function AdminScreen({
           onTouchEnd={handleContentTouchEnd}
           onTouchStart={handleContentTouchStart}
         >
+          {renewalBanner ? (
+            <section className={`billing-reminder-banner billing-reminder-${renewalBanner.tone}`}>
+              <div>
+                <strong>{renewalBanner.title}</strong>
+                <p>{renewalBanner.message}</p>
+              </div>
+              <button className="ghost-button compact-button" onClick={() => setActiveTab("subscription")} type="button">
+                Renew now
+              </button>
+            </section>
+          ) : null}
+
           {activeTab === "overview" ? (
             <>
               <section className="metric-grid">
