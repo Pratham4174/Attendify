@@ -325,3 +325,41 @@ export type AttendancePreview = {
   time: string | null;
   employeeName: string;
 };
+
+export type SubscriptionPaymentHistoryEntry = {
+  checkoutSessionId: string;
+  cashfreeOrderId: string | null;
+  planCode: string;
+  planLabel: string;
+  billingCycle: string;
+  accessMode: string;
+  amount: string;
+  currency: string;
+  employeeLimit: number | null;
+  branchLimit: number;
+  status: string;
+  paymentStatus: string | null;
+  createdAt: string;
+  verifiedAt: string | null;
+  accessExpiresAt: string | null;
+  invoiceAvailable: boolean;
+};
+
+export type SubscriptionDashboard = {
+  currentPlan: {
+    vendorName: string;
+    propertyCode: string;
+    planCode: string | null;
+    planLabel: string;
+    billingCycle: string;
+    subscriptionStatus: string;
+    employeeLimit: number | null;
+    employeeUsed: number;
+    branchLimit: number;
+    branchUsed: number;
+    multiBranchIncluded: boolean;
+    renewalDate: string | null;
+    trialEndsAt: string | null;
+  };
+  paymentHistory: SubscriptionPaymentHistoryEntry[];
+};

@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.attendance.system.dto.AttendanceRowResponse;
 import com.attendance.system.dto.AdminTrackingResponse;
+import com.attendance.system.dto.AdminSubscriptionCheckoutRequest;
+import com.attendance.system.dto.AdminSubscriptionSummaryResponse;
 import com.attendance.system.dto.BranchResponse;
 import com.attendance.system.dto.BranchUpsertRequest;
 import com.attendance.system.dto.DashboardSummaryResponse;
@@ -28,19 +30,23 @@ import com.attendance.system.dto.EmployeeResponse;
 import com.attendance.system.dto.EmployeeStatusRequest;
 import com.attendance.system.dto.EmployeeUpsertRequest;
 import com.attendance.system.dto.PayrollSummaryResponse;
+import com.attendance.system.dto.PublicCheckoutSessionResponse;
 import com.attendance.system.dto.SalaryAdvancePaymentRequest;
 import com.attendance.system.dto.SalaryAdvancePaymentResponse;
 import com.attendance.system.security.AuthenticatedUser;
 import com.attendance.system.service.AdminService;
+import com.attendance.system.service.AdminSubscriptionService;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
     private final AdminService adminService;
+    private final AdminSubscriptionService adminSubscriptionService;
 
-    public AdminController(AdminService adminService) {
+    public AdminController(AdminService adminService, AdminSubscriptionService adminSubscriptionService) {
         this.adminService = adminService;
+        this.adminSubscriptionService = adminSubscriptionService;
     }
 
     @GetMapping("/dashboard")
@@ -168,6 +174,19 @@ public class AdminController {
             @Valid @RequestBody SalaryAdvancePaymentRequest request
     ) {
         return adminService.recordAdvancePayment(currentUser(authentication), request);
+    }
+
+    @GetMapping("/subscription")
+    public AdminSubscriptionSummaryResponse subscription(Authentication authentication) {
+        return adminSubscriptionService.getDashboard(currentUser(authentication));
+    }
+
+    @PostMapping("/subscription/checkout")
+    public PublicCheckoutSessionResponse createSubscriptionCheckout(
+            Authentication authentication,
+            @Valid @RequestBody AdminSubscriptionCheckoutRequest request
+    ) {
+        return adminSubscriptionService.createCheckoutSession(currentUser(authentication), request);
     }
 
     private AuthenticatedUser currentUser(Authentication authentication) {

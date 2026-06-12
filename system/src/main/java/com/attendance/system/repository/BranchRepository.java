@@ -10,4 +10,5 @@ import java.util.UUID;
 public interface BranchRepository extends JpaRepository<BranchEntity, UUID> {
     List<BranchEntity> findByVendor_IdOrderByNameAsc(UUID vendorId);
     Optional<BranchEntity> findByIdAndVendor_Id(UUID id, UUID vendorId);
+    long countByVendor_Id(UUID vendorId);
 }

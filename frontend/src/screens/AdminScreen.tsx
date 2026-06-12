@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import { AttendanceOverview } from "../components/AttendanceOverview";
 import { AdminEmployeeAttendance } from "../components/AdminEmployeeAttendance";
+import { AdminSubscriptionDashboard } from "../components/AdminSubscriptionDashboard";
 import { AttendancePayrollTable, TrackingLink } from "../components/AttendanceTable";
 import { AttendanceCorrectionTable } from "../components/AttendanceCorrections";
 import { BranchManagement } from "../components/BranchManagement";
@@ -55,6 +56,7 @@ type AdminTab =
   | "corrections"
   | "leave"
   | "payroll"
+  | "subscription"
   | "attendance"
   | "employee-attendance"
   | "tracking"
@@ -157,6 +159,12 @@ export function AdminScreen({
       icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M12 3v18M17 7.5c0-1.66-2.24-3-5-3s-5 1.34-5 3 2.24 3 5 3 5 1.34 5 3-2.24 3-5 3-5-1.34-5-3" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
     },
     {
+      id: "subscription",
+      label: "Subscription",
+      compactLabel: "Plan",
+      icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M12 2 4 6v6c0 5 3.4 9.74 8 11 4.6-1.26 8-6 8-11V6l-8-4Zm-3 10 2 2 4-4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
+    },
+    {
       id: "attendance",
       label: "Attendance",
       compactLabel: "Log",
@@ -245,6 +253,13 @@ export function AdminScreen({
   useEffect(() => {
     void loadAdminData();
   }, [session, trackingDate, payrollMonth, onLogout]);
+
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    if (query.get("checkout_session_id") && query.get("renew") === "1") {
+      setActiveTab("subscription");
+    }
+  }, []);
 
   useEffect(() => {
     if (!swipeTransitionDirection) {
@@ -933,6 +948,10 @@ export function AdminScreen({
                 )}
               </section>
             </>
+          ) : null}
+
+          {activeTab === "subscription" ? (
+            <AdminSubscriptionDashboard session={session} />
           ) : null}
 
           {activeTab === "leave" ? (

@@ -26,6 +26,7 @@ com/attendance/system/repository/AttendanceRecordRepository.class
 com/attendance/system/dto/EmployeeProfileImageRequest.class
 com/attendance/system/dto/PropertyRegistrationRequest.class
 com/attendance/system/dto/PublicCheckoutSessionCreateRequest.class
+com/attendance/system/dto/AdminSubscriptionCheckoutRequest.class
 com/attendance/system/dto/HolidayResponse.class
 com/attendance/system/repository/SalesInquiryRepository.class
 com/attendance/system/model/HolidayEntity.class
@@ -43,6 +44,7 @@ com/attendance/system/model/AttendanceLocationLogEntity.class
 com/attendance/system/dto/PricingCatalogResponse$PricingPlan.class
 com/attendance/system/dto/SalesInquiryRequest.class
 com/attendance/system/dto/LocationPingRequest.class
+com/attendance/system/dto/AdminSubscriptionSummaryResponse$CurrentPlan.class
 com/attendance/system/config/AttendanceImageStorageProperties$R2.class
 com/attendance/system/repository/LeaveRequestRepository.class
 com/attendance/system/service/AttendanceImageStorageService.class
@@ -59,6 +61,7 @@ com/attendance/system/model/LeaveType.class
 com/attendance/system/service/AttendanceCorrectionService.class
 com/attendance/system/dto/EmployeeLoginStatusRequest.class
 com/attendance/system/controller/GlobalExceptionHandler.class
+com/attendance/system/dto/AdminSubscriptionSummaryResponse.class
 com/attendance/system/dto/AttendanceCorrectionCreateRequest.class
 com/attendance/system/dto/AttendanceRowResponse.class
 com/attendance/system/service/InlineAttendanceImageStorageService.class
@@ -107,6 +110,7 @@ com/attendance/system/dto/EmployeeUpsertRequest.class
 com/attendance/system/repository/UserRepository.class
 com/attendance/system/controller/AttendanceController.class
 com/attendance/system/model/AttendanceCorrectionType.class
+com/attendance/system/service/AdminSubscriptionService.class
 com/attendance/system/model/SalesInquiryEntity.class
 com/attendance/system/dto/AttendanceCorrectionDecisionRequest.class
 com/attendance/system/dto/PropertyRegistrationResponse.class
@@ -118,6 +122,7 @@ com/attendance/system/dto/EmployeeLeaveWorkspaceResponse$LeaveBalanceSummary.cla
 com/attendance/system/dto/ForgotPasswordRequest.class
 com/attendance/system/security/AuthenticatedUser.class
 com/attendance/system/service/PropertyRegistrationService.class
+com/attendance/system/dto/AdminSubscriptionSummaryResponse$PaymentHistoryEntry.class
 com/attendance/system/model/AttendanceCorrectionStatus.class
 com/attendance/system/service/AttendanceService.class
 com/attendance/system/dto/HolidayUpsertRequest.class

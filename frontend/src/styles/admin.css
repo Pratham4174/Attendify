@@ -125,6 +125,10 @@
   min-width: 560px;
 }
 
+.subscription-table-shell .data-table {
+  min-width: 720px;
+}
+
 .data-table th,
 .data-table td {
   text-align: left;
@@ -262,6 +266,108 @@
   justify-content: space-between;
   align-items: flex-start;
   flex-wrap: wrap;
+}
+
+.subscription-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.subscription-meta-grid {
+  margin-top: 16px;
+}
+
+.subscription-plan-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.subscription-plan-accordion {
+  border: 1px solid rgba(37, 99, 235, 0.12);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.9);
+  overflow: hidden;
+}
+
+.subscription-plan-accordion.selected {
+  border-color: rgba(37, 99, 235, 0.28);
+  box-shadow: 0 12px 26px rgba(37, 99, 235, 0.08);
+}
+
+.subscription-plan-header {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 16px 18px;
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+  text-align: left;
+}
+
+.subscription-plan-header > div {
+  display: grid;
+  gap: 4px;
+}
+
+.subscription-plan-body {
+  display: grid;
+  gap: 14px;
+  padding: 0 18px 18px;
+}
+
+.subscription-feature-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.subscription-feature-line span {
+  padding: 8px 10px;
+  border-radius: 999px;
+  background: rgba(239, 246, 255, 0.92);
+  color: var(--primary-strong);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.subscription-cycle-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.subscription-cycle-option {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(37, 99, 235, 0.12);
+  background: rgba(248, 250, 252, 0.92);
+  cursor: pointer;
+}
+
+.subscription-cycle-option.active {
+  border-color: rgba(37, 99, 235, 0.28);
+  background: rgba(239, 246, 255, 0.98);
+}
+
+.subscription-cycle-option input {
+  display: none;
+}
+
+.subscription-checkout-box {
+  margin-top: 18px;
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(239, 246, 255, 0.58);
+}
+
+.subscription-history-cards {
+  margin-top: 16px;
 }
 
 .tracking-card-summary {
@@ -462,6 +568,10 @@
   .payroll-summary-grid {
     grid-template-columns: 1fr;
   }
+
+  .subscription-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 720px) {
@@ -489,6 +599,11 @@
 
   .payroll-card-list {
     display: grid;
+  }
+
+  .subscription-plan-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .evidence-thumb-button img {
@@ -552,5 +667,17 @@
 
   .payroll-period-filter {
     max-width: 100%;
+  }
+
+  .subscription-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .subscription-feature-line {
+    display: grid;
+  }
+
+  .subscription-cycle-option {
+    padding: 12px;
   }
 }
