@@ -41,6 +41,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/forgot-password").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/public/property-registration").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/public/cashfree/webhook").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/public/pricing").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/public/checkout-sessions").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/public/subscription-renewals").permitAll()

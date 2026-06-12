@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -329,26 +330,8 @@ public class PublicBillingService {
             );
         }
 
-        Plan plan = requirePlan(session.getPlanCode(), session.getEmployeeCount());
-        BillingOption billing = requireBilling(plan, session.getBillingCycle());
-        OffsetDateTime accessExpiresAt = OffsetDateTime.now(ZoneOffset.UTC).plusMonths(billing.billingMonths());
-        session.setStatus("UNLOCKED");
-        session.setPaymentStatus("PAID");
-        session.setVerifiedAt(OffsetDateTime.now(ZoneOffset.UTC));
-        session.setAccessExpiresAt(accessExpiresAt);
-        if (session.getVendor() != null) {
-            VendorEntity vendor = session.getVendor();
-            vendor.setSubscriptionPlanCode(session.getPlanCode());
-            vendor.setSubscriptionBillingCycle(session.getBillingCycle());
-            vendor.setSubscriptionStatus("ACTIVE");
-            vendor.setMaxEmployees(plan.employeeLimit());
-            vendor.setMaxBranches(plan.maxBranches());
-            vendor.setTrialEndsAt(null);
-            vendor.setAccessExpiresAt(accessExpiresAt);
-            vendor.setStatus("ACTIVE");
-            session.setStatus("CONSUMED");
-        }
-        publicCheckoutSessionRepository.save(session);
+        Plan plan = unlockPaidSession(session);
+        String accessExpiresAt = session.getAccessExpiresAt() == null ? null : session.getAccessExpiresAt().toString();
 
         return new PublicCheckoutSessionVerificationResponse(
                 session.getId().toString(),
@@ -361,11 +344,47 @@ public class PublicBillingService {
                 session.getEmployeeCount(),
                 plan.maxBranches(),
                 session.getTrialEndsAt() == null ? null : session.getTrialEndsAt().toString(),
-                accessExpiresAt.toString(),
+                accessExpiresAt,
                 session.getVendor() == null
                         ? "Payment verified. You can now continue with property setup."
                         : "Payment verified. Your workspace has been renewed. Please sign in again."
         );
+    }
+
+    @Transactional
+    public void processCashfreeWebhook(Map<String, String> headers, Map<String, Object> payload) {
+        String orderId = firstNonBlank(
+                findValue(payload, "order_id"),
+                findValue(payload, "cf_order_id")
+        );
+        if (blank(orderId)) {
+            return;
+        }
+
+        publicCheckoutSessionRepository.findByCashfreeOrderId(orderId).ifPresent(session -> {
+            String normalizedEvent = normalizeWebhookEvent(firstNonBlank(
+                    findValue(payload, "type"),
+                    findValue(payload, "event"),
+                    findValue(payload, "event_name")
+            ));
+            String normalizedStatus = normalizeWebhookStatus(firstNonBlank(
+                    findValue(payload, "order_status"),
+                    findValue(payload, "payment_status"),
+                    findValue(payload, "paymentStatus"),
+                    normalizedEvent
+            ));
+
+            if (normalizedStatus == null) {
+                return;
+            }
+
+            session.setPaymentStatus(normalizedStatus);
+            if ("PAID".equals(normalizedStatus)) {
+                unlockPaidSession(session);
+            } else {
+                publicCheckoutSessionRepository.save(session);
+            }
+        });
     }
 
     public PublicCheckoutSessionEntity requireUnlockedSession(String checkoutSessionId) {
@@ -487,12 +506,112 @@ public class PublicBillingService {
         );
     }
 
+    private Plan unlockPaidSession(PublicCheckoutSessionEntity session) {
+        Plan plan = requirePlan(session.getPlanCode(), session.getEmployeeCount());
+        BillingOption billing = requireBilling(plan, session.getBillingCycle());
+        OffsetDateTime accessExpiresAt = OffsetDateTime.now(ZoneOffset.UTC).plusMonths(billing.billingMonths());
+        session.setStatus("UNLOCKED");
+        session.setPaymentStatus("PAID");
+        session.setVerifiedAt(OffsetDateTime.now(ZoneOffset.UTC));
+        session.setAccessExpiresAt(accessExpiresAt);
+        if (session.getVendor() != null) {
+            VendorEntity vendor = session.getVendor();
+            vendor.setSubscriptionPlanCode(session.getPlanCode());
+            vendor.setSubscriptionBillingCycle(session.getBillingCycle());
+            vendor.setSubscriptionStatus("ACTIVE");
+            vendor.setMaxEmployees(plan.employeeLimit());
+            vendor.setMaxBranches(plan.maxBranches());
+            vendor.setTrialEndsAt(null);
+            vendor.setAccessExpiresAt(accessExpiresAt);
+            vendor.setStatus("ACTIVE");
+            session.setStatus("CONSUMED");
+        }
+        publicCheckoutSessionRepository.save(session);
+        return plan;
+    }
+
+    private String findValue(Object node, String key) {
+        if (node == null) {
+            return null;
+        }
+        if (node instanceof Map<?, ?> rawMap) {
+            Map<String, Object> map = new LinkedHashMap<>();
+            rawMap.forEach((mapKey, value) -> map.put(String.valueOf(mapKey), value));
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                if (entry.getKey().equalsIgnoreCase(key) && entry.getValue() != null) {
+                    return String.valueOf(entry.getValue());
+                }
+            }
+            for (Object value : map.values()) {
+                String nested = findValue(value, key);
+                if (!blank(nested)) {
+                    return nested;
+                }
+            }
+        }
+        if (node instanceof Iterable<?> iterable) {
+            for (Object item : iterable) {
+                String nested = findValue(item, key);
+                if (!blank(nested)) {
+                    return nested;
+                }
+            }
+        }
+        return null;
+    }
+
+    private String normalizeWebhookEvent(String event) {
+        if (blank(event)) {
+            return null;
+        }
+        String normalized = event.trim().replace('_', ' ').replace('-', ' ').toLowerCase(Locale.ROOT);
+        if (normalized.contains("success")) {
+            return "PAID";
+        }
+        if (normalized.contains("failed")) {
+            return "FAILED";
+        }
+        if (normalized.contains("abandoned") || normalized.contains("dropped")) {
+            return "ABANDONED";
+        }
+        return event.trim().toUpperCase(Locale.ROOT);
+    }
+
+    private String normalizeWebhookStatus(String status) {
+        if (blank(status)) {
+            return null;
+        }
+        String normalized = status.trim().replace('_', ' ').replace('-', ' ').toLowerCase(Locale.ROOT);
+        if (normalized.contains("paid") || normalized.contains("success")) {
+            return "PAID";
+        }
+        if (normalized.contains("failed")) {
+            return "FAILED";
+        }
+        if (normalized.contains("abandoned") || normalized.contains("dropped")) {
+            return "ABANDONED";
+        }
+        if (normalized.contains("pending")) {
+            return "PENDING";
+        }
+        return status.trim().toUpperCase(Locale.ROOT);
+    }
+
     private static boolean blank(String value) {
         return value == null || value.isBlank();
     }
 
     private static String stringValue(Object value) {
         return value == null ? null : value.toString();
+    }
+
+    private static String firstNonBlank(String... values) {
+        for (String value : values) {
+            if (!blank(value)) {
+                return value;
+            }
+        }
+        return null;
     }
 
     private record Plan(String code, Integer employeeLimit, int maxBranches, List<BillingOption> billingOptions) {
