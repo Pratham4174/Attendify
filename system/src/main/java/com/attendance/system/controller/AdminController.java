@@ -31,11 +31,16 @@ import com.attendance.system.dto.EmployeeStatusRequest;
 import com.attendance.system.dto.EmployeeUpsertRequest;
 import com.attendance.system.dto.PayrollSummaryResponse;
 import com.attendance.system.dto.PublicCheckoutSessionResponse;
+import com.attendance.system.dto.RosterShiftResponse;
+import com.attendance.system.dto.RosterShiftUpsertRequest;
+import com.attendance.system.dto.RosterTemplateResponse;
+import com.attendance.system.dto.RosterTemplateUpsertRequest;
 import com.attendance.system.dto.SalaryAdvancePaymentRequest;
 import com.attendance.system.dto.SalaryAdvancePaymentResponse;
 import com.attendance.system.security.AuthenticatedUser;
 import com.attendance.system.service.AdminService;
 import com.attendance.system.service.AdminSubscriptionService;
+import com.attendance.system.service.RosterAdminService;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
@@ -43,10 +48,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class AdminController {
     private final AdminService adminService;
     private final AdminSubscriptionService adminSubscriptionService;
+    private final RosterAdminService rosterAdminService;
 
-    public AdminController(AdminService adminService, AdminSubscriptionService adminSubscriptionService) {
+    public AdminController(AdminService adminService, AdminSubscriptionService adminSubscriptionService, RosterAdminService rosterAdminService) {
         this.adminService = adminService;
         this.adminSubscriptionService = adminSubscriptionService;
+        this.rosterAdminService = rosterAdminService;
     }
 
     @GetMapping("/dashboard")
@@ -179,6 +186,63 @@ public class AdminController {
     @GetMapping("/subscription")
     public AdminSubscriptionSummaryResponse subscription(Authentication authentication) {
         return adminSubscriptionService.getDashboard(currentUser(authentication));
+    }
+
+    @GetMapping("/roster/shifts")
+    public List<RosterShiftResponse> rosterShifts(
+            Authentication authentication,
+            @RequestParam(required = false) String branchId
+    ) {
+        return rosterAdminService.shifts(currentUser(authentication), branchId);
+    }
+
+    @PostMapping("/roster/shifts")
+    public RosterShiftResponse createRosterShift(
+            Authentication authentication,
+            @Valid @RequestBody RosterShiftUpsertRequest request
+    ) {
+        return rosterAdminService.createShift(currentUser(authentication), request);
+    }
+
+    @PutMapping("/roster/shifts/{shiftId}")
+    public RosterShiftResponse updateRosterShift(
+            Authentication authentication,
+            @PathVariable String shiftId,
+            @Valid @RequestBody RosterShiftUpsertRequest request
+    ) {
+        return rosterAdminService.updateShift(currentUser(authentication), shiftId, request);
+    }
+
+    @DeleteMapping("/roster/shifts/{shiftId}")
+    public void deleteRosterShift(Authentication authentication, @PathVariable String shiftId) {
+        rosterAdminService.deleteShift(currentUser(authentication), shiftId);
+    }
+
+    @GetMapping("/roster/templates")
+    public List<RosterTemplateResponse> rosterTemplates(Authentication authentication) {
+        return rosterAdminService.templates(currentUser(authentication));
+    }
+
+    @PostMapping("/roster/templates")
+    public RosterTemplateResponse createRosterTemplate(
+            Authentication authentication,
+            @Valid @RequestBody RosterTemplateUpsertRequest request
+    ) {
+        return rosterAdminService.createTemplate(currentUser(authentication), request);
+    }
+
+    @PutMapping("/roster/templates/{templateId}")
+    public RosterTemplateResponse updateRosterTemplate(
+            Authentication authentication,
+            @PathVariable String templateId,
+            @Valid @RequestBody RosterTemplateUpsertRequest request
+    ) {
+        return rosterAdminService.updateTemplate(currentUser(authentication), templateId, request);
+    }
+
+    @DeleteMapping("/roster/templates/{templateId}")
+    public void deleteRosterTemplate(Authentication authentication, @PathVariable String templateId) {
+        rosterAdminService.deleteTemplate(currentUser(authentication), templateId);
     }
 
     @PostMapping("/subscription/checkout")

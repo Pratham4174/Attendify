@@ -26,6 +26,7 @@ com/attendance/system/repository/AttendanceRecordRepository.class
 com/attendance/system/dto/EmployeeProfileImageRequest.class
 com/attendance/system/dto/PropertyRegistrationRequest.class
 com/attendance/system/dto/PublicCheckoutSessionCreateRequest.class
+com/attendance/system/model/RosterShiftEntity.class
 com/attendance/system/dto/AdminSubscriptionCheckoutRequest.class
 com/attendance/system/dto/HolidayResponse.class
 com/attendance/system/repository/SalesInquiryRepository.class
@@ -39,17 +40,21 @@ com/attendance/system/model/PublicCheckoutSessionEntity.class
 com/attendance/system/service/AdminService.class
 com/attendance/system/dto/BranchUpsertRequest.class
 com/attendance/system/security/JwtService.class
+com/attendance/system/dto/RosterShiftResponse.class
 com/attendance/system/dto/EmployeePasswordResetRequest.class
 com/attendance/system/model/AttendanceLocationLogEntity.class
 com/attendance/system/dto/PricingCatalogResponse$PricingPlan.class
+com/attendance/system/repository/RosterAssignmentRepository.class
 com/attendance/system/dto/SalesInquiryRequest.class
 com/attendance/system/dto/LocationPingRequest.class
+com/attendance/system/model/RosterAssignmentEntity.class
 com/attendance/system/dto/AdminSubscriptionSummaryResponse$CurrentPlan.class
 com/attendance/system/config/AttendanceImageStorageProperties$R2.class
 com/attendance/system/repository/LeaveRequestRepository.class
 com/attendance/system/service/AttendanceImageStorageService.class
 com/attendance/system/service/VendorAccessPolicyService.class
 com/attendance/system/model/AttendanceCorrectionAuditEntity.class
+com/attendance/system/dto/RosterTemplateUpsertRequest.class
 com/attendance/system/dto/EmployeeOverviewResponse.class
 com/attendance/system/dto/DashboardSummaryResponse$BranchAttendanceSnapshot.class
 com/attendance/system/service/PublicBillingService.class
@@ -73,6 +78,7 @@ com/attendance/system/dto/AttendanceCorrectionAuditResponse.class
 com/attendance/system/dto/PublicCheckoutSessionVerificationResponse.class
 com/attendance/system/controller/AuthController.class
 com/attendance/system/dto/LocationPingResponse.class
+com/attendance/system/service/RosterAdminService.class
 com/attendance/system/model/BranchEntity.class
 com/attendance/system/repository/AttendanceLocationLogRepository.class
 com/attendance/system/model/LeaveRequestEntity.class
@@ -98,6 +104,7 @@ com/attendance/system/model/AttendanceCorrectionRequestEntity.class
 com/attendance/system/controller/PublicController.class
 com/attendance/system/dto/EmployeeBranchTransferRequest.class
 com/attendance/system/config/CashfreeProperties.class
+com/attendance/system/dto/RosterShiftUpsertRequest.class
 com/attendance/system/model/AttendanceStatus.class
 com/attendance/system/dto/MessageResponse.class
 com/attendance/system/dto/PropertyRegistrationRequest$EmployeeSeed.class
@@ -106,10 +113,12 @@ com/attendance/system/repository/BranchRepository.class
 com/attendance/system/model/UserEntity.class
 com/attendance/system/dto/LoginRequest.class
 com/attendance/system/SystemApplication.class
+com/attendance/system/model/RosterTemplateEntity.class
 com/attendance/system/dto/EmployeeUpsertRequest.class
 com/attendance/system/repository/UserRepository.class
 com/attendance/system/controller/AttendanceController.class
 com/attendance/system/model/AttendanceCorrectionType.class
+com/attendance/system/dto/RosterTemplateResponse.class
 com/attendance/system/service/AdminSubscriptionService.class
 com/attendance/system/model/SalesInquiryEntity.class
 com/attendance/system/dto/AttendanceCorrectionDecisionRequest.class
@@ -120,6 +129,7 @@ com/attendance/system/dto/SalaryAdvancePaymentResponse.class
 com/attendance/system/dto/AdminTrackingResponse$EmployeeDayRoute.class
 com/attendance/system/dto/EmployeeLeaveWorkspaceResponse$LeaveBalanceSummary.class
 com/attendance/system/dto/ForgotPasswordRequest.class
+com/attendance/system/repository/RosterShiftRepository.class
 com/attendance/system/security/AuthenticatedUser.class
 com/attendance/system/service/PropertyRegistrationService.class
 com/attendance/system/dto/AdminSubscriptionSummaryResponse$PaymentHistoryEntry.class
@@ -128,6 +138,7 @@ com/attendance/system/service/AttendanceService.class
 com/attendance/system/dto/HolidayUpsertRequest.class
 com/attendance/system/model/LeaveStatus.class
 com/attendance/system/service/TenantDataSeeder.class
+com/attendance/system/repository/RosterTemplateRepository.class
 com/attendance/system/config/TrackingProperties.class
 com/attendance/system/repository/AttendanceCorrectionAuditRepository.class
 com/attendance/system/config/AttendanceImageStorageProperties.class

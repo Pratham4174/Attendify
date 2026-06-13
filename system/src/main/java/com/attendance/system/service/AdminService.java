@@ -614,6 +614,14 @@ public class AdminService {
         if (request.fullDayHours() < request.halfDayHours()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Full day hours must be greater than or equal to half day hours.");
         }
+        List<String> validDays = List.of("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY");
+        List<String> weeklyOffDays = request.weeklyOffDays().stream()
+                .map(day -> day.trim().toUpperCase(Locale.ROOT))
+                .distinct()
+                .toList();
+        if (weeklyOffDays.isEmpty() || weeklyOffDays.stream().anyMatch(day -> !validDays.contains(day))) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Weekly off days must use valid day names.");
+        }
         branch.setName(request.name().trim());
         branch.setAddress(request.address().trim());
         branch.setLatitude(request.latitude().setScale(7, RoundingMode.HALF_UP));
@@ -624,6 +632,8 @@ public class AdminService {
         branch.setGraceMinutes(request.graceMinutes());
         branch.setHalfDayMinutes(request.halfDayHours() * 60);
         branch.setFullDayMinutes(request.fullDayHours() * 60);
+        branch.setWeeklyOffMode(request.weeklyOffMode().trim().toUpperCase(Locale.ROOT));
+        branch.setWeeklyOffDaysCsv(String.join(",", weeklyOffDays));
     }
 
     private PayrollSummaryResponse.EmployeePayrollRow buildPayrollRow(

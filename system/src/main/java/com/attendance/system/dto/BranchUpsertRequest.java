@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public record BranchUpsertRequest(
         @NotBlank String name,
@@ -18,6 +19,8 @@ public record BranchUpsertRequest(
         @NotBlank String shiftEndTime,
         @NotNull @Min(0) @Max(240) Integer graceMinutes,
         @NotNull @Min(1) @Max(24) Integer halfDayHours,
-        @NotNull @Min(1) @Max(24) Integer fullDayHours
+        @NotNull @Min(1) @Max(24) Integer fullDayHours,
+        @NotBlank String weeklyOffMode,
+        @NotNull List<@NotBlank String> weeklyOffDays
 ) {
 }

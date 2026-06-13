@@ -14,7 +14,11 @@ type BranchFormState = {
   graceMinutes: string;
   halfDayHours: string;
   fullDayHours: string;
+  weeklyOffMode: string;
+  weeklyOffDays: string[];
 };
+
+const weekdayOptions = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"];
 
 function buildEmptyBranchForm(): BranchFormState {
   return {
@@ -27,7 +31,9 @@ function buildEmptyBranchForm(): BranchFormState {
     shiftEndTime: "18:00",
     graceMinutes: "15",
     halfDayHours: "4",
-    fullDayHours: "8"
+    fullDayHours: "8",
+    weeklyOffMode: "FIXED",
+    weeklyOffDays: ["SUNDAY"]
   };
 }
 
@@ -71,7 +77,9 @@ export function BranchManagement({
       shiftEndTime: branch.shiftEndTime,
       graceMinutes: String(branch.graceMinutes),
       halfDayHours: String(branch.halfDayHours),
-      fullDayHours: String(branch.fullDayHours)
+      fullDayHours: String(branch.fullDayHours),
+      weeklyOffMode: branch.weeklyOffMode,
+      weeklyOffDays: branch.weeklyOffDays
     });
   }
 
@@ -107,7 +115,9 @@ export function BranchManagement({
             shiftEndTime: branchForm.shiftEndTime,
             graceMinutes: Number(branchForm.graceMinutes),
             halfDayHours: Number(branchForm.halfDayHours),
-            fullDayHours: Number(branchForm.fullDayHours)
+            fullDayHours: Number(branchForm.fullDayHours),
+            weeklyOffMode: branchForm.weeklyOffMode,
+            weeklyOffDays: branchForm.weeklyOffDays
           })
         }
       );
@@ -227,9 +237,38 @@ export function BranchManagement({
                 Full day after (hours)
                 <input required min="1" max="24" type="number" value={branchForm.fullDayHours} onChange={(event) => updateBranchForm("fullDayHours", event.target.value)} />
               </label>
+              <label>
+                Weekly off mode
+                <select value={branchForm.weeklyOffMode} onChange={(event) => updateBranchForm("weeklyOffMode", event.target.value)}>
+                  <option value="FIXED">Fixed</option>
+                  <option value="ROTATIONAL">Rotational</option>
+                </select>
+              </label>
+            </div>
+            <div className="selection-chip-group">
+              <strong>Weekly off days</strong>
+              <div className="selection-chip-list">
+                {weekdayOptions.map((day) => (
+                  <button
+                    key={day}
+                    className={`selection-chip ${branchForm.weeklyOffDays.includes(day) ? "selection-chip-active" : ""}`}
+                    onClick={() =>
+                      setBranchForm((current) => ({
+                        ...current,
+                        weeklyOffDays: current.weeklyOffDays.includes(day)
+                          ? current.weeklyOffDays.filter((entry) => entry !== day)
+                          : [...current.weeklyOffDays, day]
+                      }))
+                    }
+                    type="button"
+                  >
+                    {day.slice(0, 3)}
+                  </button>
+                ))}
+              </div>
             </div>
             <p className="muted form-helper-text">
-              Example: 4 hours for half day and 8 hours for full day. Anything below the half-day rule is treated as absent in payroll.
+              Example: 4 hours for half day and 8 hours for full day. Anything below the half-day rule is treated as absent in payroll. Weekly off is now decided branch-wise by the business owner.
             </p>
 
             <div className="action-row">
@@ -261,6 +300,7 @@ export function BranchManagement({
                   <th>Shift timing</th>
                   <th>Grace</th>
                   <th>Workday rule</th>
+                  <th>Weekly off</th>
                   <th>Coordinates</th>
                   <th>Actions</th>
                 </tr>
@@ -274,6 +314,7 @@ export function BranchManagement({
                     <td>{branch.shiftStartTime} - {branch.shiftEndTime}</td>
                     <td>{branch.graceMinutes} min</td>
                     <td>{branch.halfDayHours}h half day / {branch.fullDayHours}h full day</td>
+                    <td>{branch.weeklyOffMode} · {branch.weeklyOffDays.join(", ")}</td>
                     <td>{branch.latitude.toFixed(5)}, {branch.longitude.toFixed(5)}</td>
                     <td>
                       <button className="ghost-button compact-button" onClick={() => startEditingBranch(branch)} type="button">
@@ -301,6 +342,8 @@ export function BranchManagement({
                     <strong>{branch.graceMinutes} min</strong>
                     <span>Workday rule</span>
                     <strong>{branch.halfDayHours}h half day / {branch.fullDayHours}h full day</strong>
+                    <span>Weekly off</span>
+                    <strong>{branch.weeklyOffMode} · {branch.weeklyOffDays.join(", ")}</strong>
                     <span>Coordinates</span>
                     <strong>{branch.latitude.toFixed(5)}, {branch.longitude.toFixed(5)}</strong>
                   </div>

@@ -9,6 +9,9 @@ import com.attendance.system.model.BranchEntity;
 import com.attendance.system.model.EmployeeEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Component
 public class AttendanceMapper {
     public AttendanceRowResponse toAttendanceRow(AttendanceRecordEntity record) {
@@ -87,7 +90,19 @@ public class AttendanceMapper {
                 branch.getShiftEndTime().toString(),
                 branch.getGraceMinutes(),
                 Math.max(1, branch.getHalfDayMinutes() / 60),
-                Math.max(1, branch.getFullDayMinutes() / 60)
+                Math.max(1, branch.getFullDayMinutes() / 60),
+                branch.getWeeklyOffMode(),
+                splitCsv(branch.getWeeklyOffDaysCsv())
         );
+    }
+
+    private List<String> splitCsv(String csv) {
+        if (csv == null || csv.isBlank()) {
+            return List.of();
+        }
+        return Arrays.stream(csv.split(","))
+                .map(String::trim)
+                .filter(value -> !value.isEmpty())
+                .toList();
     }
 }

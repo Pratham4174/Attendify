@@ -351,6 +351,56 @@
   box-sizing: border-box;
 }
 
+.branch-management-grid textarea {
+  width: 100%;
+  max-width: 100%;
+  min-height: 96px;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.checkbox-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+}
+
+.checkbox-field input {
+  width: 18px;
+  height: 18px;
+}
+
+.selection-chip-group {
+  display: grid;
+  gap: 10px;
+}
+
+.selection-chip-group strong {
+  font-size: 0.95rem;
+}
+
+.selection-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.selection-chip {
+  border: 1px solid rgba(37, 99, 235, 0.14);
+  background: rgba(239, 246, 255, 0.82);
+  color: var(--text-main);
+  border-radius: 999px;
+  padding: 10px 12px;
+  font-weight: 700;
+}
+
+.selection-chip-active {
+  background: rgba(219, 234, 254, 0.98);
+  border-color: rgba(37, 99, 235, 0.3);
+  color: var(--primary-strong);
+}
+
 .form-helper-text {
   margin: -4px 0 0;
   font-size: 0.92rem;

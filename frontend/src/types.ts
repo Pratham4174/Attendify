@@ -186,6 +186,43 @@ export type Branch = {
   graceMinutes: number;
   halfDayHours: number;
   fullDayHours: number;
+  weeklyOffMode: string;
+  weeklyOffDays: string[];
+};
+
+export type RosterShift = {
+  id: string;
+  branchId: string;
+  branchName: string;
+  code: string;
+  name: string;
+  description: string | null;
+  startTime: string;
+  endTime: string;
+  crossesMidnight: boolean;
+  workMinutes: number;
+  breakMinutes: number;
+  requiredHeadcount: number;
+  colorHex: string;
+  active: boolean;
+};
+
+export type RosterTemplate = {
+  id: string;
+  branchId: string | null;
+  branchName: string;
+  name: string;
+  industryType: string;
+  rotationType: string;
+  weeklyOffMode: string;
+  weeklyOffDays: string[];
+  shiftIds: string[];
+  shiftLabels: string[];
+  maxConsecutiveNightShifts: number;
+  minRestHours: number;
+  holidayPolicy: string;
+  description: string | null;
+  active: boolean;
 };
 
 export type AdminTracking = {

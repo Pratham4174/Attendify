@@ -10,6 +10,7 @@ import { BulkEmployeeImport } from "../components/BulkEmployeeImport";
 import { EmployeeDirectory } from "../components/EmployeeDirectory";
 import { DockIcon, FloatingTabDock } from "../components/FloatingTabDock";
 import { HolidayList, LeaveRequestTable } from "../components/LeaveManagement";
+import { RosterManagement } from "../components/RosterManagement";
 import { SupportRequestModal } from "../components/SupportRequestModal";
 import { ActionList, BrandLogo, EmptyState, LoadingWorkspace, MetricCard } from "../components/shared";
 import { apiFetch, apiFetchVoid, ApiRequestError } from "../lib/api";
@@ -118,7 +119,8 @@ type AdminTab =
   | "attendance"
   | "employee-attendance"
   | "tracking"
-  | "branches";
+  | "branches"
+  | "roster";
 
 export function AdminScreen({
   session,
@@ -247,6 +249,12 @@ export function AdminScreen({
       label: "Branches",
       compactLabel: "Branch",
       icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M4 20h16M6 20V8l6-4 6 4v12M10 12h4M10 16h4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
+    },
+    {
+      id: "roster",
+      label: "Roster",
+      compactLabel: "Roster",
+      icon: <DockIcon><svg fill="none" viewBox="0 0 24 24"><path d="M7 4v4M17 4v4M4 10h16M6 6h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Zm3 6h6m-6 4h4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg></DockIcon>
     }
   ];
 
@@ -1264,6 +1272,13 @@ export function AdminScreen({
               onReload={loadAdminData}
               subscription={subscription}
               onUpgradePlan={() => setActiveTab("subscription")}
+            />
+          ) : null}
+
+          {activeTab === "roster" ? (
+            <RosterManagement
+              session={session}
+              branches={branches}
             />
           ) : null}
         </section>

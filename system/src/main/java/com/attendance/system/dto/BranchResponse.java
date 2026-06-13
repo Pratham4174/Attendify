@@ -1,5 +1,7 @@
 package com.attendance.system.dto;
 
+import java.util.List;
+
 public record BranchResponse(
         String id,
         String name,
@@ -11,6 +13,8 @@ public record BranchResponse(
         String shiftEndTime,
         int graceMinutes,
         int halfDayHours,
-        int fullDayHours
+        int fullDayHours,
+        String weeklyOffMode,
+        List<String> weeklyOffDays
 ) {
 }

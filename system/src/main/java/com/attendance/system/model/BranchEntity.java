@@ -59,6 +59,12 @@ public class BranchEntity {
     @Column(name = "full_day_minutes", nullable = false)
     private Integer fullDayMinutes = 480;
 
+    @Column(name = "weekly_off_mode", nullable = false, length = 30)
+    private String weeklyOffMode = "FIXED";
+
+    @Column(name = "weekly_off_days_csv", nullable = false, length = 120)
+    private String weeklyOffDaysCsv = "SUNDAY";
+
     public UUID getId() {
         return id;
     }
@@ -149,5 +155,21 @@ public class BranchEntity {
 
     public void setFullDayMinutes(Integer fullDayMinutes) {
         this.fullDayMinutes = fullDayMinutes;
+    }
+
+    public String getWeeklyOffMode() {
+        return weeklyOffMode;
+    }
+
+    public void setWeeklyOffMode(String weeklyOffMode) {
+        this.weeklyOffMode = weeklyOffMode;
+    }
+
+    public String getWeeklyOffDaysCsv() {
+        return weeklyOffDaysCsv;
+    }
+
+    public void setWeeklyOffDaysCsv(String weeklyOffDaysCsv) {
+        this.weeklyOffDaysCsv = weeklyOffDaysCsv;
     }
 }
