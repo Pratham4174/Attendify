@@ -31,8 +31,18 @@ import com.attendance.system.dto.EmployeeStatusRequest;
 import com.attendance.system.dto.EmployeeUpsertRequest;
 import com.attendance.system.dto.PayrollSummaryResponse;
 import com.attendance.system.dto.PublicCheckoutSessionResponse;
+import com.attendance.system.dto.RosterAssignmentResponse;
+import com.attendance.system.dto.RosterAssignmentUpsertRequest;
+import com.attendance.system.dto.RosterConflictResponse;
+import com.attendance.system.dto.RosterExceptionReportResponse;
+import com.attendance.system.dto.RosterGenerateRequest;
+import com.attendance.system.dto.RosterMonthlyViewResponse;
+import com.attendance.system.dto.RosterPublishRequest;
+import com.attendance.system.dto.RosterPublishResponse;
 import com.attendance.system.dto.RosterShiftResponse;
 import com.attendance.system.dto.RosterShiftUpsertRequest;
+import com.attendance.system.dto.RosterSwapDecisionRequest;
+import com.attendance.system.dto.RosterSwapRequestResponse;
 import com.attendance.system.dto.RosterTemplateResponse;
 import com.attendance.system.dto.RosterTemplateUpsertRequest;
 import com.attendance.system.dto.SalaryAdvancePaymentRequest;
@@ -41,6 +51,10 @@ import com.attendance.system.security.AuthenticatedUser;
 import com.attendance.system.service.AdminService;
 import com.attendance.system.service.AdminSubscriptionService;
 import com.attendance.system.service.RosterAdminService;
+import com.attendance.system.service.RosterOperationsService;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
@@ -49,11 +63,18 @@ public class AdminController {
     private final AdminService adminService;
     private final AdminSubscriptionService adminSubscriptionService;
     private final RosterAdminService rosterAdminService;
+    private final RosterOperationsService rosterOperationsService;
 
-    public AdminController(AdminService adminService, AdminSubscriptionService adminSubscriptionService, RosterAdminService rosterAdminService) {
+    public AdminController(
+            AdminService adminService,
+            AdminSubscriptionService adminSubscriptionService,
+            RosterAdminService rosterAdminService,
+            RosterOperationsService rosterOperationsService
+    ) {
         this.adminService = adminService;
         this.adminSubscriptionService = adminSubscriptionService;
         this.rosterAdminService = rosterAdminService;
+        this.rosterOperationsService = rosterOperationsService;
     }
 
     @GetMapping("/dashboard")
@@ -243,6 +264,98 @@ public class AdminController {
     @DeleteMapping("/roster/templates/{templateId}")
     public void deleteRosterTemplate(Authentication authentication, @PathVariable String templateId) {
         rosterAdminService.deleteTemplate(currentUser(authentication), templateId);
+    }
+
+    @PostMapping("/roster/generate-monthly")
+    public RosterMonthlyViewResponse generateMonthlyRoster(
+            Authentication authentication,
+            @Valid @RequestBody RosterGenerateRequest request
+    ) {
+        return rosterOperationsService.generateMonthlyRoster(currentUser(authentication), request);
+    }
+
+    @GetMapping("/roster/monthly-view")
+    public RosterMonthlyViewResponse monthlyRosterView(
+            Authentication authentication,
+            @RequestParam String branchId,
+            @RequestParam String month
+    ) {
+        return rosterOperationsService.getMonthlyView(currentUser(authentication), branchId, month);
+    }
+
+    @PostMapping("/roster/assignments")
+    public RosterAssignmentResponse createRosterAssignment(
+            Authentication authentication,
+            @Valid @RequestBody RosterAssignmentUpsertRequest request
+    ) {
+        return rosterOperationsService.saveAssignment(currentUser(authentication), null, request);
+    }
+
+    @PutMapping("/roster/assignments/{assignmentId}")
+    public RosterAssignmentResponse updateRosterAssignment(
+            Authentication authentication,
+            @PathVariable String assignmentId,
+            @Valid @RequestBody RosterAssignmentUpsertRequest request
+    ) {
+        return rosterOperationsService.saveAssignment(currentUser(authentication), assignmentId, request);
+    }
+
+    @DeleteMapping("/roster/assignments/{assignmentId}")
+    public void deleteRosterAssignment(Authentication authentication, @PathVariable String assignmentId) {
+        rosterOperationsService.deleteAssignment(currentUser(authentication), assignmentId);
+    }
+
+    @PostMapping("/roster/publish")
+    public RosterPublishResponse publishRoster(
+            Authentication authentication,
+            @Valid @RequestBody RosterPublishRequest request
+    ) {
+        return rosterOperationsService.publish(currentUser(authentication), request);
+    }
+
+    @GetMapping("/roster/conflicts")
+    public List<RosterConflictResponse> rosterConflicts(
+            Authentication authentication,
+            @RequestParam String branchId,
+            @RequestParam String month
+    ) {
+        return rosterOperationsService.detectConflicts(currentUser(authentication), branchId, month);
+    }
+
+    @GetMapping("/roster/exceptions")
+    public RosterExceptionReportResponse rosterExceptions(
+            Authentication authentication,
+            @RequestParam String branchId,
+            @RequestParam String date
+    ) {
+        return rosterOperationsService.getExceptionReport(currentUser(authentication), branchId, date);
+    }
+
+    @GetMapping("/roster/swap-requests")
+    public List<RosterSwapRequestResponse> adminSwapRequests(Authentication authentication) {
+        return rosterOperationsService.listSwapRequestsForAdmin(currentUser(authentication));
+    }
+
+    @PostMapping("/roster/swap-requests/{swapRequestId}/decision")
+    public RosterSwapRequestResponse decideSwapRequest(
+            Authentication authentication,
+            @PathVariable String swapRequestId,
+            @Valid @RequestBody RosterSwapDecisionRequest request
+    ) {
+        return rosterOperationsService.decideSwapRequest(currentUser(authentication), swapRequestId, request);
+    }
+
+    @GetMapping("/roster/export")
+    public ResponseEntity<String> exportRoster(
+            Authentication authentication,
+            @RequestParam String branchId,
+            @RequestParam String month
+    ) {
+        String csv = rosterOperationsService.exportMonthlyCsv(currentUser(authentication), branchId, month);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"peeplify-roster-" + month + ".csv\"")
+                .contentType(MediaType.TEXT_PLAIN)
+                .body(csv);
     }
 
     @PostMapping("/subscription/checkout")

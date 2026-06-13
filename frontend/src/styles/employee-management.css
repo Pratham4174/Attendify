@@ -321,6 +321,11 @@
   color: var(--text-main);
 }
 
+.pill-danger {
+  background: rgba(254, 226, 226, 0.92);
+  color: #b91c1c;
+}
+
 .branch-management-grid {
   align-items: start;
 }
@@ -406,6 +411,42 @@
   font-size: 0.92rem;
 }
 
+.roster-summary-grid {
+  margin-top: 16px;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.roster-grid-scroll {
+  padding-bottom: 4px;
+}
+
+.roster-grid-table {
+  min-width: 920px;
+}
+
+.roster-grid-table th:not(:first-child),
+.roster-grid-table td:not(:first-child) {
+  text-align: center;
+  min-width: 60px;
+}
+
+.roster-cell-button {
+  width: 100%;
+  min-width: 46px;
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  border-radius: 12px;
+  padding: 8px 6px;
+  font-weight: 800;
+  background: rgba(239, 246, 255, 0.9);
+}
+
+.roster-cell-button:hover {
+  transform: translateY(-1px);
+}
+
 @media (max-width: 840px) {
   .employee-summary-grid {
     grid-template-columns: 1fr;
@@ -444,5 +485,9 @@
 
   .branch-management-grid {
     grid-template-columns: 1fr;
+  }
+
+  .roster-grid-table {
+    min-width: 760px;
   }
 }

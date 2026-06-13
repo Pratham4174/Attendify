@@ -6,8 +6,11 @@ import com.attendance.system.dto.EmployeeProfileImageRequest;
 import com.attendance.system.dto.EmployeeOverviewResponse;
 import com.attendance.system.dto.LocationPingRequest;
 import com.attendance.system.dto.LocationPingResponse;
+import com.attendance.system.dto.RosterSwapRequestCreateRequest;
+import com.attendance.system.dto.RosterSwapRequestResponse;
 import com.attendance.system.security.AuthenticatedUser;
 import com.attendance.system.service.AttendanceService;
+import com.attendance.system.service.RosterOperationsService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,13 +19,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api")
 public class AttendanceController {
     private final AttendanceService attendanceService;
+    private final RosterOperationsService rosterOperationsService;
 
-    public AttendanceController(AttendanceService attendanceService) {
+    public AttendanceController(AttendanceService attendanceService, RosterOperationsService rosterOperationsService) {
         this.attendanceService = attendanceService;
+        this.rosterOperationsService = rosterOperationsService;
     }
 
     @GetMapping("/employee/overview")
@@ -60,6 +67,19 @@ public class AttendanceController {
             @Valid @RequestBody LocationPingRequest request
     ) {
         return attendanceService.recordLocationPing(currentUser(authentication), request);
+    }
+
+    @GetMapping("/employee/roster/swaps")
+    public List<RosterSwapRequestResponse> employeeSwapRequests(Authentication authentication) {
+        return rosterOperationsService.listSwapRequestsForEmployee(currentUser(authentication));
+    }
+
+    @PostMapping("/employee/roster/swaps")
+    public RosterSwapRequestResponse createSwapRequest(
+            Authentication authentication,
+            @Valid @RequestBody RosterSwapRequestCreateRequest request
+    ) {
+        return rosterOperationsService.createSwapRequest(currentUser(authentication), request);
     }
 
     private AuthenticatedUser currentUser(Authentication authentication) {

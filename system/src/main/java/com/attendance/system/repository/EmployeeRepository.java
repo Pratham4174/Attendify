@@ -9,6 +9,7 @@ import java.util.UUID;
 
 public interface EmployeeRepository extends JpaRepository<EmployeeEntity, UUID> {
     List<EmployeeEntity> findByVendor_IdOrderByNameAsc(UUID vendorId);
+    List<EmployeeEntity> findByVendor_IdAndBranch_IdAndStatusOrderByNameAsc(UUID vendorId, UUID branchId, String status);
     Optional<EmployeeEntity> findByIdAndVendor_Id(UUID id, UUID vendorId);
     boolean existsByEmailIgnoreCase(String email);
     boolean existsByEmployeeCodeIgnoreCaseAndVendor_Id(String employeeCode, UUID vendorId);

@@ -225,6 +225,91 @@ export type RosterTemplate = {
   active: boolean;
 };
 
+export type RosterAssignment = {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  branchId: string;
+  branchName: string;
+  shiftId: string;
+  shiftCode: string;
+  shiftName: string;
+  assignmentDate: string;
+  assignmentType: string;
+  status: string;
+  startTime: string;
+  endTime: string;
+  colorHex: string;
+  notes: string | null;
+};
+
+export type RosterConflict = {
+  type: string;
+  severity: string;
+  assignmentDate: string;
+  employeeId: string | null;
+  employeeName: string | null;
+  shiftId: string | null;
+  shiftName: string | null;
+  message: string;
+};
+
+export type RosterMonthlyView = {
+  month: string;
+  branchId: string;
+  branchName: string;
+  published: boolean;
+  dates: string[];
+  employees: Array<{
+    employeeId: string;
+    employeeName: string;
+    designation: string;
+    assignments: RosterAssignment[];
+  }>;
+  conflicts: RosterConflict[];
+};
+
+export type RosterPublishResponse = {
+  month: string;
+  branchId: string;
+  assignmentsPublished: number;
+  employeesAffected: number;
+  message: string;
+};
+
+export type RosterSwapRequest = {
+  id: string;
+  requesterEmployeeName: string;
+  targetEmployeeName: string;
+  requesterAssignmentDate: string;
+  requesterShiftName: string;
+  targetAssignmentDate: string;
+  targetShiftName: string;
+  status: string;
+  reason: string;
+  reviewNote: string | null;
+  requestedAt: string | null;
+  reviewedAt: string | null;
+};
+
+export type RosterExceptionReport = {
+  date: string;
+  rows: Array<{
+    employeeId: string;
+    employeeName: string;
+    branchName: string;
+    scheduledShiftName: string | null;
+    scheduledStartTime: string | null;
+    scheduledEndTime: string | null;
+    actualCheckInTime: string | null;
+    actualCheckOutTime: string | null;
+    lateMinutes: number;
+    earlyDepartureMinutes: number;
+    overtimeMinutes: number;
+    status: string;
+  }>;
+};
+
 export type AdminTracking = {
   enabled: boolean;
   date: string;

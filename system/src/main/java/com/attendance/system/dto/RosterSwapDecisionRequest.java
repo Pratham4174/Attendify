@@ -1,0 +1,9 @@
+package com.attendance.system.dto;
+
+import jakarta.validation.constraints.NotBlank;
+
+public record RosterSwapDecisionRequest(
+        @NotBlank String decision,
+        String reviewNote
+) {
+}

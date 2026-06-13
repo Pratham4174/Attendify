@@ -1,6 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
-import { apiFetch, apiFetchVoid } from "../lib/api";
-import type { Branch, RosterShift, RosterTemplate, Session } from "../types";
+import { API_BASE, apiFetch, apiFetchVoid } from "../lib/api";
+import type {
+  Branch,
+  Employee,
+  RosterAssignment,
+  RosterConflict,
+  RosterExceptionReport,
+  RosterMonthlyView,
+  RosterPublishResponse,
+  RosterShift,
+  RosterSwapRequest,
+  RosterTemplate,
+  Session
+} from "../types";
 import { EmptyState } from "./shared";
 
 type ShiftFormState = {
@@ -32,10 +44,19 @@ type TemplateFormState = {
   active: boolean;
 };
 
+type AssignmentFormState = {
+  employeeId: string;
+  shiftId: string;
+  assignmentDate: string;
+  assignmentType: string;
+  notes: string;
+};
+
 const weekdayOptions = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"];
 const industryOptions = ["HOSPITAL", "HOTEL", "FACTORY", "SCHOOL", "RETAIL", "SECURITY", "PETROL_PUMP", "OFFICE", "PHARMACY", "GYM"];
 const rotationOptions = ["FIXED", "WEEKLY_ROTATING", "MONTHLY_ROTATING", "SPLIT_SHIFT", "ON_CALL", "FLEXI", "SEASONAL", "PART_TIME", "FULL_24X7"];
 const holidayPolicyOptions = ["COMP_OFF_OR_PREMIUM", "OFF_IF_POSSIBLE", "WORKING_PREMIUM_PAY", "SITE_POLICY"];
+const assignmentTypeOptions = ["WORKING", "HOLIDAY_WORK", "OVERRIDE"];
 
 function buildEmptyShiftForm(branches: Branch[]): ShiftFormState {
   return {
@@ -70,6 +91,24 @@ function buildEmptyTemplateForm(branches: Branch[]): TemplateFormState {
   };
 }
 
+function monthToday() {
+  return new Date().toISOString().slice(0, 7);
+}
+
+function dateToday() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function buildEmptyAssignmentForm(month: string): AssignmentFormState {
+  return {
+    employeeId: "",
+    shiftId: "",
+    assignmentDate: `${month}-01`,
+    assignmentType: "WORKING",
+    notes: ""
+  };
+}
+
 export function RosterManagement({
   session,
   branches
@@ -79,29 +118,44 @@ export function RosterManagement({
 }) {
   const [shifts, setShifts] = useState<RosterShift[]>([]);
   const [templates, setTemplates] = useState<RosterTemplate[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusMessage, setStatusMessage] = useState("");
   const [editingShiftId, setEditingShiftId] = useState<string | null>(null);
   const [editingTemplateId, setEditingTemplateId] = useState<string | null>(null);
+  const [editingAssignmentId, setEditingAssignmentId] = useState<string | null>(null);
   const [shiftForm, setShiftForm] = useState<ShiftFormState>(() => buildEmptyShiftForm(branches));
   const [templateForm, setTemplateForm] = useState<TemplateFormState>(() => buildEmptyTemplateForm(branches));
   const [savingShift, setSavingShift] = useState(false);
   const [savingTemplate, setSavingTemplate] = useState(false);
+  const [operationBranchId, setOperationBranchId] = useState(branches[0]?.id ?? "");
+  const [operationMonth, setOperationMonth] = useState(monthToday());
+  const [selectedTemplateId, setSelectedTemplateId] = useState("");
+  const [monthlyView, setMonthlyView] = useState<RosterMonthlyView | null>(null);
+  const [conflicts, setConflicts] = useState<RosterConflict[]>([]);
+  const [swapRequests, setSwapRequests] = useState<RosterSwapRequest[]>([]);
+  const [exceptionDate, setExceptionDate] = useState(dateToday());
+  const [exceptionReport, setExceptionReport] = useState<RosterExceptionReport | null>(null);
+  const [assignmentForm, setAssignmentForm] = useState<AssignmentFormState>(() => buildEmptyAssignmentForm(monthToday()));
+  const [busyAction, setBusyAction] = useState<string | null>(null);
 
   useEffect(() => {
     setShiftForm((current) => current.branchId ? current : buildEmptyShiftForm(branches));
     setTemplateForm((current) => current.branchId ? current : buildEmptyTemplateForm(branches));
+    setOperationBranchId((current) => current || branches[0]?.id || "");
   }, [branches]);
 
-  async function loadRosterData() {
+  async function loadBaseData() {
     setLoading(true);
     try {
-      const [shiftData, templateData] = await Promise.all([
+      const [shiftData, templateData, employeeData] = await Promise.all([
         apiFetch<RosterShift[]>(session, "/admin/roster/shifts"),
-        apiFetch<RosterTemplate[]>(session, "/admin/roster/templates")
+        apiFetch<RosterTemplate[]>(session, "/admin/roster/templates"),
+        apiFetch<Employee[]>(session, "/admin/employees")
       ]);
       setShifts(shiftData);
       setTemplates(templateData);
+      setEmployees(employeeData.filter((employee) => employee.status !== "REMOVED"));
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message : "Unable to load roster settings.");
     } finally {
@@ -109,14 +163,95 @@ export function RosterManagement({
     }
   }
 
+  async function loadMonthlyView(branchId = operationBranchId, month = operationMonth) {
+    if (!branchId || !month) {
+      setMonthlyView(null);
+      setConflicts([]);
+      return;
+    }
+    try {
+      const [monthData, conflictData, swapData] = await Promise.all([
+        apiFetch<RosterMonthlyView>(session, `/admin/roster/monthly-view?branchId=${encodeURIComponent(branchId)}&month=${encodeURIComponent(month)}`),
+        apiFetch<RosterConflict[]>(session, `/admin/roster/conflicts?branchId=${encodeURIComponent(branchId)}&month=${encodeURIComponent(month)}`),
+        apiFetch<RosterSwapRequest[]>(session, "/admin/roster/swap-requests")
+      ]);
+      setMonthlyView(monthData);
+      setConflicts(conflictData);
+      setSwapRequests(swapData);
+      setAssignmentForm((current) => ({
+        ...current,
+        assignmentDate: current.assignmentDate.startsWith(month) ? current.assignmentDate : `${month}-01`
+      }));
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "Unable to load monthly roster.");
+      setMonthlyView(null);
+      setConflicts([]);
+    }
+  }
+
+  async function loadExceptionReport(branchId = operationBranchId, date = exceptionDate) {
+    if (!branchId || !date) {
+      setExceptionReport(null);
+      return;
+    }
+    try {
+      const report = await apiFetch<RosterExceptionReport>(
+        session,
+        `/admin/roster/exceptions?branchId=${encodeURIComponent(branchId)}&date=${encodeURIComponent(date)}`
+      );
+      setExceptionReport(report);
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "Unable to load roster exception report.");
+      setExceptionReport(null);
+    }
+  }
+
   useEffect(() => {
-    void loadRosterData();
+    void loadBaseData();
   }, [session]);
+
+  useEffect(() => {
+    if (!loading && operationBranchId) {
+      void loadMonthlyView();
+      void loadExceptionReport();
+    }
+  }, [loading, operationBranchId, operationMonth]);
+
+  useEffect(() => {
+    if (!loading && operationBranchId && exceptionDate) {
+      void loadExceptionReport();
+    }
+  }, [exceptionDate]);
 
   const selectedBranch = useMemo(
     () => branches.find((branch) => branch.id === shiftForm.branchId) ?? branches[0] ?? null,
     [branches, shiftForm.branchId]
   );
+  const operationBranch = useMemo(
+    () => branches.find((branch) => branch.id === operationBranchId) ?? branches[0] ?? null,
+    [branches, operationBranchId]
+  );
+  const operationBranchTemplates = useMemo(
+    () => templates.filter((template) => !template.branchId || template.branchId === operationBranchId),
+    [templates, operationBranchId]
+  );
+  const operationBranchShifts = useMemo(
+    () => shifts.filter((shift) => shift.branchId === operationBranchId),
+    [shifts, operationBranchId]
+  );
+  const operationBranchEmployees = useMemo(
+    () => employees.filter((employee) => employee.branchId === operationBranchId),
+    [employees, operationBranchId]
+  );
+  const assignmentByEmployeeDate = useMemo(() => {
+    const map = new Map<string, RosterAssignment>();
+    monthlyView?.employees.forEach((employee) => {
+      employee.assignments.forEach((assignment) => {
+        map.set(`${employee.employeeId}:${assignment.assignmentDate}`, assignment);
+      });
+    });
+    return map;
+  }, [monthlyView]);
 
   function resetShiftForm() {
     setEditingShiftId(null);
@@ -126,6 +261,11 @@ export function RosterManagement({
   function resetTemplateForm() {
     setEditingTemplateId(null);
     setTemplateForm(buildEmptyTemplateForm(branches));
+  }
+
+  function resetAssignmentForm() {
+    setEditingAssignmentId(null);
+    setAssignmentForm(buildEmptyAssignmentForm(operationMonth));
   }
 
   async function submitShift(event: React.FormEvent) {
@@ -148,7 +288,8 @@ export function RosterManagement({
       );
       setStatusMessage(editingShiftId ? "Shift updated successfully." : "Shift created successfully.");
       resetShiftForm();
-      await loadRosterData();
+      await loadBaseData();
+      await loadMonthlyView();
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message : "Unable to save shift.");
     } finally {
@@ -176,11 +317,39 @@ export function RosterManagement({
       );
       setStatusMessage(editingTemplateId ? "Template updated successfully." : "Template created successfully.");
       resetTemplateForm();
-      await loadRosterData();
+      await loadBaseData();
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message : "Unable to save template.");
     } finally {
       setSavingTemplate(false);
+    }
+  }
+
+  async function submitAssignment(event: React.FormEvent) {
+    event.preventDefault();
+    if (!assignmentForm.employeeId || !assignmentForm.shiftId || !assignmentForm.assignmentDate) {
+      setStatusMessage("Select employee, shift, and date to save the assignment.");
+      return;
+    }
+    setBusyAction("assignment");
+    setStatusMessage("");
+    try {
+      await apiFetch<RosterAssignment>(
+        session,
+        editingAssignmentId ? `/admin/roster/assignments/${editingAssignmentId}` : "/admin/roster/assignments",
+        {
+          method: editingAssignmentId ? "PUT" : "POST",
+          body: JSON.stringify(assignmentForm)
+        }
+      );
+      setStatusMessage(editingAssignmentId ? "Assignment updated successfully." : "Assignment saved successfully.");
+      resetAssignmentForm();
+      await loadMonthlyView();
+      await loadExceptionReport();
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "Unable to save roster assignment.");
+    } finally {
+      setBusyAction(null);
     }
   }
 
@@ -219,6 +388,17 @@ export function RosterManagement({
     });
   }
 
+  function startAssignmentEdit(assignment: RosterAssignment) {
+    setEditingAssignmentId(assignment.id);
+    setAssignmentForm({
+      employeeId: assignment.employeeId,
+      shiftId: assignment.shiftId,
+      assignmentDate: assignment.assignmentDate,
+      assignmentType: assignment.assignmentType,
+      notes: assignment.notes ?? ""
+    });
+  }
+
   async function removeShift(shiftId: string) {
     if (!window.confirm("Delete this roster shift?")) {
       return;
@@ -229,7 +409,7 @@ export function RosterManagement({
       if (editingShiftId === shiftId) {
         resetShiftForm();
       }
-      await loadRosterData();
+      await loadBaseData();
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message : "Unable to delete shift.");
     }
@@ -245,9 +425,130 @@ export function RosterManagement({
       if (editingTemplateId === templateId) {
         resetTemplateForm();
       }
-      await loadRosterData();
+      await loadBaseData();
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message : "Unable to delete template.");
+    }
+  }
+
+  async function removeAssignment(assignmentId: string) {
+    if (!window.confirm("Delete this roster assignment?")) {
+      return;
+    }
+    try {
+      await apiFetchVoid(session, `/admin/roster/assignments/${assignmentId}`, { method: "DELETE" });
+      setStatusMessage("Assignment deleted successfully.");
+      if (editingAssignmentId === assignmentId) {
+        resetAssignmentForm();
+      }
+      await loadMonthlyView();
+      await loadExceptionReport();
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "Unable to delete assignment.");
+    }
+  }
+
+  async function generateRoster() {
+    if (!operationBranchId || !selectedTemplateId) {
+      setStatusMessage("Select both branch and template before generating the monthly roster.");
+      return;
+    }
+    setBusyAction("generate");
+    setStatusMessage("");
+    try {
+      const response = await apiFetch<RosterMonthlyView>(session, "/admin/roster/generate-monthly", {
+        method: "POST",
+        body: JSON.stringify({
+          branchId: operationBranchId,
+          templateId: selectedTemplateId,
+          month: operationMonth
+        })
+      });
+      setMonthlyView(response);
+      setConflicts(response.conflicts);
+      setStatusMessage("Monthly roster generated successfully.");
+      await loadExceptionReport();
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "Unable to generate monthly roster.");
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  async function publishRoster() {
+    if (!operationBranchId || !operationMonth) {
+      return;
+    }
+    setBusyAction("publish");
+    setStatusMessage("");
+    try {
+      const response = await apiFetch<RosterPublishResponse>(session, "/admin/roster/publish", {
+        method: "POST",
+        body: JSON.stringify({
+          branchId: operationBranchId,
+          month: operationMonth,
+          notifyChannels: ["WHATSAPP", "IN_APP"]
+        })
+      });
+      setStatusMessage(response.message);
+      await loadMonthlyView();
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "Unable to publish monthly roster.");
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  async function decideSwap(swapRequestId: string, decision: "APPROVED" | "REJECTED") {
+    setBusyAction(`swap-${swapRequestId}`);
+    setStatusMessage("");
+    try {
+      await apiFetch<RosterSwapRequest>(session, `/admin/roster/swap-requests/${swapRequestId}/decision`, {
+        method: "POST",
+        body: JSON.stringify({
+          decision,
+          reviewNote: decision === "REJECTED" ? "Manager rejected this shift swap request." : "Approved by manager."
+        })
+      });
+      setStatusMessage(`Shift swap ${decision.toLowerCase()} successfully.`);
+      await loadMonthlyView();
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "Unable to review shift swap request.");
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  async function exportRoster() {
+    if (!operationBranchId || !operationMonth) {
+      return;
+    }
+    setBusyAction("export");
+    try {
+      const response = await fetch(
+        `${API_BASE}/admin/roster/export?branchId=${encodeURIComponent(operationBranchId)}&month=${encodeURIComponent(operationMonth)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${session.token}`
+          }
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Unable to export roster right now.");
+      }
+      const csvText = await response.text();
+      const blob = new Blob([csvText], { type: "text/csv;charset=utf-8" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `peeplify-roster-${operationMonth}.csv`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+      setStatusMessage("Roster export downloaded successfully.");
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "Unable to export roster.");
+    } finally {
+      setBusyAction(null);
     }
   }
 
@@ -282,9 +583,7 @@ export function RosterManagement({
               <h3>{editingShiftId ? "Edit roster shift" : "Create roster shift"}</h3>
               <p className="muted section-intro">Define reusable shift blocks for your branches before building templates and monthly rosters.</p>
             </div>
-            {editingShiftId ? (
-              <button className="ghost-button" onClick={resetShiftForm} type="button">Cancel edit</button>
-            ) : null}
+            {editingShiftId ? <button className="ghost-button" onClick={resetShiftForm} type="button">Cancel edit</button> : null}
           </div>
           <form className="admin-form-grid" onSubmit={submitShift}>
             <div className="grid three-column compact-grid">
@@ -414,9 +713,7 @@ export function RosterManagement({
               <h3>{editingTemplateId ? "Edit roster template" : "Create roster template"}</h3>
               <p className="muted section-intro">Templates combine branch policy, weekly off logic, selected shifts, and staffing safety rules.</p>
             </div>
-            {editingTemplateId ? (
-              <button className="ghost-button" onClick={resetTemplateForm} type="button">Cancel edit</button>
-            ) : null}
+            {editingTemplateId ? <button className="ghost-button" onClick={resetTemplateForm} type="button">Cancel edit</button> : null}
           </div>
           <form className="admin-form-grid" onSubmit={submitTemplate}>
             <div className="grid two-column compact-grid">
@@ -550,9 +847,270 @@ export function RosterManagement({
         </article>
       </section>
 
+      <section className="panel">
+        <div className="topbar">
+          <div>
+            <h3>Monthly roster operations</h3>
+            <p className="muted section-intro">Generate, review, edit, publish, export, and monitor live roster quality for a selected branch and month.</p>
+          </div>
+        </div>
+        <div className="grid three-column compact-grid">
+          <label>
+            Branch
+            <select value={operationBranchId} onChange={(event) => setOperationBranchId(event.target.value)}>
+              {branches.map((branch) => <option key={branch.id} value={branch.id}>{branch.name}</option>)}
+            </select>
+          </label>
+          <label>
+            Month
+            <input type="month" value={operationMonth} onChange={(event) => setOperationMonth(event.target.value)} />
+          </label>
+          <label>
+            Template
+            <select value={selectedTemplateId} onChange={(event) => setSelectedTemplateId(event.target.value)}>
+              <option value="">Select template</option>
+              {operationBranchTemplates.map((template) => <option key={template.id} value={template.id}>{template.name}</option>)}
+            </select>
+          </label>
+        </div>
+        <div className="table-action-row">
+          <button className="primary-button" onClick={() => void generateRoster()} type="button" disabled={busyAction === "generate" || !selectedTemplateId}>
+            {busyAction === "generate" ? "Generating..." : "Generate monthly roster"}
+          </button>
+          <button className="ghost-button" onClick={() => void loadMonthlyView()} type="button">Refresh month view</button>
+          <button className="ghost-button" onClick={() => void publishRoster()} type="button" disabled={busyAction === "publish" || !monthlyView}>
+            {busyAction === "publish" ? "Publishing..." : "Publish roster"}
+          </button>
+          <button className="ghost-button" onClick={() => void exportRoster()} type="button" disabled={busyAction === "export" || !monthlyView}>
+            {busyAction === "export" ? "Exporting..." : "Export CSV"}
+          </button>
+        </div>
+        {operationBranch ? (
+          <div className="attendance-card-grid roster-summary-grid">
+            <span>Branch weekly off</span>
+            <strong>{operationBranch.weeklyOffMode} · {operationBranch.weeklyOffDays.join(", ")}</strong>
+            <span>Shifts configured</span>
+            <strong>{operationBranchShifts.length}</strong>
+            <span>Templates ready</span>
+            <strong>{operationBranchTemplates.length}</strong>
+          </div>
+        ) : null}
+      </section>
+
+      <section className="grid two-column branch-management-grid">
+        <article className="panel">
+          <div className="topbar">
+            <div>
+              <h3>{editingAssignmentId ? "Edit roster assignment" : "Manual roster assignment"}</h3>
+              <p className="muted section-intro">Override individual dates, add extra working days, or fix generated assignments before publishing.</p>
+            </div>
+            {editingAssignmentId ? <button className="ghost-button" onClick={resetAssignmentForm} type="button">Cancel edit</button> : null}
+          </div>
+          <form className="admin-form-grid" onSubmit={submitAssignment}>
+            <div className="grid compact-grid branch-policy-grid">
+              <label>
+                Employee
+                <select value={assignmentForm.employeeId} onChange={(event) => setAssignmentForm((current) => ({ ...current, employeeId: event.target.value }))}>
+                  <option value="">Select employee</option>
+                  {operationBranchEmployees.map((employee) => <option key={employee.id} value={employee.id}>{employee.name}</option>)}
+                </select>
+              </label>
+              <label>
+                Shift
+                <select value={assignmentForm.shiftId} onChange={(event) => setAssignmentForm((current) => ({ ...current, shiftId: event.target.value }))}>
+                  <option value="">Select shift</option>
+                  {operationBranchShifts.map((shift) => <option key={shift.id} value={shift.id}>{shift.code} · {shift.name}</option>)}
+                </select>
+              </label>
+              <label>
+                Date
+                <input type="date" value={assignmentForm.assignmentDate} onChange={(event) => setAssignmentForm((current) => ({ ...current, assignmentDate: event.target.value }))} />
+              </label>
+              <label>
+                Type
+                <select value={assignmentForm.assignmentType} onChange={(event) => setAssignmentForm((current) => ({ ...current, assignmentType: event.target.value }))}>
+                  {assignmentTypeOptions.map((option) => <option key={option} value={option}>{option}</option>)}
+                </select>
+              </label>
+            </div>
+            <label>
+              Notes
+              <input value={assignmentForm.notes} onChange={(event) => setAssignmentForm((current) => ({ ...current, notes: event.target.value }))} placeholder="Optional manager note for this assignment" />
+            </label>
+            <div className="action-row">
+              <button className="primary-button" type="submit" disabled={busyAction === "assignment"}>
+                {busyAction === "assignment" ? "Saving..." : editingAssignmentId ? "Update assignment" : "Save assignment"}
+              </button>
+            </div>
+          </form>
+        </article>
+
+        <article className="panel">
+          <h3>Conflict alerts</h3>
+          <p className="muted section-intro">Live coverage and schedule warnings appear here before you publish the month.</p>
+          {conflicts.length ? (
+            <div className="attendance-card-list">
+              {conflicts.map((conflict, index) => (
+                <article key={`${conflict.type}-${conflict.assignmentDate}-${index}`} className="attendance-card">
+                  <div className="attendance-card-header">
+                    <strong>{conflict.type.replaceAll("_", " ")}</strong>
+                    <span className={`pill ${conflict.severity === "HIGH" ? "pill-danger" : "pill-warning"}`}>{conflict.severity}</span>
+                  </div>
+                  <p className="muted">{conflict.assignmentDate}</p>
+                  <p>{conflict.message}</p>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <EmptyState title="No active conflicts" message="This month is currently free from double-booking and coverage warnings." />
+          )}
+        </article>
+      </section>
+
+      <section className="panel">
+        <div className="topbar">
+          <div>
+            <h3>Monthly roster grid</h3>
+            <p className="muted section-intro">Rows are employees, columns are dates, and each cell keeps the shift code saved for that day.</p>
+          </div>
+          <span className="pill">{monthlyView?.published ? "Published" : "Draft"}</span>
+        </div>
+        {monthlyView ? (
+          <div className="table-scroll roster-grid-scroll">
+            <table className="data-table roster-grid-table">
+              <thead>
+                <tr>
+                  <th>Employee</th>
+                  {monthlyView.dates.map((date) => <th key={date}>{date.slice(8)}</th>)}
+                </tr>
+              </thead>
+              <tbody>
+                {monthlyView.employees.map((employee) => (
+                  <tr key={employee.employeeId}>
+                    <td>
+                      <strong>{employee.employeeName}</strong>
+                      <br />
+                      <span className="muted">{employee.designation}</span>
+                    </td>
+                    {monthlyView.dates.map((date) => {
+                      const assignment = assignmentByEmployeeDate.get(`${employee.employeeId}:${date}`);
+                      return (
+                        <td key={`${employee.employeeId}-${date}`}>
+                          {assignment ? (
+                            <button
+                              type="button"
+                              className="roster-cell-button"
+                              style={{ borderColor: assignment.colorHex, background: `${assignment.colorHex}14`, color: assignment.colorHex }}
+                              onClick={() => startAssignmentEdit(assignment)}
+                              title={`${assignment.shiftName} · ${assignment.startTime}-${assignment.endTime}`}
+                            >
+                              {assignment.shiftCode}
+                            </button>
+                          ) : (
+                            <span className="muted">OFF</span>
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <EmptyState title="No roster loaded" message="Generate or refresh a monthly roster to see assignments here." />
+        )}
+      </section>
+
+      <section className="grid two-column branch-management-grid">
+        <article className="panel">
+          <div className="topbar">
+            <div>
+              <h3>Shift swap requests</h3>
+              <p className="muted section-intro">Employees can request swaps, and managers can approve or reject them here before they affect published rosters.</p>
+            </div>
+          </div>
+          {swapRequests.length ? (
+            <div className="attendance-card-list">
+              {swapRequests.map((swap) => (
+                <article className="attendance-card" key={swap.id}>
+                  <div className="attendance-card-header">
+                    <strong>{swap.requesterEmployeeName} → {swap.targetEmployeeName}</strong>
+                    <span className="pill">{swap.status}</span>
+                  </div>
+                  <div className="attendance-card-grid">
+                    <span>Swap request</span>
+                    <strong>{swap.requesterShiftName} ({swap.requesterAssignmentDate}) ↔ {swap.targetShiftName} ({swap.targetAssignmentDate})</strong>
+                    <span>Reason</span>
+                    <strong>{swap.reason}</strong>
+                  </div>
+                  {swap.status === "PENDING" ? (
+                    <div className="table-action-row card-action-row">
+                      <button className="primary-button compact-button" onClick={() => void decideSwap(swap.id, "APPROVED")} type="button" disabled={busyAction === `swap-${swap.id}`}>Approve</button>
+                      <button className="ghost-button compact-button danger-button" onClick={() => void decideSwap(swap.id, "REJECTED")} type="button" disabled={busyAction === `swap-${swap.id}`}>Reject</button>
+                    </div>
+                  ) : null}
+                </article>
+              ))}
+            </div>
+          ) : (
+            <EmptyState title="No swap requests" message="Pending employee shift swap requests will appear here." />
+          )}
+        </article>
+
+        <article className="panel">
+          <div className="topbar">
+            <div>
+              <h3>Attendance exceptions</h3>
+              <p className="muted section-intro">Compare scheduled roster timing with actual attendance for one date to spot lateness, overtime, early departure, and absence.</p>
+            </div>
+          </div>
+          <label>
+            Exception date
+            <input type="date" value={exceptionDate} onChange={(event) => setExceptionDate(event.target.value)} />
+          </label>
+          {exceptionReport?.rows.length ? (
+            <div className="table-scroll">
+              <table className="data-table desktop-table">
+                <thead>
+                  <tr>
+                    <th>Employee</th>
+                    <th>Shift</th>
+                    <th>Scheduled</th>
+                    <th>Actual</th>
+                    <th>Late</th>
+                    <th>Early</th>
+                    <th>OT</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {exceptionReport.rows.map((row) => (
+                    <tr key={row.employeeId}>
+                      <td>{row.employeeName}</td>
+                      <td>{row.scheduledShiftName ?? "OFF"}</td>
+                      <td>{row.scheduledStartTime && row.scheduledEndTime ? `${row.scheduledStartTime} - ${row.scheduledEndTime}` : "-"}</td>
+                      <td>{row.actualCheckInTime ? `${row.actualCheckInTime}${row.actualCheckOutTime ? ` - ${row.actualCheckOutTime}` : ""}` : "-"}</td>
+                      <td>{row.lateMinutes}m</td>
+                      <td>{row.earlyDepartureMinutes}m</td>
+                      <td>{row.overtimeMinutes}m</td>
+                      <td>{row.status}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <EmptyState title="No exception data yet" message="Pick a date after roster and attendance activity to review exceptions." />
+          )}
+        </article>
+      </section>
+
       {statusMessage ? (
         <section className="panel">
-          <p className={statusMessage.includes("successfully") ? "status-text" : "error-text"}>{statusMessage}</p>
+          <p className={statusMessage.toLowerCase().includes("success") || statusMessage.toLowerCase().includes("published") ? "status-text" : "error-text"}>
+            {statusMessage}
+          </p>
         </section>
       ) : null}
     </div>

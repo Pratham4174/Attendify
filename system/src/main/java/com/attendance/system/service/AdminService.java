@@ -25,6 +25,7 @@ import com.attendance.system.model.HolidayEntity;
 import com.attendance.system.model.LeaveRequestEntity;
 import com.attendance.system.model.LeaveStatus;
 import com.attendance.system.model.LeaveType;
+import com.attendance.system.model.RosterAssignmentEntity;
 import com.attendance.system.model.SalaryAdvancePaymentEntity;
 import com.attendance.system.model.UserEntity;
 import com.attendance.system.model.UserRole;
@@ -34,6 +35,7 @@ import com.attendance.system.repository.BranchRepository;
 import com.attendance.system.repository.EmployeeRepository;
 import com.attendance.system.repository.HolidayRepository;
 import com.attendance.system.repository.LeaveRequestRepository;
+import com.attendance.system.repository.RosterAssignmentRepository;
 import com.attendance.system.repository.SalaryAdvancePaymentRepository;
 import com.attendance.system.repository.UserRepository;
 import com.attendance.system.repository.VendorRepository;
@@ -56,6 +58,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -74,6 +77,7 @@ public class AdminService {
     private final LeaveRequestRepository leaveRequestRepository;
     private final HolidayRepository holidayRepository;
     private final SalaryAdvancePaymentRepository salaryAdvancePaymentRepository;
+    private final RosterAssignmentRepository rosterAssignmentRepository;
     private final AttendanceMapper mapper;
     private final TrackingProperties trackingProperties;
     private final PasswordEncoder passwordEncoder;
@@ -88,6 +92,7 @@ public class AdminService {
             LeaveRequestRepository leaveRequestRepository,
             HolidayRepository holidayRepository,
             SalaryAdvancePaymentRepository salaryAdvancePaymentRepository,
+            RosterAssignmentRepository rosterAssignmentRepository,
             AttendanceMapper mapper,
             TrackingProperties trackingProperties,
             PasswordEncoder passwordEncoder
@@ -101,6 +106,7 @@ public class AdminService {
         this.leaveRequestRepository = leaveRequestRepository;
         this.holidayRepository = holidayRepository;
         this.salaryAdvancePaymentRepository = salaryAdvancePaymentRepository;
+        this.rosterAssignmentRepository = rosterAssignmentRepository;
         this.mapper = mapper;
         this.trackingProperties = trackingProperties;
         this.passwordEncoder = passwordEncoder;
@@ -676,10 +682,17 @@ public class AdminService {
                 .stream()
                 .filter(record -> record.getAttendanceDate() != null)
                 .toList();
+        List<RosterAssignmentEntity> rosterAssignments = rosterAssignmentRepository
+                .findByEmployee_IdAndAssignmentDateBetweenOrderByAssignmentDateAsc(employee.getId(), startDate, completedThrough);
         Map<LocalDate, AttendanceRecordEntity> attendanceByDate = new LinkedHashMap<>();
         for (AttendanceRecordEntity record : attendanceRows) {
             attendanceByDate.putIfAbsent(record.getAttendanceDate(), record);
         }
+        Set<LocalDate> scheduledWorkingDates = rosterAssignments.stream()
+                .filter(item -> !"OFF".equalsIgnoreCase(item.getAssignmentType()))
+                .map(RosterAssignmentEntity::getAssignmentDate)
+                .collect(java.util.stream.Collectors.toCollection(LinkedHashSet::new));
+        boolean rosterEnabledForPeriod = !scheduledWorkingDates.isEmpty();
 
         Set<LocalDate> holidayDates = holidayRepository
                 .findByVendor_IdAndHolidayDateBetweenOrderByHolidayDateAsc(employee.getVendor().getId(), startDate, completedThrough)
@@ -712,7 +725,12 @@ public class AdminService {
         int requestedPaidLeaveDays = 0;
         int requestedUnpaidLeaveDays = 0;
         int absenceDays = 0;
+        int rosterDaysCounted = 0;
         for (LocalDate date = startDate; !date.isAfter(completedThrough); date = date.plusDays(1)) {
+            if (rosterEnabledForPeriod && !scheduledWorkingDates.contains(date)) {
+                continue;
+            }
+            rosterDaysCounted++;
             AttendanceRecordEntity attendanceRecord = attendanceByDate.get(date);
             if (holidayDates.contains(date)) {
                 holidayDays++;
@@ -747,9 +765,10 @@ public class AdminService {
                 .add(BigDecimal.valueOf(paidLeaveDays))
                 .setScale(2, RoundingMode.HALF_UP);
         BigDecimal monthlySalary = safeMoney(employee.getMonthlySalary());
-        BigDecimal dailyRate = daysCounted == 0
+        int effectiveDaysCounted = rosterEnabledForPeriod ? rosterDaysCounted : daysCounted;
+        BigDecimal dailyRate = effectiveDaysCounted == 0
                 ? BigDecimal.ZERO
-                : monthlySalary.divide(BigDecimal.valueOf(endDate.lengthOfMonth()), 2, RoundingMode.HALF_UP);
+                : monthlySalary.divide(BigDecimal.valueOf(effectiveDaysCounted), 2, RoundingMode.HALF_UP);
         BigDecimal grossPayable = dailyRate.multiply(payableDays).setScale(2, RoundingMode.HALF_UP);
         BigDecimal openingAdvance = safeMoney(employee.getAdvancePaid());
         BigDecimal monthAdvancePaid = safeMoney(advanceTotalsByEmployee.get(employee.getId()));
@@ -762,7 +781,7 @@ public class AdminService {
                 employee.getDesignation(),
                 employee.getStatus(),
                 moneyValue(monthlySalary),
-                daysCounted,
+                effectiveDaysCounted,
                 workedDays,
                 halfDays,
                 holidayDays,
