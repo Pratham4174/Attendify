@@ -55,6 +55,7 @@ com/attendance/system/dto/LocationPingRequest.class
 com/attendance/system/model/RosterAssignmentEntity.class
 com/attendance/system/dto/AdminSubscriptionSummaryResponse$CurrentPlan.class
 com/attendance/system/config/AttendanceImageStorageProperties$R2.class
+com/attendance/system/dto/SalesInquiryResponse.class
 com/attendance/system/dto/RosterMonthlyViewResponse.class
 com/attendance/system/dto/RosterAssignmentResponse.class
 com/attendance/system/repository/LeaveRequestRepository.class

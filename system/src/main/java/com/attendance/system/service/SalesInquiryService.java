@@ -1,6 +1,7 @@
 package com.attendance.system.service;
 
 import com.attendance.system.dto.SalesInquiryRequest;
+import com.attendance.system.dto.SalesInquiryResponse;
 import com.attendance.system.model.SalesInquiryEntity;
 import com.attendance.system.repository.SalesInquiryRepository;
 import org.slf4j.Logger;
@@ -38,7 +39,7 @@ public class SalesInquiryService {
     }
 
     @Transactional
-    public void createInquiry(SalesInquiryRequest request) {
+    public SalesInquiryResponse createInquiry(SalesInquiryRequest request) {
         SalesInquiryEntity inquiry = new SalesInquiryEntity();
         inquiry.setContactName(request.contactName().trim());
         inquiry.setContactEmail(request.contactEmail().trim());
@@ -51,7 +52,11 @@ public class SalesInquiryService {
 
         if (javaMailSender == null) {
             log.warn("Sales inquiry email not sent because JavaMailSender is unavailable. Inquiry id={}", inquiry.getId());
-            return;
+            return new SalesInquiryResponse(
+                    "Your request was saved, but email delivery is not configured yet. Please check the backend mail settings.",
+                    false,
+                    true
+            );
         }
 
         try {
@@ -82,8 +87,14 @@ public class SalesInquiryService {
                     inquiry.getMessage() == null || inquiry.getMessage().isBlank() ? "No additional message." : inquiry.getMessage()
             ));
             javaMailSender.send(message);
+            return new SalesInquiryResponse("Thanks. Your request was sent successfully.", true, true);
         } catch (Exception exception) {
             log.warn("Sales inquiry email delivery failed for inquiry id={}: {}", inquiry.getId(), exception.getMessage());
+            return new SalesInquiryResponse(
+                    "Your request was saved, but the email could not be delivered right now. Please check the server mail settings.",
+                    false,
+                    true
+            );
         }
     }
 }

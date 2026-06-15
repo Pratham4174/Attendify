@@ -61,8 +61,13 @@ export function ContactRequestForm({
         throw new Error(await extractError(response));
       }
 
-      const body = (await response.json()) as { message?: string };
-      setStatus(body.message ?? "Thanks. We will contact you shortly.");
+      const body = (await response.json()) as { message?: string; emailDelivered?: boolean };
+      setStatus(
+        body.message ??
+          (body.emailDelivered === false
+            ? "Your request was saved, but the email could not be delivered right now."
+            : "Thanks. We will contact you shortly.")
+      );
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Unable to send your request right now.");
     } finally {
@@ -116,7 +121,16 @@ export function ContactRequestForm({
           </button>
         </div>
         {status ? (
-          <p className={status.toLowerCase().includes("thanks") || status.toLowerCase().includes("shortly") ? "status-text" : "error-text"}>
+          <p
+            className={
+              status.toLowerCase().includes("saved, but the email could not be delivered") ||
+              status.toLowerCase().includes("saved, but email delivery is not configured")
+                ? "error-text"
+                : status.toLowerCase().includes("thanks") || status.toLowerCase().includes("successfully")
+                  ? "status-text"
+                  : "error-text"
+            }
+          >
             {status}
           </p>
         ) : null}

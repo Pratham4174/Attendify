@@ -8,6 +8,7 @@ import com.attendance.system.dto.PublicCheckoutSessionCreateRequest;
 import com.attendance.system.dto.PublicCheckoutSessionResponse;
 import com.attendance.system.dto.PublicCheckoutSessionVerificationResponse;
 import com.attendance.system.dto.SalesInquiryRequest;
+import com.attendance.system.dto.SalesInquiryResponse;
 import com.attendance.system.dto.SubscriptionRenewalRequest;
 import com.attendance.system.service.PublicBillingService;
 import com.attendance.system.service.PropertyRegistrationService;
@@ -58,9 +59,8 @@ public class PublicController {
     }
 
     @PostMapping("/sales-inquiries")
-    public MessageResponse createSalesInquiry(@Valid @RequestBody SalesInquiryRequest request) {
-        salesInquiryService.createInquiry(request);
-        return new MessageResponse("Thanks. Our team will reach out to you shortly.");
+    public SalesInquiryResponse createSalesInquiry(@Valid @RequestBody SalesInquiryRequest request) {
+        return salesInquiryService.createInquiry(request);
     }
 
     @PostMapping("/property-registration")

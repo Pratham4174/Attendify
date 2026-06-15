@@ -72,6 +72,7 @@
 /Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/dto/SalaryAdvancePaymentRequest.java
 /Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/dto/SalaryAdvancePaymentResponse.java
 /Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/dto/SalesInquiryRequest.java
+/Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/dto/SalesInquiryResponse.java
 /Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/dto/SubscriptionRenewalRequest.java
 /Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/model/AttendanceCorrectionAuditEntity.java
 /Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/model/AttendanceCorrectionRequestEntity.java
