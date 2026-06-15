@@ -53,6 +53,9 @@ public class PropertyRegistrationService {
     @Transactional
     public PropertyRegistrationResponse register(PropertyRegistrationRequest request) {
         PublicCheckoutSessionEntity checkoutSession = publicBillingService.requireUnlockedSession(request.checkoutSessionId());
+        if (request.employees() == null || request.employees().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Add at least one employee to start your Peeplify workspace.");
+        }
         if (request.employees().size() > checkoutSession.getEmployeeCount()) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,

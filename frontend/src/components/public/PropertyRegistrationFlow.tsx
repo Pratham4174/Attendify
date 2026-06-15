@@ -84,6 +84,7 @@ const defaultCustomPlanForm: CustomPlanFormState = {
 };
 
 const defaultEmployee = (): EmployeeSeedForm => ({
+  localId: crypto.randomUUID(),
   employeeCode: "",
   name: "",
   email: "",
@@ -543,7 +544,7 @@ export function PropertyRegistrationFlow({
           latitude: Number(propertyForm.latitude),
           longitude: Number(propertyForm.longitude),
           radiusMeters: Number(propertyForm.radiusMeters),
-          employees: seededEmployees
+          employees: seededEmployees.map(({ localId: _localId, ...employee }) => employee)
         })
       });
 
@@ -989,7 +990,7 @@ export function PropertyRegistrationFlow({
               </div>
               <div className="employee-seed-list">
                 {employees.map((employee, index) => (
-                  <div className="employee-seed-card" key={`${index}-${employee.email}`}>
+                  <div className="employee-seed-card" key={employee.localId}>
                     <div className="grid two-column compact-grid">
                       <label>
                         <RequiredLabel>Employee code</RequiredLabel>

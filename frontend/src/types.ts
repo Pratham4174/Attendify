@@ -371,6 +371,7 @@ export type ApiError = {
 };
 
 export type EmployeeSeedForm = {
+  localId: string;
   employeeCode: string;
   name: string;
   email: string;
