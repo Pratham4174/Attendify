@@ -418,10 +418,13 @@
 .roster-workspace {
   gap: 18px;
   padding-bottom: 28px;
+  min-width: 0;
 }
 
 .roster-workspace-header {
   padding: 18px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .roster-workspace-topbar {
@@ -430,6 +433,9 @@
 
 .roster-desktop-note {
   margin-bottom: 16px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  overflow: hidden;
 }
 
 .roster-desktop-note strong {
@@ -442,6 +448,7 @@
   overflow-x: auto;
   padding-bottom: 4px;
   scrollbar-width: none;
+  min-width: 0;
 }
 
 .roster-tab-strip::-webkit-scrollbar {
@@ -459,6 +466,8 @@
   text-align: left;
   color: var(--text-main);
   flex-shrink: 0;
+  overflow-wrap: anywhere;
+  overflow: hidden;
 }
 
 .roster-tab-button strong {
@@ -483,6 +492,7 @@
   padding-bottom: 4px;
   margin-top: 12px;
   scrollbar-width: none;
+  min-width: 0;
 }
 
 .roster-subtab-strip::-webkit-scrollbar {
@@ -497,6 +507,7 @@
   padding: 10px 14px;
   font-weight: 700;
   flex-shrink: 0;
+  overflow-wrap: anywhere;
 }
 
 .roster-subtab-button-active {
@@ -619,7 +630,7 @@
   }
 
   .roster-tab-button {
-    min-width: 144px;
+    min-width: 132px;
     padding: 12px 14px;
   }
 
@@ -658,7 +669,7 @@
 @media (max-width: 560px) {
   .roster-workspace {
     gap: 14px;
-    padding-bottom: 84px;
+    padding-bottom: 156px;
   }
 
   .roster-workspace-header,
@@ -679,8 +690,9 @@
   }
 
   .roster-tab-button {
-    min-width: 128px;
-    padding: 11px 12px;
+    width: 100%;
+    min-width: 0;
+    padding: 10px 11px;
     border-radius: 16px;
   }
 
@@ -692,14 +704,28 @@
     font-size: 0.74rem;
   }
 
+  .roster-tab-strip {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible;
+    gap: 8px;
+    padding-bottom: 0;
+  }
+
   .roster-subtab-strip {
     gap: 8px;
     margin-top: 10px;
+    flex-wrap: wrap;
+    overflow: visible;
+    padding-bottom: 0;
   }
 
   .roster-subtab-button {
+    flex: 1 1 0;
+    min-width: 0;
     padding: 9px 11px;
     font-size: 0.8rem;
+    text-align: center;
   }
 
   .roster-workspace .grid.three-column.compact-grid,
@@ -762,7 +788,7 @@
 
 @media (max-width: 420px) {
   .roster-workspace {
-    padding-bottom: 96px;
+    padding-bottom: 180px;
   }
 
   .roster-workspace-header,
@@ -781,11 +807,15 @@
   }
 
   .roster-tab-button {
-    min-width: 120px;
+    min-width: 0;
   }
 
   .roster-subtab-button {
     font-size: 0.76rem;
+  }
+
+  .roster-tab-strip {
+    grid-template-columns: 1fr;
   }
 
   .roster-workspace input,

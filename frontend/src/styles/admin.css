@@ -562,7 +562,7 @@
   display: grid;
   place-items: center;
   padding: 18px;
-  z-index: 20;
+  z-index: 40;
 }
 
 .image-modal-card {
@@ -670,8 +670,9 @@
   }
 
   .image-modal-backdrop {
-    place-items: end center;
+    place-items: start center;
     padding: 8px;
+    overflow-y: auto;
   }
 
   .image-modal-card {
@@ -680,6 +681,7 @@
     padding: 14px;
     border-radius: 20px;
     overflow-y: auto;
+    margin: max(8px, env(safe-area-inset-top)) 0 calc(12px + env(safe-area-inset-bottom));
   }
 
   .image-modal-close {

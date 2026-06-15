@@ -21,9 +21,9 @@ export function SupportRequestModal({
   }
 
   return (
-    <div className="image-modal-backdrop" onClick={onClose}>
+    <div className="image-modal-backdrop support-modal-backdrop" onClick={onClose}>
       <div className="image-modal-card support-modal-card" onClick={(event) => event.stopPropagation()}>
-        <button className="ghost-button image-modal-close" onClick={onClose} type="button">
+        <button className="ghost-button image-modal-close support-modal-close" onClick={onClose} type="button">
           Close
         </button>
         <ContactRequestForm
