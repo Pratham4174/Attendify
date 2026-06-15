@@ -504,6 +504,11 @@
   display: grid;
 }
 
+.roster-summary-grid strong,
+.roster-summary-grid span {
+  word-break: break-word;
+}
+
 .table-scroll {
   overflow-x: auto;
 }
@@ -638,5 +643,131 @@
 
   .roster-workspace .attendance-card-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .roster-workspace {
+    gap: 14px;
+  }
+
+  .roster-workspace-header,
+  .roster-workspace .panel {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .roster-workspace .panel h3 {
+    font-size: 0.98rem;
+    line-height: 1.28;
+  }
+
+  .roster-workspace .section-intro,
+  .roster-workspace .muted {
+    font-size: 0.84rem;
+    line-height: 1.38;
+  }
+
+  .roster-tab-button {
+    min-width: 128px;
+    padding: 11px 12px;
+    border-radius: 16px;
+  }
+
+  .roster-tab-button strong {
+    font-size: 0.88rem;
+  }
+
+  .roster-tab-button span {
+    font-size: 0.74rem;
+  }
+
+  .roster-subtab-strip {
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .roster-subtab-button {
+    padding: 9px 11px;
+    font-size: 0.8rem;
+  }
+
+  .roster-workspace .grid.three-column.compact-grid,
+  .roster-workspace .grid.two-column.compact-grid,
+  .roster-workspace .branch-policy-grid,
+  .roster-workspace .attendance-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .roster-workspace label {
+    gap: 6px;
+  }
+
+  .roster-workspace input,
+  .roster-workspace select,
+  .roster-workspace textarea {
+    min-height: 48px;
+    padding: 12px 14px;
+    font-size: 0.96rem;
+  }
+
+  .roster-workspace .table-action-row,
+  .roster-workspace .action-row {
+    gap: 10px;
+  }
+
+  .roster-workspace .table-action-row button,
+  .roster-workspace .action-row button,
+  .roster-workspace .primary-button,
+  .roster-workspace .secondary-button,
+  .roster-workspace .ghost-button {
+    min-height: 48px;
+    padding: 12px 14px;
+    font-size: 0.92rem;
+    line-height: 1.2;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .roster-summary-grid {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 420px) {
+  .roster-workspace-header,
+  .roster-workspace .panel {
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .roster-workspace .panel h3 {
+    font-size: 0.94rem;
+  }
+
+  .roster-workspace .section-intro,
+  .roster-workspace .muted {
+    font-size: 0.8rem;
+  }
+
+  .roster-tab-button {
+    min-width: 120px;
+  }
+
+  .roster-subtab-button {
+    font-size: 0.76rem;
+  }
+
+  .roster-workspace input,
+  .roster-workspace select,
+  .roster-workspace textarea,
+  .roster-workspace .table-action-row button,
+  .roster-workspace .action-row button,
+  .roster-workspace .primary-button,
+  .roster-workspace .secondary-button,
+  .roster-workspace .ghost-button {
+    font-size: 0.88rem;
   }
 }

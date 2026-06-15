@@ -607,6 +607,29 @@
   .public-site-footer {
     gap: 8px;
   }
+
+  .support-modal-card {
+    width: min(100vw - 20px, 760px);
+  }
+
+  .support-modal-card .auth-section {
+    padding: 14px;
+  }
+
+  .support-modal-card .grid.two-column.compact-grid,
+  .support-modal-card .grid.three-column.compact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .support-modal-card .action-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .support-modal-card .primary-button,
+  .support-modal-card .ghost-button {
+    width: 100%;
+  }
 }
 
 @media (max-width: 560px) {
@@ -676,5 +699,22 @@
 
   .public-trial-banner {
     padding: 13px 14px;
+  }
+
+  .support-modal-card {
+    width: calc(100vw - 16px);
+  }
+
+  .support-modal-card .auth-section-title {
+    gap: 6px;
+  }
+
+  .support-modal-card strong {
+    font-size: 0.96rem;
+  }
+
+  .support-modal-card .muted {
+    font-size: 0.84rem;
+    line-height: 1.4;
   }
 }

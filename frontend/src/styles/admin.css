@@ -624,10 +624,12 @@
 @media (max-width: 720px) {
   .admin-header-actions {
     width: 100%;
+    flex-wrap: wrap;
   }
 
   .admin-header-actions .ghost-button {
     flex: 1;
+    min-width: 0;
   }
 
   .topbar,
@@ -665,6 +667,24 @@
 @media (max-width: 560px) {
   .admin-shell {
     gap: 16px;
+  }
+
+  .image-modal-backdrop {
+    place-items: end center;
+    padding: 8px;
+  }
+
+  .image-modal-card {
+    width: min(100vw - 16px, 720px);
+    max-height: calc(100vh - 16px);
+    padding: 14px;
+    border-radius: 20px;
+    overflow-y: auto;
+  }
+
+  .image-modal-close {
+    width: 100%;
+    justify-self: stretch;
   }
 
   .admin-sidebar {
