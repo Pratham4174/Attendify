@@ -467,6 +467,43 @@
   box-shadow: 0 10px 22px rgba(37, 99, 235, 0.08);
 }
 
+.roster-subtab-strip {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-top: 12px;
+  scrollbar-width: none;
+}
+
+.roster-subtab-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.roster-subtab-button {
+  border: 1px solid rgba(37, 99, 235, 0.12);
+  background: rgba(239, 246, 255, 0.68);
+  color: var(--text-main);
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.roster-subtab-button-active {
+  background: rgba(219, 234, 254, 0.98);
+  border-color: rgba(37, 99, 235, 0.3);
+  color: var(--primary-strong);
+}
+
+.roster-action-stack {
+  align-items: stretch;
+}
+
+.roster-mobile-card-list {
+  display: grid;
+}
+
 .table-scroll {
   overflow-x: auto;
 }
@@ -547,9 +584,24 @@
     padding: 16px;
   }
 
+  .roster-workspace .panel {
+    padding: 18px;
+  }
+
   .roster-workspace-topbar {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .roster-workspace .panel h3 {
+    font-size: 1.1rem;
+    line-height: 1.25;
+  }
+
+  .roster-workspace .section-intro,
+  .roster-workspace .muted {
+    font-size: 0.92rem;
+    line-height: 1.45;
   }
 
   .roster-tab-button {
@@ -563,5 +615,28 @@
 
   .roster-tab-button span {
     font-size: 0.78rem;
+  }
+
+  .roster-subtab-button {
+    padding: 10px 12px;
+    font-size: 0.88rem;
+  }
+
+  .roster-workspace .table-action-row,
+  .roster-workspace .action-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .roster-workspace .table-action-row button,
+  .roster-workspace .action-row button,
+  .roster-workspace .primary-button,
+  .roster-workspace .secondary-button,
+  .roster-workspace .ghost-button {
+    width: 100%;
+  }
+
+  .roster-workspace .attendance-card-grid {
+    grid-template-columns: 1fr;
   }
 }

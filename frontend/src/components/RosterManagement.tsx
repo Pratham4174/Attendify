@@ -53,6 +53,8 @@ type AssignmentFormState = {
 };
 
 type RosterWorkspaceTab = "setup" | "templates" | "planning" | "calendar" | "exceptions";
+type PlanningTab = "operations" | "assignment" | "conflicts";
+type ExceptionTab = "swaps" | "attendance";
 
 const weekdayOptions = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"];
 const industryOptions = ["HOSPITAL", "HOTEL", "FACTORY", "SCHOOL", "RETAIL", "SECURITY", "PETROL_PUMP", "OFFICE", "PHARMACY", "GYM"];
@@ -148,6 +150,8 @@ export function RosterManagement({
   const [assignmentForm, setAssignmentForm] = useState<AssignmentFormState>(() => buildEmptyAssignmentForm(monthToday()));
   const [busyAction, setBusyAction] = useState<string | null>(null);
   const [activeWorkspaceTab, setActiveWorkspaceTab] = useState<RosterWorkspaceTab>("planning");
+  const [activePlanningTab, setActivePlanningTab] = useState<PlanningTab>("operations");
+  const [activeExceptionTab, setActiveExceptionTab] = useState<ExceptionTab>("swaps");
 
   useEffect(() => {
     setShiftForm((current) => current.branchId ? current : buildEmptyShiftForm(branches));
@@ -893,57 +897,97 @@ export function RosterManagement({
       {activeWorkspaceTab === "planning" ? (
         <>
           <section className="panel">
-        <div className="topbar">
-          <div>
-            <h3>Monthly roster operations</h3>
-            <p className="muted section-intro">Generate, review, edit, publish, export, and monitor live roster quality for a selected branch and month.</p>
-          </div>
-        </div>
-        <div className="grid three-column compact-grid">
-          <label>
-            Branch
-            <select value={operationBranchId} onChange={(event) => setOperationBranchId(event.target.value)}>
-              {branches.map((branch) => <option key={branch.id} value={branch.id}>{branch.name}</option>)}
-            </select>
-          </label>
-          <label>
-            Month
-            <input type="month" value={operationMonth} onChange={(event) => setOperationMonth(event.target.value)} />
-          </label>
-          <label>
-            Template
-            <select value={selectedTemplateId} onChange={(event) => setSelectedTemplateId(event.target.value)}>
-              <option value="">Select template</option>
-              {operationBranchTemplates.map((template) => <option key={template.id} value={template.id}>{template.name}</option>)}
-            </select>
-          </label>
-        </div>
-        <div className="table-action-row">
-          <button className="primary-button" onClick={() => void generateRoster()} type="button" disabled={busyAction === "generate" || !selectedTemplateId}>
-            {busyAction === "generate" ? "Generating..." : "Generate monthly roster"}
-          </button>
-          <button className="ghost-button" onClick={() => void loadMonthlyView()} type="button">Refresh month view</button>
-          <button className="ghost-button" onClick={() => void publishRoster()} type="button" disabled={busyAction === "publish" || !monthlyView}>
-            {busyAction === "publish" ? "Publishing..." : "Publish roster"}
-          </button>
-          <button className="ghost-button" onClick={() => void exportRoster()} type="button" disabled={busyAction === "export" || !monthlyView}>
-            {busyAction === "export" ? "Exporting..." : "Export CSV"}
-          </button>
-        </div>
-        {operationBranch ? (
-          <div className="attendance-card-grid roster-summary-grid">
-            <span>Branch weekly off</span>
-            <strong>{operationBranch.weeklyOffMode} · {operationBranch.weeklyOffDays.join(", ")}</strong>
-            <span>Shifts configured</span>
-            <strong>{operationBranchShifts.length}</strong>
-            <span>Templates ready</span>
-            <strong>{operationBranchTemplates.length}</strong>
-          </div>
-        ) : null}
+            <div className="topbar">
+              <div>
+                <h3>Planning workspace</h3>
+                <p className="muted section-intro">Switch between operations, manual assignment, and conflicts so each task stays lightweight on smaller screens.</p>
+              </div>
+            </div>
+            <div className="roster-subtab-strip" role="tablist" aria-label="Planning sections">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activePlanningTab === "operations"}
+                className={`roster-subtab-button ${activePlanningTab === "operations" ? "roster-subtab-button-active" : ""}`}
+                onClick={() => setActivePlanningTab("operations")}
+              >
+                Monthly ops
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activePlanningTab === "assignment"}
+                className={`roster-subtab-button ${activePlanningTab === "assignment" ? "roster-subtab-button-active" : ""}`}
+                onClick={() => setActivePlanningTab("assignment")}
+              >
+                Assignment
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activePlanningTab === "conflicts"}
+                className={`roster-subtab-button ${activePlanningTab === "conflicts" ? "roster-subtab-button-active" : ""}`}
+                onClick={() => setActivePlanningTab("conflicts")}
+              >
+                Conflicts
+              </button>
+            </div>
           </section>
 
-          <section className="grid two-column branch-management-grid">
-            <article className="panel">
+          {activePlanningTab === "operations" ? (
+            <section className="panel">
+              <div className="topbar">
+                <div>
+                  <h3>Monthly roster operations</h3>
+                  <p className="muted section-intro">Generate, review, publish, and export roster month by month for the selected branch.</p>
+                </div>
+              </div>
+              <div className="grid three-column compact-grid">
+                <label>
+                  Branch
+                  <select value={operationBranchId} onChange={(event) => setOperationBranchId(event.target.value)}>
+                    {branches.map((branch) => <option key={branch.id} value={branch.id}>{branch.name}</option>)}
+                  </select>
+                </label>
+                <label>
+                  Month
+                  <input type="month" value={operationMonth} onChange={(event) => setOperationMonth(event.target.value)} />
+                </label>
+                <label>
+                  Template
+                  <select value={selectedTemplateId} onChange={(event) => setSelectedTemplateId(event.target.value)}>
+                    <option value="">Select template</option>
+                    {operationBranchTemplates.map((template) => <option key={template.id} value={template.id}>{template.name}</option>)}
+                  </select>
+                </label>
+              </div>
+              <div className="table-action-row roster-action-stack">
+                <button className="primary-button" onClick={() => void generateRoster()} type="button" disabled={busyAction === "generate" || !selectedTemplateId}>
+                  {busyAction === "generate" ? "Generating..." : "Generate monthly roster"}
+                </button>
+                <button className="ghost-button" onClick={() => void loadMonthlyView()} type="button">Refresh month view</button>
+                <button className="ghost-button" onClick={() => void publishRoster()} type="button" disabled={busyAction === "publish" || !monthlyView}>
+                  {busyAction === "publish" ? "Publishing..." : "Publish roster"}
+                </button>
+                <button className="ghost-button" onClick={() => void exportRoster()} type="button" disabled={busyAction === "export" || !monthlyView}>
+                  {busyAction === "export" ? "Exporting..." : "Export CSV"}
+                </button>
+              </div>
+              {operationBranch ? (
+                <div className="attendance-card-grid roster-summary-grid">
+                  <span>Branch weekly off</span>
+                  <strong>{operationBranch.weeklyOffMode} · {operationBranch.weeklyOffDays.join(", ")}</strong>
+                  <span>Shifts configured</span>
+                  <strong>{operationBranchShifts.length}</strong>
+                  <span>Templates ready</span>
+                  <strong>{operationBranchTemplates.length}</strong>
+                </div>
+              ) : null}
+            </section>
+          ) : null}
+
+          {activePlanningTab === "assignment" ? (
+            <section className="panel">
               <div className="topbar">
                 <div>
                   <h3>{editingAssignmentId ? "Edit roster assignment" : "Manual roster assignment"}</h3>
@@ -982,19 +1026,26 @@ export function RosterManagement({
                   Notes
                   <input value={assignmentForm.notes} onChange={(event) => setAssignmentForm((current) => ({ ...current, notes: event.target.value }))} placeholder="Optional manager note for this assignment" />
                 </label>
-                <div className="action-row">
+                <div className="action-row roster-action-stack">
                   <button className="primary-button" type="submit" disabled={busyAction === "assignment"}>
                     {busyAction === "assignment" ? "Saving..." : editingAssignmentId ? "Update assignment" : "Save assignment"}
                   </button>
+                  {editingAssignmentId ? (
+                    <button className="ghost-button danger-button" type="button" onClick={() => void removeAssignment(editingAssignmentId)}>
+                      Delete assignment
+                    </button>
+                  ) : null}
                 </div>
               </form>
-            </article>
+            </section>
+          ) : null}
 
-            <article className="panel">
+          {activePlanningTab === "conflicts" ? (
+            <section className="panel">
               <h3>Conflict alerts</h3>
               <p className="muted section-intro">Live coverage and schedule warnings appear here before you publish the month.</p>
               {conflicts.length ? (
-                <div className="attendance-card-list">
+                <div className="attendance-card-list roster-mobile-card-list">
                   {conflicts.map((conflict, index) => (
                     <article key={`${conflict.type}-${conflict.assignmentDate}-${index}`} className="attendance-card">
                       <div className="attendance-card-header">
@@ -1009,8 +1060,8 @@ export function RosterManagement({
               ) : (
                 <EmptyState title="No active conflicts" message="This month is currently free from double-booking and coverage warnings." />
               )}
-            </article>
-          </section>
+            </section>
+          ) : null}
         </>
       ) : null}
 
@@ -1072,89 +1123,122 @@ export function RosterManagement({
       ) : null}
 
       {activeWorkspaceTab === "exceptions" ? (
-        <section className="grid two-column branch-management-grid">
-          <article className="panel">
+        <>
+          <section className="panel">
             <div className="topbar">
               <div>
-                <h3>Shift swap requests</h3>
-                <p className="muted section-intro">Employees can request swaps, and managers can approve or reject them here before they affect published rosters.</p>
+                <h3>Exceptions workspace</h3>
+                <p className="muted section-intro">Switch between shift swap approvals and attendance exception review without loading both long sections together.</p>
               </div>
             </div>
-            {swapRequests.length ? (
-              <div className="attendance-card-list">
-                {swapRequests.map((swap) => (
-                  <article className="attendance-card" key={swap.id}>
-                    <div className="attendance-card-header">
-                      <strong>{swap.requesterEmployeeName} → {swap.targetEmployeeName}</strong>
-                      <span className="pill">{swap.status}</span>
-                    </div>
-                    <div className="attendance-card-grid">
-                      <span>Swap request</span>
-                      <strong>{swap.requesterShiftName} ({swap.requesterAssignmentDate}) ↔ {swap.targetShiftName} ({swap.targetAssignmentDate})</strong>
-                      <span>Reason</span>
-                      <strong>{swap.reason}</strong>
-                    </div>
-                    {swap.status === "PENDING" ? (
-                      <div className="table-action-row card-action-row">
-                        <button className="primary-button compact-button" onClick={() => void decideSwap(swap.id, "APPROVED")} type="button" disabled={busyAction === `swap-${swap.id}`}>Approve</button>
-                        <button className="ghost-button compact-button danger-button" onClick={() => void decideSwap(swap.id, "REJECTED")} type="button" disabled={busyAction === `swap-${swap.id}`}>Reject</button>
-                      </div>
-                    ) : null}
-                  </article>
-                ))}
-              </div>
-            ) : (
-              <EmptyState title="No swap requests" message="Pending employee shift swap requests will appear here." />
-            )}
-          </article>
+            <div className="roster-subtab-strip" role="tablist" aria-label="Exception sections">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeExceptionTab === "swaps"}
+                className={`roster-subtab-button ${activeExceptionTab === "swaps" ? "roster-subtab-button-active" : ""}`}
+                onClick={() => setActiveExceptionTab("swaps")}
+              >
+                Swap requests
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeExceptionTab === "attendance"}
+                className={`roster-subtab-button ${activeExceptionTab === "attendance" ? "roster-subtab-button-active" : ""}`}
+                onClick={() => setActiveExceptionTab("attendance")}
+              >
+                Attendance gaps
+              </button>
+            </div>
+          </section>
 
-          <article className="panel">
-            <div className="topbar">
-              <div>
-                <h3>Attendance exceptions</h3>
-                <p className="muted section-intro">Compare scheduled roster timing with actual attendance for one date to spot lateness, overtime, early departure, and absence.</p>
+          {activeExceptionTab === "swaps" ? (
+            <section className="panel">
+              <div className="topbar">
+                <div>
+                  <h3>Shift swap requests</h3>
+                  <p className="muted section-intro">Employees can request swaps, and managers can approve or reject them here before they affect published rosters.</p>
+                </div>
               </div>
-            </div>
-            <label>
-              Exception date
-              <input type="date" value={exceptionDate} onChange={(event) => setExceptionDate(event.target.value)} />
-            </label>
-            {exceptionReport?.rows.length ? (
-              <div className="table-scroll">
-                <table className="data-table desktop-table">
-                  <thead>
-                    <tr>
-                      <th>Employee</th>
-                      <th>Shift</th>
-                      <th>Scheduled</th>
-                      <th>Actual</th>
-                      <th>Late</th>
-                      <th>Early</th>
-                      <th>OT</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {exceptionReport.rows.map((row) => (
-                      <tr key={row.employeeId}>
-                        <td>{row.employeeName}</td>
-                        <td>{row.scheduledShiftName ?? "OFF"}</td>
-                        <td>{row.scheduledStartTime && row.scheduledEndTime ? `${row.scheduledStartTime} - ${row.scheduledEndTime}` : "-"}</td>
-                        <td>{row.actualCheckInTime ? `${row.actualCheckInTime}${row.actualCheckOutTime ? ` - ${row.actualCheckOutTime}` : ""}` : "-"}</td>
-                        <td>{row.lateMinutes}m</td>
-                        <td>{row.earlyDepartureMinutes}m</td>
-                        <td>{row.overtimeMinutes}m</td>
-                        <td>{row.status}</td>
+              {swapRequests.length ? (
+                <div className="attendance-card-list roster-mobile-card-list">
+                  {swapRequests.map((swap) => (
+                    <article className="attendance-card" key={swap.id}>
+                      <div className="attendance-card-header">
+                        <strong>{swap.requesterEmployeeName} → {swap.targetEmployeeName}</strong>
+                        <span className="pill">{swap.status}</span>
+                      </div>
+                      <div className="attendance-card-grid">
+                        <span>Swap request</span>
+                        <strong>{swap.requesterShiftName} ({swap.requesterAssignmentDate}) ↔ {swap.targetShiftName} ({swap.targetAssignmentDate})</strong>
+                        <span>Reason</span>
+                        <strong>{swap.reason}</strong>
+                      </div>
+                      {swap.status === "PENDING" ? (
+                        <div className="table-action-row card-action-row roster-action-stack">
+                          <button className="primary-button compact-button" onClick={() => void decideSwap(swap.id, "APPROVED")} type="button" disabled={busyAction === `swap-${swap.id}`}>Approve</button>
+                          <button className="ghost-button compact-button danger-button" onClick={() => void decideSwap(swap.id, "REJECTED")} type="button" disabled={busyAction === `swap-${swap.id}`}>Reject</button>
+                        </div>
+                      ) : null}
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <EmptyState title="No swap requests" message="Pending employee shift swap requests will appear here." />
+              )}
+            </section>
+          ) : null}
+
+          {activeExceptionTab === "attendance" ? (
+            <section className="panel">
+              <div className="topbar">
+                <div>
+                  <h3>Attendance exceptions</h3>
+                  <p className="muted section-intro">Compare scheduled roster timing with actual attendance for one date to spot lateness, overtime, early departure, and absence.</p>
+                </div>
+              </div>
+              <label>
+                Exception date
+                <input type="date" value={exceptionDate} onChange={(event) => setExceptionDate(event.target.value)} />
+              </label>
+              {exceptionReport?.rows.length ? (
+                <div className="table-scroll">
+                  <table className="data-table desktop-table">
+                    <thead>
+                      <tr>
+                        <th>Employee</th>
+                        <th>Shift</th>
+                        <th>Scheduled</th>
+                        <th>Actual</th>
+                        <th>Late</th>
+                        <th>Early</th>
+                        <th>OT</th>
+                        <th>Status</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <EmptyState title="No exception data yet" message="Pick a date after roster and attendance activity to review exceptions." />
-            )}
-          </article>
-        </section>
+                    </thead>
+                    <tbody>
+                      {exceptionReport.rows.map((row) => (
+                        <tr key={row.employeeId}>
+                          <td>{row.employeeName}</td>
+                          <td>{row.scheduledShiftName ?? "OFF"}</td>
+                          <td>{row.scheduledStartTime && row.scheduledEndTime ? `${row.scheduledStartTime} - ${row.scheduledEndTime}` : "-"}</td>
+                          <td>{row.actualCheckInTime ? `${row.actualCheckInTime}${row.actualCheckOutTime ? ` - ${row.actualCheckOutTime}` : ""}` : "-"}</td>
+                          <td>{row.lateMinutes}m</td>
+                          <td>{row.earlyDepartureMinutes}m</td>
+                          <td>{row.overtimeMinutes}m</td>
+                          <td>{row.status}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <EmptyState title="No exception data yet" message="Pick a date after roster and attendance activity to review exceptions." />
+              )}
+            </section>
+          ) : null}
+        </>
       ) : null}
 
       {statusMessage ? (
