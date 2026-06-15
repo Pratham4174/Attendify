@@ -3,6 +3,8 @@ package com.attendance.system.service;
 import com.attendance.system.dto.SalesInquiryRequest;
 import com.attendance.system.model.SalesInquiryEntity;
 import com.attendance.system.repository.SalesInquiryRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.mail.SimpleMailMessage;
@@ -15,19 +17,24 @@ import java.time.ZoneOffset;
 
 @Service
 public class SalesInquiryService {
+    private static final Logger log = LoggerFactory.getLogger(SalesInquiryService.class);
     private final SalesInquiryRepository salesInquiryRepository;
     @Nullable
     private final JavaMailSender javaMailSender;
     private final String salesContactEmail;
+    @Nullable
+    private final String salesFromEmail;
 
     public SalesInquiryService(
             SalesInquiryRepository salesInquiryRepository,
             @Nullable JavaMailSender javaMailSender,
-            @Value("${app.sales.contact-email}") String salesContactEmail
+            @Value("${app.sales.contact-email}") String salesContactEmail,
+            @Value("${app.sales.from-email:}") @Nullable String salesFromEmail
     ) {
         this.salesInquiryRepository = salesInquiryRepository;
         this.javaMailSender = javaMailSender;
         this.salesContactEmail = salesContactEmail;
+        this.salesFromEmail = salesFromEmail == null || salesFromEmail.isBlank() ? null : salesFromEmail.trim();
     }
 
     @Transactional
@@ -43,12 +50,17 @@ public class SalesInquiryService {
         salesInquiryRepository.save(inquiry);
 
         if (javaMailSender == null) {
+            log.warn("Sales inquiry email not sent because JavaMailSender is unavailable. Inquiry id={}", inquiry.getId());
             return;
         }
 
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(salesContactEmail);
+            if (salesFromEmail != null) {
+                message.setFrom(salesFromEmail);
+            }
+            message.setReplyTo(inquiry.getContactEmail());
             message.setSubject("Peeplify contact request");
             message.setText("""
                     New Peeplify contact request
@@ -70,8 +82,8 @@ public class SalesInquiryService {
                     inquiry.getMessage() == null || inquiry.getMessage().isBlank() ? "No additional message." : inquiry.getMessage()
             ));
             javaMailSender.send(message);
-        } catch (Exception ignored) {
-            // Inquiry is still stored even if email delivery is not configured yet.
+        } catch (Exception exception) {
+            log.warn("Sales inquiry email delivery failed for inquiry id={}: {}", inquiry.getId(), exception.getMessage());
         }
     }
 }
