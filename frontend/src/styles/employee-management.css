@@ -417,6 +417,7 @@
 
 .roster-workspace {
   gap: 18px;
+  padding-bottom: 28px;
 }
 
 .roster-workspace-header {
@@ -425,6 +426,14 @@
 
 .roster-workspace-topbar {
   margin-bottom: 16px;
+}
+
+.roster-desktop-note {
+  margin-bottom: 16px;
+}
+
+.roster-desktop-note strong {
+  color: var(--primary-strong);
 }
 
 .roster-tab-strip {
@@ -649,6 +658,7 @@
 @media (max-width: 560px) {
   .roster-workspace {
     gap: 14px;
+    padding-bottom: 84px;
   }
 
   .roster-workspace-header,
@@ -734,9 +744,27 @@
   .roster-summary-grid {
     gap: 8px;
   }
+
+  .roster-desktop-note {
+    padding: 12px 14px;
+    gap: 4px;
+  }
+
+  .roster-desktop-note strong {
+    font-size: 0.88rem;
+  }
+
+  .roster-desktop-note span {
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
 }
 
 @media (max-width: 420px) {
+  .roster-workspace {
+    padding-bottom: 96px;
+  }
+
   .roster-workspace-header,
   .roster-workspace .panel {
     padding: 12px;

@@ -493,10 +493,12 @@
 
   .employee-header-actions {
     width: 100%;
+    flex-wrap: wrap;
   }
 
   .employee-header-actions .ghost-button {
     flex: 1;
+    min-width: 0;
   }
 
   .mark-attendance-header {

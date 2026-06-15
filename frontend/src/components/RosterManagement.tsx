@@ -598,6 +598,10 @@ export function RosterManagement({
           </div>
           <span className="pill">{rosterTabs.find((tab) => tab.id === activeWorkspaceTab)?.label}</span>
         </div>
+        <div className="info-card roster-desktop-note">
+          <strong>Best viewed on desktop</strong>
+          <span>Roster works on mobile too, but the full calendar and planning experience is easier to manage on a laptop or desktop screen.</span>
+        </div>
         <div className="roster-tab-strip" role="tablist" aria-label="Roster sections">
           {rosterTabs.map((tab) => (
             <button
