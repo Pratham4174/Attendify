@@ -27,7 +27,6 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
   const [registrationSummary, setRegistrationSummary] = useState<RegistrationSummary | null>(null);
   const [renewalStatus, setRenewalStatus] = useState("");
   const [publicPage, setPublicPage] = useState<PublicPageKey | null>(null);
-  const [pagesMenuOpen, setPagesMenuOpen] = useState(false);
   const [supportOpen, setSupportOpen] = useState(false);
 
   useEffect(() => {
@@ -148,7 +147,6 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
 
   function openPublicPage(page: PublicPageKey) {
     setPublicPage(page);
-    setPagesMenuOpen(false);
   }
 
   if (publicPage) {
@@ -162,23 +160,6 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
           <BrandLogo className="brand-logo-compact" />
           <strong>PEEPLIFY</strong>
         </div>
-        <button
-          aria-expanded={pagesMenuOpen}
-          className="public-pages-toggle"
-          onClick={() => setPagesMenuOpen((open) => !open)}
-          type="button"
-        >
-          Pages
-          <span aria-hidden="true">{pagesMenuOpen ? "−" : "+"}</span>
-        </button>
-        <nav className={pagesMenuOpen ? "public-site-links public-site-links-open" : "public-site-links"}>
-          <button className="auth-text-button" onClick={() => openPublicPage("pricing")} type="button">Pricing</button>
-          <button className="auth-text-button" onClick={() => openPublicPage("features")} type="button">Features</button>
-          <button className="auth-text-button" onClick={() => openPublicPage("contact")} type="button">Contact / Demo</button>
-          <button className="auth-text-button" onClick={() => openPublicPage("privacy")} type="button">Privacy</button>
-          <button className="auth-text-button" onClick={() => openPublicPage("terms")} type="button">Terms</button>
-          <button className="auth-text-button" onClick={() => openPublicPage("refund")} type="button">Refund</button>
-        </nav>
       </header>
 
       <main className="login-layout">
