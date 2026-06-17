@@ -27,6 +27,8 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
   const [registrationSummary, setRegistrationSummary] = useState<RegistrationSummary | null>(null);
   const [renewalStatus, setRenewalStatus] = useState("");
   const [publicPage, setPublicPage] = useState<PublicPageKey | null>(null);
+  const [pagesMenuOpen, setPagesMenuOpen] = useState(false);
+  const [supportOpen, setSupportOpen] = useState(false);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
@@ -144,6 +146,11 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
     setPassword(adminPassword);
   }
 
+  function openPublicPage(page: PublicPageKey) {
+    setPublicPage(page);
+    setPagesMenuOpen(false);
+  }
+
   if (publicPage) {
     return <PublicContentPage onBack={() => setPublicPage(null)} page={publicPage} />;
   }
@@ -155,13 +162,22 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
           <BrandLogo className="brand-logo-compact" />
           <strong>PEEPLIFY</strong>
         </div>
-        <nav className="public-site-links">
-          <button className="auth-text-button" onClick={() => setPublicPage("pricing")} type="button">Pricing</button>
-          <button className="auth-text-button" onClick={() => setPublicPage("features")} type="button">Features</button>
-          <button className="auth-text-button" onClick={() => setPublicPage("contact")} type="button">Contact / Demo</button>
-          <button className="auth-text-button" onClick={() => setPublicPage("privacy")} type="button">Privacy</button>
-          <button className="auth-text-button" onClick={() => setPublicPage("terms")} type="button">Terms</button>
-          <button className="auth-text-button" onClick={() => setPublicPage("refund")} type="button">Refund</button>
+        <button
+          aria-expanded={pagesMenuOpen}
+          className="public-pages-toggle"
+          onClick={() => setPagesMenuOpen((open) => !open)}
+          type="button"
+        >
+          Pages
+          <span aria-hidden="true">{pagesMenuOpen ? "−" : "+"}</span>
+        </button>
+        <nav className={pagesMenuOpen ? "public-site-links public-site-links-open" : "public-site-links"}>
+          <button className="auth-text-button" onClick={() => openPublicPage("pricing")} type="button">Pricing</button>
+          <button className="auth-text-button" onClick={() => openPublicPage("features")} type="button">Features</button>
+          <button className="auth-text-button" onClick={() => openPublicPage("contact")} type="button">Contact / Demo</button>
+          <button className="auth-text-button" onClick={() => openPublicPage("privacy")} type="button">Privacy</button>
+          <button className="auth-text-button" onClick={() => openPublicPage("terms")} type="button">Terms</button>
+          <button className="auth-text-button" onClick={() => openPublicPage("refund")} type="button">Refund</button>
         </nav>
       </header>
 
@@ -169,6 +185,10 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
       <section className="hero-panel auth-brand-panel">
         <div className="auth-brand-stack">
           <BrandLogo className="auth-brand-logo" />
+          <div className="auth-brand-copy">
+            <strong>Workforce Management, Simplified</strong>
+            <span>Built for attendance, payroll, leave, roster, and owner clarity.</span>
+          </div>
           <p className="auth-brand-fullform">
             People Entry, Evidence, Payroll, Leave, Insights For You
           </p>
@@ -392,20 +412,40 @@ export function LoginScreen({ onLogin }: { onLogin: (session: Session) => void }
       </main>
 
       <section className="public-site-support">
-        <ContactRequestForm
-          heading="Need help?"
-          intro="Ask for a demo, onboarding help, or commercial support before you start using Peeplify."
-          submitLabel="Send request"
-        />
+        <div className="public-support-shell">
+          <div className="public-support-header">
+            <div>
+              <strong>Need help?</strong>
+              <span>Ask for demo, onboarding, or pricing support.</span>
+            </div>
+            <button
+              aria-expanded={supportOpen}
+              className="ghost-button public-support-toggle"
+              onClick={() => setSupportOpen((open) => !open)}
+              type="button"
+            >
+              {supportOpen ? "Close" : "Open form"}
+            </button>
+          </div>
+          {supportOpen ? (
+            <div className="public-support-form">
+              <ContactRequestForm
+                heading="Tell us what you need"
+                intro="Share your details and we will reach out for setup, demo, or commercial support."
+                submitLabel="Send request"
+              />
+            </div>
+          ) : null}
+        </div>
       </section>
 
       <footer className="public-site-footer">
-        <button className="auth-text-button" onClick={() => setPublicPage("pricing")} type="button">Pricing</button>
-        <button className="auth-text-button" onClick={() => setPublicPage("features")} type="button">Features</button>
-        <button className="auth-text-button" onClick={() => setPublicPage("contact")} type="button">Contact / Demo</button>
-        <button className="auth-text-button" onClick={() => setPublicPage("privacy")} type="button">Privacy policy</button>
-        <button className="auth-text-button" onClick={() => setPublicPage("terms")} type="button">Terms of service</button>
-        <button className="auth-text-button" onClick={() => setPublicPage("refund")} type="button">Refund policy</button>
+        <button className="auth-text-button" onClick={() => openPublicPage("pricing")} type="button">Pricing</button>
+        <button className="auth-text-button" onClick={() => openPublicPage("features")} type="button">Features</button>
+        <button className="auth-text-button" onClick={() => openPublicPage("contact")} type="button">Contact / Demo</button>
+        <button className="auth-text-button" onClick={() => openPublicPage("privacy")} type="button">Privacy policy</button>
+        <button className="auth-text-button" onClick={() => openPublicPage("terms")} type="button">Terms of service</button>
+        <button className="auth-text-button" onClick={() => openPublicPage("refund")} type="button">Refund policy</button>
       </footer>
     </>
   );
