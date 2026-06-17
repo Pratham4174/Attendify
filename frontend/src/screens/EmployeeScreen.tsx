@@ -71,7 +71,8 @@ export function EmployeeScreen({
   } | null>(null);
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileStatus, setProfileStatus] = useState("");
-  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const profileVideoRef = useRef<HTMLVideoElement | null>(null);
+  const attendanceVideoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const historyMonthStart = `${historyMonth}-01`;
   const historyMonthEnd = `${historyMonth}-${new Date(Number(historyMonth.slice(0, 4)), Number(historyMonth.slice(5, 7)), 0).getDate().toString().padStart(2, "0")}`;
@@ -79,10 +80,24 @@ export function EmployeeScreen({
   function stopCameraStream() {
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
-    if (videoRef.current) {
-      videoRef.current.srcObject = null;
+    if (profileVideoRef.current) {
+      profileVideoRef.current.srcObject = null;
+    }
+    if (attendanceVideoRef.current) {
+      attendanceVideoRef.current.srcObject = null;
     }
     setCameraReady(false);
+  }
+
+  function attachStreamToVideo(video: HTMLVideoElement | null, stream: MediaStream | null) {
+    if (!video || !stream) {
+      return;
+    }
+
+    video.srcObject = stream;
+    void video.play().catch(() => {
+      // The stream is already attached; some browsers may reject play() until the frame is ready.
+    });
   }
 
   const monthlyHistoryRecords =
@@ -153,15 +168,13 @@ export function EmployeeScreen({
   }, [overview, cameraReady]);
 
   useEffect(() => {
-    if (!cameraReady || !videoRef.current || !streamRef.current) {
+    if (!cameraReady || !streamRef.current) {
       return;
     }
 
-    videoRef.current.srcObject = streamRef.current;
-    void videoRef.current.play().catch(() => {
-      // The stream is already attached; some browsers may reject play() until the frame is ready.
-    });
-  }, [cameraReady, selfie]);
+    attachStreamToVideo(profileVideoRef.current, streamRef.current);
+    attachStreamToVideo(attendanceVideoRef.current, streamRef.current);
+  }, [cameraReady, selfie, profileSelfie]);
 
   useEffect(() => {
     const tutorialKey = `peeplify-tutorial-seen-${session.user.userId}`;
@@ -360,24 +373,20 @@ export function EmployeeScreen({
       audio: false
     });
     streamRef.current = stream;
-    if (videoRef.current) {
-      videoRef.current.srcObject = stream;
-      void videoRef.current.play().catch(() => {
-        // Fallback handled by the cameraReady effect after render.
-      });
-    }
+    attachStreamToVideo(profileVideoRef.current, stream);
+    attachStreamToVideo(attendanceVideoRef.current, stream);
     setCameraReady(true);
     setStatus("Camera is ready. Capture a fresh selfie to continue.");
   }
 
-  function captureImage(onCapture: (value: string) => void) {
-    if (!videoRef.current) {
+  function captureImage(video: HTMLVideoElement | null, onCapture: (value: string) => void) {
+    if (!video) {
       return;
     }
 
     const canvas = document.createElement("canvas");
-    const sourceWidth = videoRef.current.videoWidth || 640;
-    const sourceHeight = videoRef.current.videoHeight || 480;
+    const sourceWidth = video.videoWidth || 640;
+    const sourceHeight = video.videoHeight || 480;
     const targetWidth = Math.min(sourceWidth, 480);
     const scaleRatio = targetWidth / sourceWidth;
     const targetHeight = Math.max(Math.round(sourceHeight * scaleRatio), 360);
@@ -388,12 +397,12 @@ export function EmployeeScreen({
       return;
     }
 
-    ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     onCapture(canvas.toDataURL("image/jpeg", 0.72));
   }
 
   function captureSelfie() {
-    captureImage((value) => {
+    captureImage(attendanceVideoRef.current, (value) => {
       setSelfie(value);
       setStatus("Selfie captured. You can submit attendance now.");
     });
@@ -405,7 +414,7 @@ export function EmployeeScreen({
   }
 
   function captureProfileSelfie() {
-    captureImage((value) => {
+    captureImage(profileVideoRef.current, (value) => {
       setProfileSelfie(value);
       setProfileStatus("Profile image captured. Save it to continue.");
     });
@@ -701,7 +710,7 @@ export function EmployeeScreen({
               {profileSelfie ? (
                 <img alt="Captured profile" src={profileSelfie} />
               ) : cameraReady ? (
-                <video autoPlay muted playsInline ref={videoRef} />
+                <video autoPlay muted playsInline ref={profileVideoRef} />
               ) : (
                 <div className="empty-media">Opening the front camera in this popup...</div>
               )}
@@ -848,7 +857,7 @@ export function EmployeeScreen({
                     {selfie ? (
                       <img alt="Captured selfie" src={selfie} />
                     ) : cameraReady ? (
-                      <video autoPlay muted playsInline ref={videoRef} />
+                      <video autoPlay muted playsInline ref={attendanceVideoRef} />
                     ) : (
                       <div className="empty-media">Lock GPS inside the branch area to open the live camera here.</div>
                     )}
