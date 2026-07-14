@@ -15,6 +15,8 @@ public record EmployeeResponse(
         String advancePaid,
         boolean loginEnabled,
         String profileImageRef,
+        String startDate,
+        int onboardingPaidLeaveDays,
         String createdAt
 ) {
 }

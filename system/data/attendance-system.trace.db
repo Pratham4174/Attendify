@@ -1,0 +1,5 @@
+2026-07-14 15:08:17.945825+05:30 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "ALTER TABLE attendance_records\000a    MODIFY check_in_photo_ref LONGTEXT NULL[*],\000a    MODIFY check_out_photo_ref LONGTEXT NULL"; SQL statement:
+ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL [42000-224]

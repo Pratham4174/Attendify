@@ -4,6 +4,7 @@ import type {
   Branch,
   Employee,
   RosterAssignment,
+  RosterBulkAssignmentResponse,
   RosterConflict,
   RosterExceptionReport,
   RosterMonthlyView,
@@ -52,6 +53,17 @@ type AssignmentFormState = {
   notes: string;
 };
 
+type BulkAssignmentFormState = {
+  employeeId: string;
+  shiftId: string;
+  startDate: string;
+  endDate: string;
+  rangeMode: string;
+  assignmentType: string;
+  notes: string;
+  skipWeeklyOffs: boolean;
+};
+
 type RosterWorkspaceTab = "setup" | "templates" | "planning" | "calendar" | "exceptions";
 type PlanningTab = "operations" | "assignment" | "conflicts";
 type ExceptionTab = "swaps" | "attendance";
@@ -61,6 +73,12 @@ const industryOptions = ["HOSPITAL", "HOTEL", "FACTORY", "SCHOOL", "RETAIL", "SE
 const rotationOptions = ["FIXED", "WEEKLY_ROTATING", "MONTHLY_ROTATING", "SPLIT_SHIFT", "ON_CALL", "FLEXI", "SEASONAL", "PART_TIME", "FULL_24X7"];
 const holidayPolicyOptions = ["COMP_OFF_OR_PREMIUM", "OFF_IF_POSSIBLE", "WORKING_PREMIUM_PAY", "SITE_POLICY"];
 const assignmentTypeOptions = ["WORKING", "HOLIDAY_WORK", "OVERRIDE"];
+const bulkRangeOptions = [
+  { value: "WEEK", label: "1 week" },
+  { value: "MONTH", label: "1 month" },
+  { value: "CUSTOM", label: "Custom dates" },
+  { value: "ONGOING", label: "Ongoing / 12 months" }
+];
 const rosterTabs: Array<{ id: RosterWorkspaceTab; label: string; description: string }> = [
   { id: "setup", label: "Shift setup", description: "Branch policy and shifts" },
   { id: "templates", label: "Templates", description: "Reusable roster patterns" },
@@ -120,6 +138,19 @@ function buildEmptyAssignmentForm(month: string): AssignmentFormState {
   };
 }
 
+function buildEmptyBulkAssignmentForm(month: string): BulkAssignmentFormState {
+  return {
+    employeeId: "",
+    shiftId: "",
+    startDate: `${month}-01`,
+    endDate: `${month}-${new Date(Number(month.slice(0, 4)), Number(month.slice(5, 7)), 0).getDate().toString().padStart(2, "0")}`,
+    rangeMode: "MONTH",
+    assignmentType: "WORKING",
+    notes: "",
+    skipWeeklyOffs: true
+  };
+}
+
 export function RosterManagement({
   session,
   branches
@@ -148,6 +179,7 @@ export function RosterManagement({
   const [exceptionDate, setExceptionDate] = useState(dateToday());
   const [exceptionReport, setExceptionReport] = useState<RosterExceptionReport | null>(null);
   const [assignmentForm, setAssignmentForm] = useState<AssignmentFormState>(() => buildEmptyAssignmentForm(monthToday()));
+  const [bulkAssignmentForm, setBulkAssignmentForm] = useState<BulkAssignmentFormState>(() => buildEmptyBulkAssignmentForm(monthToday()));
   const [busyAction, setBusyAction] = useState<string | null>(null);
   const [activeWorkspaceTab, setActiveWorkspaceTab] = useState<RosterWorkspaceTab>("planning");
   const [activePlanningTab, setActivePlanningTab] = useState<PlanningTab>("operations");
@@ -195,6 +227,13 @@ export function RosterManagement({
       setAssignmentForm((current) => ({
         ...current,
         assignmentDate: current.assignmentDate.startsWith(month) ? current.assignmentDate : `${month}-01`
+      }));
+      setBulkAssignmentForm((current) => ({
+        ...current,
+        startDate: current.startDate.startsWith(month) ? current.startDate : `${month}-01`,
+        endDate: current.endDate.startsWith(month)
+          ? current.endDate
+          : `${month}-${new Date(Number(month.slice(0, 4)), Number(month.slice(5, 7)), 0).getDate().toString().padStart(2, "0")}`
       }));
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message : "Unable to load monthly roster.");
@@ -282,6 +321,10 @@ export function RosterManagement({
     setAssignmentForm(buildEmptyAssignmentForm(operationMonth));
   }
 
+  function resetBulkAssignmentForm() {
+    setBulkAssignmentForm(buildEmptyBulkAssignmentForm(operationMonth));
+  }
+
   async function submitShift(event: React.FormEvent) {
     event.preventDefault();
     setSavingShift(true);
@@ -362,6 +405,34 @@ export function RosterManagement({
       await loadExceptionReport();
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message : "Unable to save roster assignment.");
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  async function submitBulkAssignment(event: React.FormEvent) {
+    event.preventDefault();
+    if (!bulkAssignmentForm.employeeId || !bulkAssignmentForm.shiftId || !bulkAssignmentForm.startDate) {
+      setStatusMessage("Select employee, shift, and start date for bulk assignment.");
+      return;
+    }
+    if (bulkAssignmentForm.rangeMode === "CUSTOM" && !bulkAssignmentForm.endDate) {
+      setStatusMessage("Select an end date for custom assignment.");
+      return;
+    }
+    setBusyAction("bulk-assignment");
+    setStatusMessage("");
+    try {
+      const response = await apiFetch<RosterBulkAssignmentResponse>(session, "/admin/roster/assignments/bulk", {
+        method: "POST",
+        body: JSON.stringify(bulkAssignmentForm)
+      });
+      setStatusMessage(response.message);
+      resetBulkAssignmentForm();
+      await loadMonthlyView();
+      await loadExceptionReport();
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "Unable to save bulk roster assignment.");
     } finally {
       setBusyAction(null);
     }
@@ -991,56 +1062,128 @@ export function RosterManagement({
           ) : null}
 
           {activePlanningTab === "assignment" ? (
-            <section className="panel">
-              <div className="topbar">
-                <div>
-                  <h3>{editingAssignmentId ? "Edit roster assignment" : "Manual roster assignment"}</h3>
-                  <p className="muted section-intro">Override individual dates, add extra working days, or fix generated assignments before publishing.</p>
+            <section className="grid two-column branch-management-grid">
+              <article className="panel">
+                <div className="topbar">
+                  <div>
+                    <h3>{editingAssignmentId ? "Edit roster assignment" : "Single-day assignment"}</h3>
+                    <p className="muted section-intro">Assign or edit one employee shift for one date.</p>
+                  </div>
+                  {editingAssignmentId ? <button className="ghost-button" onClick={resetAssignmentForm} type="button">Cancel edit</button> : null}
                 </div>
-                {editingAssignmentId ? <button className="ghost-button" onClick={resetAssignmentForm} type="button">Cancel edit</button> : null}
-              </div>
-              <form className="admin-form-grid" onSubmit={submitAssignment}>
-                <div className="grid compact-grid branch-policy-grid">
+                <form className="admin-form-grid" onSubmit={submitAssignment}>
+                  <div className="grid compact-grid branch-policy-grid">
+                    <label>
+                      Employee
+                      <select value={assignmentForm.employeeId} onChange={(event) => setAssignmentForm((current) => ({ ...current, employeeId: event.target.value }))}>
+                        <option value="">Select employee</option>
+                        {operationBranchEmployees.map((employee) => <option key={employee.id} value={employee.id}>{employee.name}</option>)}
+                      </select>
+                    </label>
+                    <label>
+                      Shift
+                      <select value={assignmentForm.shiftId} onChange={(event) => setAssignmentForm((current) => ({ ...current, shiftId: event.target.value }))}>
+                        <option value="">Select shift</option>
+                        {operationBranchShifts.map((shift) => <option key={shift.id} value={shift.id}>{shift.code} · {shift.name}</option>)}
+                      </select>
+                    </label>
+                    <label>
+                      Date
+                      <input type="date" value={assignmentForm.assignmentDate} onChange={(event) => setAssignmentForm((current) => ({ ...current, assignmentDate: event.target.value }))} />
+                    </label>
+                    <label>
+                      Type
+                      <select value={assignmentForm.assignmentType} onChange={(event) => setAssignmentForm((current) => ({ ...current, assignmentType: event.target.value }))}>
+                        {assignmentTypeOptions.map((option) => <option key={option} value={option}>{option}</option>)}
+                      </select>
+                    </label>
+                  </div>
                   <label>
-                    Employee
-                    <select value={assignmentForm.employeeId} onChange={(event) => setAssignmentForm((current) => ({ ...current, employeeId: event.target.value }))}>
-                      <option value="">Select employee</option>
-                      {operationBranchEmployees.map((employee) => <option key={employee.id} value={employee.id}>{employee.name}</option>)}
-                    </select>
+                    Notes
+                    <input value={assignmentForm.notes} onChange={(event) => setAssignmentForm((current) => ({ ...current, notes: event.target.value }))} placeholder="Optional manager note for this assignment" />
                   </label>
-                  <label>
-                    Shift
-                    <select value={assignmentForm.shiftId} onChange={(event) => setAssignmentForm((current) => ({ ...current, shiftId: event.target.value }))}>
-                      <option value="">Select shift</option>
-                      {operationBranchShifts.map((shift) => <option key={shift.id} value={shift.id}>{shift.code} · {shift.name}</option>)}
-                    </select>
-                  </label>
-                  <label>
-                    Date
-                    <input type="date" value={assignmentForm.assignmentDate} onChange={(event) => setAssignmentForm((current) => ({ ...current, assignmentDate: event.target.value }))} />
-                  </label>
-                  <label>
-                    Type
-                    <select value={assignmentForm.assignmentType} onChange={(event) => setAssignmentForm((current) => ({ ...current, assignmentType: event.target.value }))}>
-                      {assignmentTypeOptions.map((option) => <option key={option} value={option}>{option}</option>)}
-                    </select>
-                  </label>
-                </div>
-                <label>
-                  Notes
-                  <input value={assignmentForm.notes} onChange={(event) => setAssignmentForm((current) => ({ ...current, notes: event.target.value }))} placeholder="Optional manager note for this assignment" />
-                </label>
-                <div className="action-row roster-action-stack">
-                  <button className="primary-button" type="submit" disabled={busyAction === "assignment"}>
-                    {busyAction === "assignment" ? "Saving..." : editingAssignmentId ? "Update assignment" : "Save assignment"}
-                  </button>
-                  {editingAssignmentId ? (
-                    <button className="ghost-button danger-button" type="button" onClick={() => void removeAssignment(editingAssignmentId)}>
-                      Delete assignment
+                  <div className="action-row roster-action-stack">
+                    <button className="primary-button" type="submit" disabled={busyAction === "assignment"}>
+                      {busyAction === "assignment" ? "Saving..." : editingAssignmentId ? "Update assignment" : "Save assignment"}
                     </button>
-                  ) : null}
+                    {editingAssignmentId ? (
+                      <button className="ghost-button danger-button" type="button" onClick={() => void removeAssignment(editingAssignmentId)}>
+                        Delete assignment
+                      </button>
+                    ) : null}
+                  </div>
+                </form>
+              </article>
+
+              <article className="panel">
+                <div className="topbar">
+                  <div>
+                    <h3>Bulk shift assignment</h3>
+                    <p className="muted section-intro">Set one employee to one shift for a week, month, custom date range, or rolling 12 months.</p>
+                  </div>
                 </div>
-              </form>
+                <form className="admin-form-grid" onSubmit={submitBulkAssignment}>
+                  <div className="grid compact-grid branch-policy-grid">
+                    <label>
+                      Employee
+                      <select value={bulkAssignmentForm.employeeId} onChange={(event) => setBulkAssignmentForm((current) => ({ ...current, employeeId: event.target.value }))}>
+                        <option value="">Select employee</option>
+                        {operationBranchEmployees.map((employee) => <option key={employee.id} value={employee.id}>{employee.name}</option>)}
+                      </select>
+                    </label>
+                    <label>
+                      Shift
+                      <select value={bulkAssignmentForm.shiftId} onChange={(event) => setBulkAssignmentForm((current) => ({ ...current, shiftId: event.target.value }))}>
+                        <option value="">Select shift</option>
+                        {operationBranchShifts.map((shift) => <option key={shift.id} value={shift.id}>{shift.code} · {shift.name}</option>)}
+                      </select>
+                    </label>
+                    <label>
+                      Starts from
+                      <input type="date" value={bulkAssignmentForm.startDate} onChange={(event) => setBulkAssignmentForm((current) => ({ ...current, startDate: event.target.value }))} />
+                    </label>
+                    <label>
+                      Duration
+                      <select value={bulkAssignmentForm.rangeMode} onChange={(event) => setBulkAssignmentForm((current) => ({ ...current, rangeMode: event.target.value }))}>
+                        {bulkRangeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                      </select>
+                    </label>
+                    {bulkAssignmentForm.rangeMode === "CUSTOM" ? (
+                      <label>
+                        Ends on
+                        <input type="date" value={bulkAssignmentForm.endDate} onChange={(event) => setBulkAssignmentForm((current) => ({ ...current, endDate: event.target.value }))} />
+                      </label>
+                    ) : null}
+                    <label>
+                      Type
+                      <select value={bulkAssignmentForm.assignmentType} onChange={(event) => setBulkAssignmentForm((current) => ({ ...current, assignmentType: event.target.value }))}>
+                        {assignmentTypeOptions.map((option) => <option key={option} value={option}>{option}</option>)}
+                      </select>
+                    </label>
+                  </div>
+                  <label className="checkbox-field">
+                    <input
+                      type="checkbox"
+                      checked={bulkAssignmentForm.skipWeeklyOffs}
+                      onChange={(event) => setBulkAssignmentForm((current) => ({ ...current, skipWeeklyOffs: event.target.checked }))}
+                    />
+                    Skip branch weekly-off days
+                  </label>
+                  <label>
+                    Notes
+                    <input value={bulkAssignmentForm.notes} onChange={(event) => setBulkAssignmentForm((current) => ({ ...current, notes: event.target.value }))} placeholder="Example: Fixed night duty for this month" />
+                  </label>
+                  <div className="info-card">
+                    <strong>Ongoing assignment</strong>
+                    <span className="muted">Ongoing creates a rolling 12-month schedule. Future dates can still be edited from the roster calendar.</span>
+                  </div>
+                  <div className="action-row roster-action-stack">
+                    <button className="primary-button" type="submit" disabled={busyAction === "bulk-assignment"}>
+                      {busyAction === "bulk-assignment" ? "Saving..." : "Save bulk assignment"}
+                    </button>
+                  </div>
+                </form>
+              </article>
             </section>
           ) : null}
 

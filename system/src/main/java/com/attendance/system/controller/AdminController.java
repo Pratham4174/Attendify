@@ -33,6 +33,8 @@ import com.attendance.system.dto.PayrollSummaryResponse;
 import com.attendance.system.dto.PublicCheckoutSessionResponse;
 import com.attendance.system.dto.RosterAssignmentResponse;
 import com.attendance.system.dto.RosterAssignmentUpsertRequest;
+import com.attendance.system.dto.RosterBulkAssignmentRequest;
+import com.attendance.system.dto.RosterBulkAssignmentResponse;
 import com.attendance.system.dto.RosterConflictResponse;
 import com.attendance.system.dto.RosterExceptionReportResponse;
 import com.attendance.system.dto.RosterGenerateRequest;
@@ -289,6 +291,14 @@ public class AdminController {
             @Valid @RequestBody RosterAssignmentUpsertRequest request
     ) {
         return rosterOperationsService.saveAssignment(currentUser(authentication), null, request);
+    }
+
+    @PostMapping("/roster/assignments/bulk")
+    public RosterBulkAssignmentResponse bulkRosterAssignment(
+            Authentication authentication,
+            @Valid @RequestBody RosterBulkAssignmentRequest request
+    ) {
+        return rosterOperationsService.saveBulkAssignment(currentUser(authentication), request);
     }
 
     @PutMapping("/roster/assignments/{assignmentId}")

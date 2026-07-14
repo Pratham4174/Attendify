@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.attendance.system.SystemApplicationTests" time="3.337" tests="1" errors="1" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.attendance.system.SystemApplicationTests" time="1.502" tests="1" errors="1" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
-    <property name="java.class.path" value="/Users/prathamgupta/Desktop/AttendanceSystem/system/target/test-classes:/Users/prathamgupta/Desktop/AttendanceSystem/system/target/classes:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-web/3.3.5/spring-boot-starter-web-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter/3.3.5/spring-boot-starter-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot/3.3.5/spring-boot-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-autoconfigure/3.3.5/spring-boot-autoconfigure-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-logging/3.3.5/spring-boot-starter-logging-3.3.5.jar:/Users/prathamgupta/.m2/repository/ch/qos/logback/logback-classic/1.5.11/logback-classic-1.5.11.jar:/Users/prathamgupta/.m2/repository/ch/qos/logback/logback-core/1.5.11/logback-core-1.5.11.jar:/Users/prathamgupta/.m2/repository/org/apache/logging/log4j/log4j-to-slf4j/2.23.1/log4j-to-slf4j-2.23.1.jar:/Users/prathamgupta/.m2/repository/org/apache/logging/log4j/log4j-api/2.23.1/log4j-api-2.23.1.jar:/Users/prathamgupta/.m2/repository/org/slf4j/jul-to-slf4j/2.0.16/jul-to-slf4j-2.0.16.jar:/Users/prathamgupta/.m2/repository/jakarta/annotation/jakarta.annotation-api/2.1.1/jakarta.annotation-api-2.1.1.jar:/Users/prathamgupta/.m2/repository/org/yaml/snakeyaml/2.2/snakeyaml-2.2.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-json/3.3.5/spring-boot-starter-json-3.3.5.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jdk8/2.17.2/jackson-datatype-jdk8-2.17.2.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jsr310/2.17.2/jackson-datatype-jsr310-2.17.2.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/module/jackson-module-parameter-names/2.17.2/jackson-module-parameter-names-2.17.2.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-tomcat/3.3.5/spring-boot-starter-tomcat-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/apache/tomcat/embed/tomcat-embed-core/10.1.31/tomcat-embed-core-10.1.31.jar:/Users/prathamgupta/.m2/repository/org/apache/tomcat/embed/tomcat-embed-websocket/10.1.31/tomcat-embed-websocket-10.1.31.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-web/6.1.14/spring-web-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-beans/6.1.14/spring-beans-6.1.14.jar:/Users/prathamgupta/.m2/repository/io/micrometer/micrometer-observation/1.13.6/micrometer-observation-1.13.6.jar:/Users/prathamgupta/.m2/repository/io/micrometer/micrometer-commons/1.13.6/micrometer-commons-1.13.6.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-webmvc/6.1.14/spring-webmvc-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-context/6.1.14/spring-context-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-expression/6.1.14/spring-expression-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-security/3.3.5/spring-boot-starter-security-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-aop/6.1.14/spring-aop-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/security/spring-security-config/6.3.4/spring-security-config-6.3.4.jar:/Users/prathamgupta/.m2/repository/org/springframework/security/spring-security-web/6.3.4/spring-security-web-6.3.4.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-data-jpa/3.3.5/spring-boot-starter-data-jpa-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-aop/3.3.5/spring-boot-starter-aop-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/aspectj/aspectjweaver/1.9.22.1/aspectjweaver-1.9.22.1.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-jdbc/3.3.5/spring-boot-starter-jdbc-3.3.5.jar:/Users/prathamgupta/.m2/repository/com/zaxxer/HikariCP/5.1.0/HikariCP-5.1.0.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-jdbc/6.1.14/spring-jdbc-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/hibernate/orm/hibernate-core/6.5.3.Final/hibernate-core-6.5.3.Final.jar:/Users/prathamgupta/.m2/repository/jakarta/persistence/jakarta.persistence-api/3.1.0/jakarta.persistence-api-3.1.0.jar:/Users/prathamgupta/.m2/repository/jakarta/transaction/jakarta.transaction-api/2.0.1/jakarta.transaction-api-2.0.1.jar:/Users/prathamgupta/.m2/repository/org/jboss/logging/jboss-logging/3.5.3.Final/jboss-logging-3.5.3.Final.jar:/Users/prathamgupta/.m2/repository/org/hibernate/common/hibernate-commons-annotations/6.0.6.Final/hibernate-commons-annotations-6.0.6.Final.jar:/Users/prathamgupta/.m2/repository/io/smallrye/jandex/3.1.2/jandex-3.1.2.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/classmate/1.7.0/classmate-1.7.0.jar:/Users/prathamgupta/.m2/repository/net/bytebuddy/byte-buddy/1.14.19/byte-buddy-1.14.19.jar:/Users/prathamgupta/.m2/repository/org/glassfish/jaxb/jaxb-runtime/4.0.5/jaxb-runtime-4.0.5.jar:/Users/prathamgupta/.m2/repository/org/glassfish/jaxb/jaxb-core/4.0.5/jaxb-core-4.0.5.jar:/Users/prathamgupta/.m2/repository/org/eclipse/angus/angus-activation/2.0.2/angus-activation-2.0.2.jar:/Users/prathamgupta/.m2/repository/org/glassfish/jaxb/txw2/4.0.5/txw2-4.0.5.jar:/Users/prathamgupta/.m2/repository/com/sun/istack/istack-commons-runtime/4.1.2/istack-commons-runtime-4.1.2.jar:/Users/prathamgupta/.m2/repository/jakarta/inject/jakarta.inject-api/2.0.1/jakarta.inject-api-2.0.1.jar:/Users/prathamgupta/.m2/repository/org/antlr/antlr4-runtime/4.13.0/antlr4-runtime-4.13.0.jar:/Users/prathamgupta/.m2/repository/org/springframework/data/spring-data-jpa/3.3.5/spring-data-jpa-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/data/spring-data-commons/3.3.5/spring-data-commons-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-orm/6.1.14/spring-orm-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-tx/6.1.14/spring-tx-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/slf4j/slf4j-api/2.0.16/slf4j-api-2.0.16.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-aspects/6.1.14/spring-aspects-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-validation/3.3.5/spring-boot-starter-validation-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/apache/tomcat/embed/tomcat-embed-el/10.1.31/tomcat-embed-el-10.1.31.jar:/Users/prathamgupta/.m2/repository/org/hibernate/validator/hibernate-validator/8.0.1.Final/hibernate-validator-8.0.1.Final.jar:/Users/prathamgupta/.m2/repository/jakarta/validation/jakarta.validation-api/3.0.2/jakarta.validation-api-3.0.2.jar:/Users/prathamgupta/.m2/repository/org/flywaydb/flyway-core/10.10.0/flyway-core-10.10.0.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/dataformat/jackson-dataformat-toml/2.17.2/jackson-dataformat-toml-2.17.2.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.17.2/jackson-core-2.17.2.jar:/Users/prathamgupta/.m2/repository/com/google/code/gson/gson/2.10.1/gson-2.10.1.jar:/Users/prathamgupta/.m2/repository/org/mariadb/jdbc/mariadb-java-client/3.3.3/mariadb-java-client-3.3.3.jar:/Users/prathamgupta/.m2/repository/com/github/waffle/waffle-jna/3.3.0/waffle-jna-3.3.0.jar:/Users/prathamgupta/.m2/repository/net/java/dev/jna/jna/5.13.0/jna-5.13.0.jar:/Users/prathamgupta/.m2/repository/net/java/dev/jna/jna-platform/5.13.0/jna-platform-5.13.0.jar:/Users/prathamgupta/.m2/repository/org/slf4j/jcl-over-slf4j/2.0.16/jcl-over-slf4j-2.0.16.jar:/Users/prathamgupta/.m2/repository/com/github/ben-manes/caffeine/caffeine/3.1.8/caffeine-3.1.8.jar:/Users/prathamgupta/.m2/repository/com/google/errorprone/error_prone_annotations/2.21.1/error_prone_annotations-2.21.1.jar:/Users/prathamgupta/.m2/repository/org/checkerframework/checker-qual/3.32.0/checker-qual-3.32.0.jar:/Users/prathamgupta/.m2/repository/com/h2database/h2/2.2.224/h2-2.2.224.jar:/Users/prathamgupta/.m2/repository/io/jsonwebtoken/jjwt-api/0.11.5/jjwt-api-0.11.5.jar:/Users/prathamgupta/.m2/repository/io/jsonwebtoken/jjwt-impl/0.11.5/jjwt-impl-0.11.5.jar:/Users/prathamgupta/.m2/repository/io/jsonwebtoken/jjwt-jackson/0.11.5/jjwt-jackson-0.11.5.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.17.2/jackson-databind-2.17.2.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.17.2/jackson-annotations-2.17.2.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-test/3.3.5/spring-boot-starter-test-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-test/3.3.5/spring-boot-test-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-test-autoconfigure/3.3.5/spring-boot-test-autoconfigure-3.3.5.jar:/Users/prathamgupta/.m2/repository/com/jayway/jsonpath/json-path/2.9.0/json-path-2.9.0.jar:/Users/prathamgupta/.m2/repository/jakarta/xml/bind/jakarta.xml.bind-api/4.0.2/jakarta.xml.bind-api-4.0.2.jar:/Users/prathamgupta/.m2/repository/jakarta/activation/jakarta.activation-api/2.1.3/jakarta.activation-api-2.1.3.jar:/Users/prathamgupta/.m2/repository/net/minidev/json-smart/2.5.1/json-smart-2.5.1.jar:/Users/prathamgupta/.m2/repository/net/minidev/accessors-smart/2.5.1/accessors-smart-2.5.1.jar:/Users/prathamgupta/.m2/repository/org/ow2/asm/asm/9.6/asm-9.6.jar:/Users/prathamgupta/.m2/repository/org/assertj/assertj-core/3.25.3/assertj-core-3.25.3.jar:/Users/prathamgupta/.m2/repository/org/awaitility/awaitility/4.2.2/awaitility-4.2.2.jar:/Users/prathamgupta/.m2/repository/org/hamcrest/hamcrest/2.2/hamcrest-2.2.jar:/Users/prathamgupta/.m2/repository/org/junit/jupiter/junit-jupiter/5.10.5/junit-jupiter-5.10.5.jar:/Users/prathamgupta/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.10.5/junit-jupiter-api-5.10.5.jar:/Users/prathamgupta/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/Users/prathamgupta/.m2/repository/org/junit/platform/junit-platform-commons/1.10.5/junit-platform-commons-1.10.5.jar:/Users/prathamgupta/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/Users/prathamgupta/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.10.5/junit-jupiter-params-5.10.5.jar:/Users/prathamgupta/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.10.5/junit-jupiter-engine-5.10.5.jar:/Users/prathamgupta/.m2/repository/org/junit/platform/junit-platform-engine/1.10.5/junit-platform-engine-1.10.5.jar:/Users/prathamgupta/.m2/repository/org/mockito/mockito-core/5.11.0/mockito-core-5.11.0.jar:/Users/prathamgupta/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.19/byte-buddy-agent-1.14.19.jar:/Users/prathamgupta/.m2/repository/org/objenesis/objenesis/3.3/objenesis-3.3.jar:/Users/prathamgupta/.m2/repository/org/mockito/mockito-junit-jupiter/5.11.0/mockito-junit-jupiter-5.11.0.jar:/Users/prathamgupta/.m2/repository/org/skyscreamer/jsonassert/1.5.3/jsonassert-1.5.3.jar:/Users/prathamgupta/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-core/6.1.14/spring-core-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-jcl/6.1.14/spring-jcl-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-test/6.1.14/spring-test-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/xmlunit/xmlunit-core/2.9.1/xmlunit-core-2.9.1.jar:/Users/prathamgupta/.m2/repository/org/springframework/security/spring-security-test/6.3.4/spring-security-test-6.3.4.jar:/Users/prathamgupta/.m2/repository/org/springframework/security/spring-security-core/6.3.4/spring-security-core-6.3.4.jar:/Users/prathamgupta/.m2/repository/org/springframework/security/spring-security-crypto/6.3.4/spring-security-crypto-6.3.4.jar:"/>
+    <property name="java.class.path" value="/Users/prathamgupta/Desktop/AttendanceSystem/system/target/test-classes:/Users/prathamgupta/Desktop/AttendanceSystem/system/target/classes:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-web/3.3.5/spring-boot-starter-web-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter/3.3.5/spring-boot-starter-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot/3.3.5/spring-boot-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-autoconfigure/3.3.5/spring-boot-autoconfigure-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-logging/3.3.5/spring-boot-starter-logging-3.3.5.jar:/Users/prathamgupta/.m2/repository/ch/qos/logback/logback-classic/1.5.11/logback-classic-1.5.11.jar:/Users/prathamgupta/.m2/repository/ch/qos/logback/logback-core/1.5.11/logback-core-1.5.11.jar:/Users/prathamgupta/.m2/repository/org/apache/logging/log4j/log4j-to-slf4j/2.23.1/log4j-to-slf4j-2.23.1.jar:/Users/prathamgupta/.m2/repository/org/apache/logging/log4j/log4j-api/2.23.1/log4j-api-2.23.1.jar:/Users/prathamgupta/.m2/repository/org/slf4j/jul-to-slf4j/2.0.16/jul-to-slf4j-2.0.16.jar:/Users/prathamgupta/.m2/repository/jakarta/annotation/jakarta.annotation-api/2.1.1/jakarta.annotation-api-2.1.1.jar:/Users/prathamgupta/.m2/repository/org/yaml/snakeyaml/2.2/snakeyaml-2.2.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-json/3.3.5/spring-boot-starter-json-3.3.5.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jdk8/2.17.2/jackson-datatype-jdk8-2.17.2.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jsr310/2.17.2/jackson-datatype-jsr310-2.17.2.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/module/jackson-module-parameter-names/2.17.2/jackson-module-parameter-names-2.17.2.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-tomcat/3.3.5/spring-boot-starter-tomcat-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/apache/tomcat/embed/tomcat-embed-core/10.1.31/tomcat-embed-core-10.1.31.jar:/Users/prathamgupta/.m2/repository/org/apache/tomcat/embed/tomcat-embed-websocket/10.1.31/tomcat-embed-websocket-10.1.31.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-web/6.1.14/spring-web-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-beans/6.1.14/spring-beans-6.1.14.jar:/Users/prathamgupta/.m2/repository/io/micrometer/micrometer-observation/1.13.6/micrometer-observation-1.13.6.jar:/Users/prathamgupta/.m2/repository/io/micrometer/micrometer-commons/1.13.6/micrometer-commons-1.13.6.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-webmvc/6.1.14/spring-webmvc-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-context/6.1.14/spring-context-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-expression/6.1.14/spring-expression-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-security/3.3.5/spring-boot-starter-security-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-aop/6.1.14/spring-aop-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/security/spring-security-config/6.3.4/spring-security-config-6.3.4.jar:/Users/prathamgupta/.m2/repository/org/springframework/security/spring-security-web/6.3.4/spring-security-web-6.3.4.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-data-jpa/3.3.5/spring-boot-starter-data-jpa-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-aop/3.3.5/spring-boot-starter-aop-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/aspectj/aspectjweaver/1.9.22.1/aspectjweaver-1.9.22.1.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-jdbc/3.3.5/spring-boot-starter-jdbc-3.3.5.jar:/Users/prathamgupta/.m2/repository/com/zaxxer/HikariCP/5.1.0/HikariCP-5.1.0.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-jdbc/6.1.14/spring-jdbc-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/hibernate/orm/hibernate-core/6.5.3.Final/hibernate-core-6.5.3.Final.jar:/Users/prathamgupta/.m2/repository/jakarta/persistence/jakarta.persistence-api/3.1.0/jakarta.persistence-api-3.1.0.jar:/Users/prathamgupta/.m2/repository/jakarta/transaction/jakarta.transaction-api/2.0.1/jakarta.transaction-api-2.0.1.jar:/Users/prathamgupta/.m2/repository/org/jboss/logging/jboss-logging/3.5.3.Final/jboss-logging-3.5.3.Final.jar:/Users/prathamgupta/.m2/repository/org/hibernate/common/hibernate-commons-annotations/6.0.6.Final/hibernate-commons-annotations-6.0.6.Final.jar:/Users/prathamgupta/.m2/repository/io/smallrye/jandex/3.1.2/jandex-3.1.2.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/classmate/1.7.0/classmate-1.7.0.jar:/Users/prathamgupta/.m2/repository/net/bytebuddy/byte-buddy/1.14.19/byte-buddy-1.14.19.jar:/Users/prathamgupta/.m2/repository/org/glassfish/jaxb/jaxb-runtime/4.0.5/jaxb-runtime-4.0.5.jar:/Users/prathamgupta/.m2/repository/org/glassfish/jaxb/jaxb-core/4.0.5/jaxb-core-4.0.5.jar:/Users/prathamgupta/.m2/repository/org/glassfish/jaxb/txw2/4.0.5/txw2-4.0.5.jar:/Users/prathamgupta/.m2/repository/com/sun/istack/istack-commons-runtime/4.1.2/istack-commons-runtime-4.1.2.jar:/Users/prathamgupta/.m2/repository/jakarta/inject/jakarta.inject-api/2.0.1/jakarta.inject-api-2.0.1.jar:/Users/prathamgupta/.m2/repository/org/antlr/antlr4-runtime/4.13.0/antlr4-runtime-4.13.0.jar:/Users/prathamgupta/.m2/repository/org/springframework/data/spring-data-jpa/3.3.5/spring-data-jpa-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/data/spring-data-commons/3.3.5/spring-data-commons-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-orm/6.1.14/spring-orm-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-tx/6.1.14/spring-tx-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/slf4j/slf4j-api/2.0.16/slf4j-api-2.0.16.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-aspects/6.1.14/spring-aspects-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-validation/3.3.5/spring-boot-starter-validation-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/apache/tomcat/embed/tomcat-embed-el/10.1.31/tomcat-embed-el-10.1.31.jar:/Users/prathamgupta/.m2/repository/org/hibernate/validator/hibernate-validator/8.0.1.Final/hibernate-validator-8.0.1.Final.jar:/Users/prathamgupta/.m2/repository/jakarta/validation/jakarta.validation-api/3.0.2/jakarta.validation-api-3.0.2.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-mail/3.3.5/spring-boot-starter-mail-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-context-support/6.1.14/spring-context-support-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/eclipse/angus/jakarta.mail/2.0.3/jakarta.mail-2.0.3.jar:/Users/prathamgupta/.m2/repository/jakarta/activation/jakarta.activation-api/2.1.3/jakarta.activation-api-2.1.3.jar:/Users/prathamgupta/.m2/repository/org/eclipse/angus/angus-activation/2.0.2/angus-activation-2.0.2.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/s3/2.21.46/s3-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/aws-xml-protocol/2.21.46/aws-xml-protocol-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/aws-query-protocol/2.21.46/aws-query-protocol-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/protocol-core/2.21.46/protocol-core-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/arns/2.21.46/arns-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/profiles/2.21.46/profiles-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/crt-core/2.21.46/crt-core-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/http-auth/2.21.46/http-auth-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/identity-spi/2.21.46/identity-spi-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/http-auth-spi/2.21.46/http-auth-spi-2.21.46.jar:/Users/prathamgupta/.m2/repository/org/reactivestreams/reactive-streams/1.0.4/reactive-streams-1.0.4.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/http-auth-aws/2.21.46/http-auth-aws-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/checksums/2.21.46/checksums-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/checksums-spi/2.21.46/checksums-spi-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/sdk-core/2.21.46/sdk-core-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/auth/2.21.46/auth-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/eventstream/eventstream/1.0.1/eventstream-1.0.1.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/http-client-spi/2.21.46/http-client-spi-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/regions/2.21.46/regions-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/annotations/2.21.46/annotations-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/utils/2.21.46/utils-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/aws-core/2.21.46/aws-core-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/metrics-spi/2.21.46/metrics-spi-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/json-utils/2.21.46/json-utils-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/third-party-jackson-core/2.21.46/third-party-jackson-core-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/endpoints-spi/2.21.46/endpoints-spi-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/apache-client/2.21.46/apache-client-2.21.46.jar:/Users/prathamgupta/.m2/repository/org/apache/httpcomponents/httpclient/4.5.13/httpclient-4.5.13.jar:/Users/prathamgupta/.m2/repository/commons-logging/commons-logging/1.2/commons-logging-1.2.jar:/Users/prathamgupta/.m2/repository/org/apache/httpcomponents/httpcore/4.4.16/httpcore-4.4.16.jar:/Users/prathamgupta/.m2/repository/commons-codec/commons-codec/1.16.1/commons-codec-1.16.1.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/netty-nio-client/2.21.46/netty-nio-client-2.21.46.jar:/Users/prathamgupta/.m2/repository/io/netty/netty-codec-http/4.1.114.Final/netty-codec-http-4.1.114.Final.jar:/Users/prathamgupta/.m2/repository/io/netty/netty-codec-http2/4.1.114.Final/netty-codec-http2-4.1.114.Final.jar:/Users/prathamgupta/.m2/repository/io/netty/netty-codec/4.1.114.Final/netty-codec-4.1.114.Final.jar:/Users/prathamgupta/.m2/repository/io/netty/netty-transport/4.1.114.Final/netty-transport-4.1.114.Final.jar:/Users/prathamgupta/.m2/repository/io/netty/netty-common/4.1.114.Final/netty-common-4.1.114.Final.jar:/Users/prathamgupta/.m2/repository/io/netty/netty-buffer/4.1.114.Final/netty-buffer-4.1.114.Final.jar:/Users/prathamgupta/.m2/repository/io/netty/netty-handler/4.1.114.Final/netty-handler-4.1.114.Final.jar:/Users/prathamgupta/.m2/repository/io/netty/netty-transport-native-unix-common/4.1.114.Final/netty-transport-native-unix-common-4.1.114.Final.jar:/Users/prathamgupta/.m2/repository/io/netty/netty-transport-classes-epoll/4.1.114.Final/netty-transport-classes-epoll-4.1.114.Final.jar:/Users/prathamgupta/.m2/repository/io/netty/netty-resolver/4.1.114.Final/netty-resolver-4.1.114.Final.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/url-connection-client/2.21.46/url-connection-client-2.21.46.jar:/Users/prathamgupta/.m2/repository/org/flywaydb/flyway-core/10.10.0/flyway-core-10.10.0.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/dataformat/jackson-dataformat-toml/2.17.2/jackson-dataformat-toml-2.17.2.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.17.2/jackson-core-2.17.2.jar:/Users/prathamgupta/.m2/repository/com/google/code/gson/gson/2.10.1/gson-2.10.1.jar:/Users/prathamgupta/.m2/repository/org/flywaydb/flyway-mysql/10.10.0/flyway-mysql-10.10.0.jar:/Users/prathamgupta/.m2/repository/org/mariadb/jdbc/mariadb-java-client/3.3.3/mariadb-java-client-3.3.3.jar:/Users/prathamgupta/.m2/repository/com/github/waffle/waffle-jna/3.3.0/waffle-jna-3.3.0.jar:/Users/prathamgupta/.m2/repository/net/java/dev/jna/jna/5.13.0/jna-5.13.0.jar:/Users/prathamgupta/.m2/repository/net/java/dev/jna/jna-platform/5.13.0/jna-platform-5.13.0.jar:/Users/prathamgupta/.m2/repository/org/slf4j/jcl-over-slf4j/2.0.16/jcl-over-slf4j-2.0.16.jar:/Users/prathamgupta/.m2/repository/com/github/ben-manes/caffeine/caffeine/3.1.8/caffeine-3.1.8.jar:/Users/prathamgupta/.m2/repository/com/google/errorprone/error_prone_annotations/2.21.1/error_prone_annotations-2.21.1.jar:/Users/prathamgupta/.m2/repository/org/checkerframework/checker-qual/3.32.0/checker-qual-3.32.0.jar:/Users/prathamgupta/.m2/repository/com/h2database/h2/2.2.224/h2-2.2.224.jar:/Users/prathamgupta/.m2/repository/io/jsonwebtoken/jjwt-api/0.11.5/jjwt-api-0.11.5.jar:/Users/prathamgupta/.m2/repository/io/jsonwebtoken/jjwt-impl/0.11.5/jjwt-impl-0.11.5.jar:/Users/prathamgupta/.m2/repository/io/jsonwebtoken/jjwt-jackson/0.11.5/jjwt-jackson-0.11.5.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.17.2/jackson-databind-2.17.2.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.17.2/jackson-annotations-2.17.2.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-test/3.3.5/spring-boot-starter-test-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-test/3.3.5/spring-boot-test-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-test-autoconfigure/3.3.5/spring-boot-test-autoconfigure-3.3.5.jar:/Users/prathamgupta/.m2/repository/com/jayway/jsonpath/json-path/2.9.0/json-path-2.9.0.jar:/Users/prathamgupta/.m2/repository/jakarta/xml/bind/jakarta.xml.bind-api/4.0.2/jakarta.xml.bind-api-4.0.2.jar:/Users/prathamgupta/.m2/repository/net/minidev/json-smart/2.5.1/json-smart-2.5.1.jar:/Users/prathamgupta/.m2/repository/net/minidev/accessors-smart/2.5.1/accessors-smart-2.5.1.jar:/Users/prathamgupta/.m2/repository/org/ow2/asm/asm/9.6/asm-9.6.jar:/Users/prathamgupta/.m2/repository/org/assertj/assertj-core/3.25.3/assertj-core-3.25.3.jar:/Users/prathamgupta/.m2/repository/org/awaitility/awaitility/4.2.2/awaitility-4.2.2.jar:/Users/prathamgupta/.m2/repository/org/hamcrest/hamcrest/2.2/hamcrest-2.2.jar:/Users/prathamgupta/.m2/repository/org/junit/jupiter/junit-jupiter/5.10.5/junit-jupiter-5.10.5.jar:/Users/prathamgupta/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.10.5/junit-jupiter-api-5.10.5.jar:/Users/prathamgupta/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/Users/prathamgupta/.m2/repository/org/junit/platform/junit-platform-commons/1.10.5/junit-platform-commons-1.10.5.jar:/Users/prathamgupta/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/Users/prathamgupta/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.10.5/junit-jupiter-params-5.10.5.jar:/Users/prathamgupta/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.10.5/junit-jupiter-engine-5.10.5.jar:/Users/prathamgupta/.m2/repository/org/junit/platform/junit-platform-engine/1.10.5/junit-platform-engine-1.10.5.jar:/Users/prathamgupta/.m2/repository/org/mockito/mockito-core/5.11.0/mockito-core-5.11.0.jar:/Users/prathamgupta/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.19/byte-buddy-agent-1.14.19.jar:/Users/prathamgupta/.m2/repository/org/objenesis/objenesis/3.3/objenesis-3.3.jar:/Users/prathamgupta/.m2/repository/org/mockito/mockito-junit-jupiter/5.11.0/mockito-junit-jupiter-5.11.0.jar:/Users/prathamgupta/.m2/repository/org/skyscreamer/jsonassert/1.5.3/jsonassert-1.5.3.jar:/Users/prathamgupta/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-core/6.1.14/spring-core-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-jcl/6.1.14/spring-jcl-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-test/6.1.14/spring-test-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/xmlunit/xmlunit-core/2.9.1/xmlunit-core-2.9.1.jar:/Users/prathamgupta/.m2/repository/org/springframework/security/spring-security-test/6.3.4/spring-security-test-6.3.4.jar:/Users/prathamgupta/.m2/repository/org/springframework/security/spring-security-core/6.3.4/spring-security-core-6.3.4.jar:/Users/prathamgupta/.m2/repository/org/springframework/security/spring-security-crypto/6.3.4/spring-security-crypto-6.3.4.jar:"/>
     <property name="java.vm.vendor" value="Oracle Corporation"/>
     <property name="sun.arch.data.model" value="64"/>
     <property name="java.vendor.url" value="https://java.oracle.com/"/>
@@ -14,10 +14,9 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="IN"/>
     <property name="sun.boot.library.path" value="/Library/Java/JavaVirtualMachines/jdk-21.jdk/Contents/Home/lib"/>
-    <property name="sun.java.command" value="/Users/prathamgupta/Desktop/AttendanceSystem/system/target/surefire/surefirebooter-20260523235625657_3.jar /Users/prathamgupta/Desktop/AttendanceSystem/system/target/surefire 2026-05-23T23-56-25_606-jvmRun1 surefire-20260523235625657_1tmp surefire_0-20260523235625657_2tmp"/>
-    <property name="http.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
+    <property name="sun.java.command" value="/Users/prathamgupta/Desktop/AttendanceSystem/system/target/surefire/surefirebooter-20260714150816132_3.jar /Users/prathamgupta/Desktop/AttendanceSystem/system/target/surefire 2026-07-14T15-08-16_073-jvmRun1 surefire-20260714150816132_1tmp surefire_0-20260714150816132_2tmp"/>
     <property name="jdk.debug" value="release"/>
-    <property name="surefire.test.class.path" value="/Users/prathamgupta/Desktop/AttendanceSystem/system/target/test-classes:/Users/prathamgupta/Desktop/AttendanceSystem/system/target/classes:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-web/3.3.5/spring-boot-starter-web-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter/3.3.5/spring-boot-starter-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot/3.3.5/spring-boot-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-autoconfigure/3.3.5/spring-boot-autoconfigure-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-logging/3.3.5/spring-boot-starter-logging-3.3.5.jar:/Users/prathamgupta/.m2/repository/ch/qos/logback/logback-classic/1.5.11/logback-classic-1.5.11.jar:/Users/prathamgupta/.m2/repository/ch/qos/logback/logback-core/1.5.11/logback-core-1.5.11.jar:/Users/prathamgupta/.m2/repository/org/apache/logging/log4j/log4j-to-slf4j/2.23.1/log4j-to-slf4j-2.23.1.jar:/Users/prathamgupta/.m2/repository/org/apache/logging/log4j/log4j-api/2.23.1/log4j-api-2.23.1.jar:/Users/prathamgupta/.m2/repository/org/slf4j/jul-to-slf4j/2.0.16/jul-to-slf4j-2.0.16.jar:/Users/prathamgupta/.m2/repository/jakarta/annotation/jakarta.annotation-api/2.1.1/jakarta.annotation-api-2.1.1.jar:/Users/prathamgupta/.m2/repository/org/yaml/snakeyaml/2.2/snakeyaml-2.2.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-json/3.3.5/spring-boot-starter-json-3.3.5.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jdk8/2.17.2/jackson-datatype-jdk8-2.17.2.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jsr310/2.17.2/jackson-datatype-jsr310-2.17.2.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/module/jackson-module-parameter-names/2.17.2/jackson-module-parameter-names-2.17.2.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-tomcat/3.3.5/spring-boot-starter-tomcat-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/apache/tomcat/embed/tomcat-embed-core/10.1.31/tomcat-embed-core-10.1.31.jar:/Users/prathamgupta/.m2/repository/org/apache/tomcat/embed/tomcat-embed-websocket/10.1.31/tomcat-embed-websocket-10.1.31.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-web/6.1.14/spring-web-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-beans/6.1.14/spring-beans-6.1.14.jar:/Users/prathamgupta/.m2/repository/io/micrometer/micrometer-observation/1.13.6/micrometer-observation-1.13.6.jar:/Users/prathamgupta/.m2/repository/io/micrometer/micrometer-commons/1.13.6/micrometer-commons-1.13.6.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-webmvc/6.1.14/spring-webmvc-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-context/6.1.14/spring-context-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-expression/6.1.14/spring-expression-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-security/3.3.5/spring-boot-starter-security-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-aop/6.1.14/spring-aop-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/security/spring-security-config/6.3.4/spring-security-config-6.3.4.jar:/Users/prathamgupta/.m2/repository/org/springframework/security/spring-security-web/6.3.4/spring-security-web-6.3.4.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-data-jpa/3.3.5/spring-boot-starter-data-jpa-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-aop/3.3.5/spring-boot-starter-aop-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/aspectj/aspectjweaver/1.9.22.1/aspectjweaver-1.9.22.1.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-jdbc/3.3.5/spring-boot-starter-jdbc-3.3.5.jar:/Users/prathamgupta/.m2/repository/com/zaxxer/HikariCP/5.1.0/HikariCP-5.1.0.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-jdbc/6.1.14/spring-jdbc-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/hibernate/orm/hibernate-core/6.5.3.Final/hibernate-core-6.5.3.Final.jar:/Users/prathamgupta/.m2/repository/jakarta/persistence/jakarta.persistence-api/3.1.0/jakarta.persistence-api-3.1.0.jar:/Users/prathamgupta/.m2/repository/jakarta/transaction/jakarta.transaction-api/2.0.1/jakarta.transaction-api-2.0.1.jar:/Users/prathamgupta/.m2/repository/org/jboss/logging/jboss-logging/3.5.3.Final/jboss-logging-3.5.3.Final.jar:/Users/prathamgupta/.m2/repository/org/hibernate/common/hibernate-commons-annotations/6.0.6.Final/hibernate-commons-annotations-6.0.6.Final.jar:/Users/prathamgupta/.m2/repository/io/smallrye/jandex/3.1.2/jandex-3.1.2.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/classmate/1.7.0/classmate-1.7.0.jar:/Users/prathamgupta/.m2/repository/net/bytebuddy/byte-buddy/1.14.19/byte-buddy-1.14.19.jar:/Users/prathamgupta/.m2/repository/org/glassfish/jaxb/jaxb-runtime/4.0.5/jaxb-runtime-4.0.5.jar:/Users/prathamgupta/.m2/repository/org/glassfish/jaxb/jaxb-core/4.0.5/jaxb-core-4.0.5.jar:/Users/prathamgupta/.m2/repository/org/eclipse/angus/angus-activation/2.0.2/angus-activation-2.0.2.jar:/Users/prathamgupta/.m2/repository/org/glassfish/jaxb/txw2/4.0.5/txw2-4.0.5.jar:/Users/prathamgupta/.m2/repository/com/sun/istack/istack-commons-runtime/4.1.2/istack-commons-runtime-4.1.2.jar:/Users/prathamgupta/.m2/repository/jakarta/inject/jakarta.inject-api/2.0.1/jakarta.inject-api-2.0.1.jar:/Users/prathamgupta/.m2/repository/org/antlr/antlr4-runtime/4.13.0/antlr4-runtime-4.13.0.jar:/Users/prathamgupta/.m2/repository/org/springframework/data/spring-data-jpa/3.3.5/spring-data-jpa-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/data/spring-data-commons/3.3.5/spring-data-commons-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-orm/6.1.14/spring-orm-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-tx/6.1.14/spring-tx-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/slf4j/slf4j-api/2.0.16/slf4j-api-2.0.16.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-aspects/6.1.14/spring-aspects-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-validation/3.3.5/spring-boot-starter-validation-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/apache/tomcat/embed/tomcat-embed-el/10.1.31/tomcat-embed-el-10.1.31.jar:/Users/prathamgupta/.m2/repository/org/hibernate/validator/hibernate-validator/8.0.1.Final/hibernate-validator-8.0.1.Final.jar:/Users/prathamgupta/.m2/repository/jakarta/validation/jakarta.validation-api/3.0.2/jakarta.validation-api-3.0.2.jar:/Users/prathamgupta/.m2/repository/org/flywaydb/flyway-core/10.10.0/flyway-core-10.10.0.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/dataformat/jackson-dataformat-toml/2.17.2/jackson-dataformat-toml-2.17.2.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.17.2/jackson-core-2.17.2.jar:/Users/prathamgupta/.m2/repository/com/google/code/gson/gson/2.10.1/gson-2.10.1.jar:/Users/prathamgupta/.m2/repository/org/mariadb/jdbc/mariadb-java-client/3.3.3/mariadb-java-client-3.3.3.jar:/Users/prathamgupta/.m2/repository/com/github/waffle/waffle-jna/3.3.0/waffle-jna-3.3.0.jar:/Users/prathamgupta/.m2/repository/net/java/dev/jna/jna/5.13.0/jna-5.13.0.jar:/Users/prathamgupta/.m2/repository/net/java/dev/jna/jna-platform/5.13.0/jna-platform-5.13.0.jar:/Users/prathamgupta/.m2/repository/org/slf4j/jcl-over-slf4j/2.0.16/jcl-over-slf4j-2.0.16.jar:/Users/prathamgupta/.m2/repository/com/github/ben-manes/caffeine/caffeine/3.1.8/caffeine-3.1.8.jar:/Users/prathamgupta/.m2/repository/com/google/errorprone/error_prone_annotations/2.21.1/error_prone_annotations-2.21.1.jar:/Users/prathamgupta/.m2/repository/org/checkerframework/checker-qual/3.32.0/checker-qual-3.32.0.jar:/Users/prathamgupta/.m2/repository/com/h2database/h2/2.2.224/h2-2.2.224.jar:/Users/prathamgupta/.m2/repository/io/jsonwebtoken/jjwt-api/0.11.5/jjwt-api-0.11.5.jar:/Users/prathamgupta/.m2/repository/io/jsonwebtoken/jjwt-impl/0.11.5/jjwt-impl-0.11.5.jar:/Users/prathamgupta/.m2/repository/io/jsonwebtoken/jjwt-jackson/0.11.5/jjwt-jackson-0.11.5.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.17.2/jackson-databind-2.17.2.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.17.2/jackson-annotations-2.17.2.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-test/3.3.5/spring-boot-starter-test-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-test/3.3.5/spring-boot-test-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-test-autoconfigure/3.3.5/spring-boot-test-autoconfigure-3.3.5.jar:/Users/prathamgupta/.m2/repository/com/jayway/jsonpath/json-path/2.9.0/json-path-2.9.0.jar:/Users/prathamgupta/.m2/repository/jakarta/xml/bind/jakarta.xml.bind-api/4.0.2/jakarta.xml.bind-api-4.0.2.jar:/Users/prathamgupta/.m2/repository/jakarta/activation/jakarta.activation-api/2.1.3/jakarta.activation-api-2.1.3.jar:/Users/prathamgupta/.m2/repository/net/minidev/json-smart/2.5.1/json-smart-2.5.1.jar:/Users/prathamgupta/.m2/repository/net/minidev/accessors-smart/2.5.1/accessors-smart-2.5.1.jar:/Users/prathamgupta/.m2/repository/org/ow2/asm/asm/9.6/asm-9.6.jar:/Users/prathamgupta/.m2/repository/org/assertj/assertj-core/3.25.3/assertj-core-3.25.3.jar:/Users/prathamgupta/.m2/repository/org/awaitility/awaitility/4.2.2/awaitility-4.2.2.jar:/Users/prathamgupta/.m2/repository/org/hamcrest/hamcrest/2.2/hamcrest-2.2.jar:/Users/prathamgupta/.m2/repository/org/junit/jupiter/junit-jupiter/5.10.5/junit-jupiter-5.10.5.jar:/Users/prathamgupta/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.10.5/junit-jupiter-api-5.10.5.jar:/Users/prathamgupta/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/Users/prathamgupta/.m2/repository/org/junit/platform/junit-platform-commons/1.10.5/junit-platform-commons-1.10.5.jar:/Users/prathamgupta/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/Users/prathamgupta/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.10.5/junit-jupiter-params-5.10.5.jar:/Users/prathamgupta/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.10.5/junit-jupiter-engine-5.10.5.jar:/Users/prathamgupta/.m2/repository/org/junit/platform/junit-platform-engine/1.10.5/junit-platform-engine-1.10.5.jar:/Users/prathamgupta/.m2/repository/org/mockito/mockito-core/5.11.0/mockito-core-5.11.0.jar:/Users/prathamgupta/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.19/byte-buddy-agent-1.14.19.jar:/Users/prathamgupta/.m2/repository/org/objenesis/objenesis/3.3/objenesis-3.3.jar:/Users/prathamgupta/.m2/repository/org/mockito/mockito-junit-jupiter/5.11.0/mockito-junit-jupiter-5.11.0.jar:/Users/prathamgupta/.m2/repository/org/skyscreamer/jsonassert/1.5.3/jsonassert-1.5.3.jar:/Users/prathamgupta/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-core/6.1.14/spring-core-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-jcl/6.1.14/spring-jcl-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-test/6.1.14/spring-test-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/xmlunit/xmlunit-core/2.9.1/xmlunit-core-2.9.1.jar:/Users/prathamgupta/.m2/repository/org/springframework/security/spring-security-test/6.3.4/spring-security-test-6.3.4.jar:/Users/prathamgupta/.m2/repository/org/springframework/security/spring-security-core/6.3.4/spring-security-core-6.3.4.jar:/Users/prathamgupta/.m2/repository/org/springframework/security/spring-security-crypto/6.3.4/spring-security-crypto-6.3.4.jar:"/>
+    <property name="surefire.test.class.path" value="/Users/prathamgupta/Desktop/AttendanceSystem/system/target/test-classes:/Users/prathamgupta/Desktop/AttendanceSystem/system/target/classes:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-web/3.3.5/spring-boot-starter-web-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter/3.3.5/spring-boot-starter-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot/3.3.5/spring-boot-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-autoconfigure/3.3.5/spring-boot-autoconfigure-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-logging/3.3.5/spring-boot-starter-logging-3.3.5.jar:/Users/prathamgupta/.m2/repository/ch/qos/logback/logback-classic/1.5.11/logback-classic-1.5.11.jar:/Users/prathamgupta/.m2/repository/ch/qos/logback/logback-core/1.5.11/logback-core-1.5.11.jar:/Users/prathamgupta/.m2/repository/org/apache/logging/log4j/log4j-to-slf4j/2.23.1/log4j-to-slf4j-2.23.1.jar:/Users/prathamgupta/.m2/repository/org/apache/logging/log4j/log4j-api/2.23.1/log4j-api-2.23.1.jar:/Users/prathamgupta/.m2/repository/org/slf4j/jul-to-slf4j/2.0.16/jul-to-slf4j-2.0.16.jar:/Users/prathamgupta/.m2/repository/jakarta/annotation/jakarta.annotation-api/2.1.1/jakarta.annotation-api-2.1.1.jar:/Users/prathamgupta/.m2/repository/org/yaml/snakeyaml/2.2/snakeyaml-2.2.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-json/3.3.5/spring-boot-starter-json-3.3.5.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jdk8/2.17.2/jackson-datatype-jdk8-2.17.2.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jsr310/2.17.2/jackson-datatype-jsr310-2.17.2.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/module/jackson-module-parameter-names/2.17.2/jackson-module-parameter-names-2.17.2.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-tomcat/3.3.5/spring-boot-starter-tomcat-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/apache/tomcat/embed/tomcat-embed-core/10.1.31/tomcat-embed-core-10.1.31.jar:/Users/prathamgupta/.m2/repository/org/apache/tomcat/embed/tomcat-embed-websocket/10.1.31/tomcat-embed-websocket-10.1.31.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-web/6.1.14/spring-web-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-beans/6.1.14/spring-beans-6.1.14.jar:/Users/prathamgupta/.m2/repository/io/micrometer/micrometer-observation/1.13.6/micrometer-observation-1.13.6.jar:/Users/prathamgupta/.m2/repository/io/micrometer/micrometer-commons/1.13.6/micrometer-commons-1.13.6.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-webmvc/6.1.14/spring-webmvc-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-context/6.1.14/spring-context-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-expression/6.1.14/spring-expression-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-security/3.3.5/spring-boot-starter-security-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-aop/6.1.14/spring-aop-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/security/spring-security-config/6.3.4/spring-security-config-6.3.4.jar:/Users/prathamgupta/.m2/repository/org/springframework/security/spring-security-web/6.3.4/spring-security-web-6.3.4.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-data-jpa/3.3.5/spring-boot-starter-data-jpa-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-aop/3.3.5/spring-boot-starter-aop-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/aspectj/aspectjweaver/1.9.22.1/aspectjweaver-1.9.22.1.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-jdbc/3.3.5/spring-boot-starter-jdbc-3.3.5.jar:/Users/prathamgupta/.m2/repository/com/zaxxer/HikariCP/5.1.0/HikariCP-5.1.0.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-jdbc/6.1.14/spring-jdbc-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/hibernate/orm/hibernate-core/6.5.3.Final/hibernate-core-6.5.3.Final.jar:/Users/prathamgupta/.m2/repository/jakarta/persistence/jakarta.persistence-api/3.1.0/jakarta.persistence-api-3.1.0.jar:/Users/prathamgupta/.m2/repository/jakarta/transaction/jakarta.transaction-api/2.0.1/jakarta.transaction-api-2.0.1.jar:/Users/prathamgupta/.m2/repository/org/jboss/logging/jboss-logging/3.5.3.Final/jboss-logging-3.5.3.Final.jar:/Users/prathamgupta/.m2/repository/org/hibernate/common/hibernate-commons-annotations/6.0.6.Final/hibernate-commons-annotations-6.0.6.Final.jar:/Users/prathamgupta/.m2/repository/io/smallrye/jandex/3.1.2/jandex-3.1.2.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/classmate/1.7.0/classmate-1.7.0.jar:/Users/prathamgupta/.m2/repository/net/bytebuddy/byte-buddy/1.14.19/byte-buddy-1.14.19.jar:/Users/prathamgupta/.m2/repository/org/glassfish/jaxb/jaxb-runtime/4.0.5/jaxb-runtime-4.0.5.jar:/Users/prathamgupta/.m2/repository/org/glassfish/jaxb/jaxb-core/4.0.5/jaxb-core-4.0.5.jar:/Users/prathamgupta/.m2/repository/org/glassfish/jaxb/txw2/4.0.5/txw2-4.0.5.jar:/Users/prathamgupta/.m2/repository/com/sun/istack/istack-commons-runtime/4.1.2/istack-commons-runtime-4.1.2.jar:/Users/prathamgupta/.m2/repository/jakarta/inject/jakarta.inject-api/2.0.1/jakarta.inject-api-2.0.1.jar:/Users/prathamgupta/.m2/repository/org/antlr/antlr4-runtime/4.13.0/antlr4-runtime-4.13.0.jar:/Users/prathamgupta/.m2/repository/org/springframework/data/spring-data-jpa/3.3.5/spring-data-jpa-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/data/spring-data-commons/3.3.5/spring-data-commons-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-orm/6.1.14/spring-orm-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-tx/6.1.14/spring-tx-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/slf4j/slf4j-api/2.0.16/slf4j-api-2.0.16.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-aspects/6.1.14/spring-aspects-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-validation/3.3.5/spring-boot-starter-validation-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/apache/tomcat/embed/tomcat-embed-el/10.1.31/tomcat-embed-el-10.1.31.jar:/Users/prathamgupta/.m2/repository/org/hibernate/validator/hibernate-validator/8.0.1.Final/hibernate-validator-8.0.1.Final.jar:/Users/prathamgupta/.m2/repository/jakarta/validation/jakarta.validation-api/3.0.2/jakarta.validation-api-3.0.2.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-mail/3.3.5/spring-boot-starter-mail-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-context-support/6.1.14/spring-context-support-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/eclipse/angus/jakarta.mail/2.0.3/jakarta.mail-2.0.3.jar:/Users/prathamgupta/.m2/repository/jakarta/activation/jakarta.activation-api/2.1.3/jakarta.activation-api-2.1.3.jar:/Users/prathamgupta/.m2/repository/org/eclipse/angus/angus-activation/2.0.2/angus-activation-2.0.2.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/s3/2.21.46/s3-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/aws-xml-protocol/2.21.46/aws-xml-protocol-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/aws-query-protocol/2.21.46/aws-query-protocol-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/protocol-core/2.21.46/protocol-core-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/arns/2.21.46/arns-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/profiles/2.21.46/profiles-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/crt-core/2.21.46/crt-core-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/http-auth/2.21.46/http-auth-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/identity-spi/2.21.46/identity-spi-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/http-auth-spi/2.21.46/http-auth-spi-2.21.46.jar:/Users/prathamgupta/.m2/repository/org/reactivestreams/reactive-streams/1.0.4/reactive-streams-1.0.4.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/http-auth-aws/2.21.46/http-auth-aws-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/checksums/2.21.46/checksums-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/checksums-spi/2.21.46/checksums-spi-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/sdk-core/2.21.46/sdk-core-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/auth/2.21.46/auth-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/eventstream/eventstream/1.0.1/eventstream-1.0.1.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/http-client-spi/2.21.46/http-client-spi-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/regions/2.21.46/regions-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/annotations/2.21.46/annotations-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/utils/2.21.46/utils-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/aws-core/2.21.46/aws-core-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/metrics-spi/2.21.46/metrics-spi-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/json-utils/2.21.46/json-utils-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/third-party-jackson-core/2.21.46/third-party-jackson-core-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/endpoints-spi/2.21.46/endpoints-spi-2.21.46.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/apache-client/2.21.46/apache-client-2.21.46.jar:/Users/prathamgupta/.m2/repository/org/apache/httpcomponents/httpclient/4.5.13/httpclient-4.5.13.jar:/Users/prathamgupta/.m2/repository/commons-logging/commons-logging/1.2/commons-logging-1.2.jar:/Users/prathamgupta/.m2/repository/org/apache/httpcomponents/httpcore/4.4.16/httpcore-4.4.16.jar:/Users/prathamgupta/.m2/repository/commons-codec/commons-codec/1.16.1/commons-codec-1.16.1.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/netty-nio-client/2.21.46/netty-nio-client-2.21.46.jar:/Users/prathamgupta/.m2/repository/io/netty/netty-codec-http/4.1.114.Final/netty-codec-http-4.1.114.Final.jar:/Users/prathamgupta/.m2/repository/io/netty/netty-codec-http2/4.1.114.Final/netty-codec-http2-4.1.114.Final.jar:/Users/prathamgupta/.m2/repository/io/netty/netty-codec/4.1.114.Final/netty-codec-4.1.114.Final.jar:/Users/prathamgupta/.m2/repository/io/netty/netty-transport/4.1.114.Final/netty-transport-4.1.114.Final.jar:/Users/prathamgupta/.m2/repository/io/netty/netty-common/4.1.114.Final/netty-common-4.1.114.Final.jar:/Users/prathamgupta/.m2/repository/io/netty/netty-buffer/4.1.114.Final/netty-buffer-4.1.114.Final.jar:/Users/prathamgupta/.m2/repository/io/netty/netty-handler/4.1.114.Final/netty-handler-4.1.114.Final.jar:/Users/prathamgupta/.m2/repository/io/netty/netty-transport-native-unix-common/4.1.114.Final/netty-transport-native-unix-common-4.1.114.Final.jar:/Users/prathamgupta/.m2/repository/io/netty/netty-transport-classes-epoll/4.1.114.Final/netty-transport-classes-epoll-4.1.114.Final.jar:/Users/prathamgupta/.m2/repository/io/netty/netty-resolver/4.1.114.Final/netty-resolver-4.1.114.Final.jar:/Users/prathamgupta/.m2/repository/software/amazon/awssdk/url-connection-client/2.21.46/url-connection-client-2.21.46.jar:/Users/prathamgupta/.m2/repository/org/flywaydb/flyway-core/10.10.0/flyway-core-10.10.0.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/dataformat/jackson-dataformat-toml/2.17.2/jackson-dataformat-toml-2.17.2.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.17.2/jackson-core-2.17.2.jar:/Users/prathamgupta/.m2/repository/com/google/code/gson/gson/2.10.1/gson-2.10.1.jar:/Users/prathamgupta/.m2/repository/org/flywaydb/flyway-mysql/10.10.0/flyway-mysql-10.10.0.jar:/Users/prathamgupta/.m2/repository/org/mariadb/jdbc/mariadb-java-client/3.3.3/mariadb-java-client-3.3.3.jar:/Users/prathamgupta/.m2/repository/com/github/waffle/waffle-jna/3.3.0/waffle-jna-3.3.0.jar:/Users/prathamgupta/.m2/repository/net/java/dev/jna/jna/5.13.0/jna-5.13.0.jar:/Users/prathamgupta/.m2/repository/net/java/dev/jna/jna-platform/5.13.0/jna-platform-5.13.0.jar:/Users/prathamgupta/.m2/repository/org/slf4j/jcl-over-slf4j/2.0.16/jcl-over-slf4j-2.0.16.jar:/Users/prathamgupta/.m2/repository/com/github/ben-manes/caffeine/caffeine/3.1.8/caffeine-3.1.8.jar:/Users/prathamgupta/.m2/repository/com/google/errorprone/error_prone_annotations/2.21.1/error_prone_annotations-2.21.1.jar:/Users/prathamgupta/.m2/repository/org/checkerframework/checker-qual/3.32.0/checker-qual-3.32.0.jar:/Users/prathamgupta/.m2/repository/com/h2database/h2/2.2.224/h2-2.2.224.jar:/Users/prathamgupta/.m2/repository/io/jsonwebtoken/jjwt-api/0.11.5/jjwt-api-0.11.5.jar:/Users/prathamgupta/.m2/repository/io/jsonwebtoken/jjwt-impl/0.11.5/jjwt-impl-0.11.5.jar:/Users/prathamgupta/.m2/repository/io/jsonwebtoken/jjwt-jackson/0.11.5/jjwt-jackson-0.11.5.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.17.2/jackson-databind-2.17.2.jar:/Users/prathamgupta/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.17.2/jackson-annotations-2.17.2.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-starter-test/3.3.5/spring-boot-starter-test-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-test/3.3.5/spring-boot-test-3.3.5.jar:/Users/prathamgupta/.m2/repository/org/springframework/boot/spring-boot-test-autoconfigure/3.3.5/spring-boot-test-autoconfigure-3.3.5.jar:/Users/prathamgupta/.m2/repository/com/jayway/jsonpath/json-path/2.9.0/json-path-2.9.0.jar:/Users/prathamgupta/.m2/repository/jakarta/xml/bind/jakarta.xml.bind-api/4.0.2/jakarta.xml.bind-api-4.0.2.jar:/Users/prathamgupta/.m2/repository/net/minidev/json-smart/2.5.1/json-smart-2.5.1.jar:/Users/prathamgupta/.m2/repository/net/minidev/accessors-smart/2.5.1/accessors-smart-2.5.1.jar:/Users/prathamgupta/.m2/repository/org/ow2/asm/asm/9.6/asm-9.6.jar:/Users/prathamgupta/.m2/repository/org/assertj/assertj-core/3.25.3/assertj-core-3.25.3.jar:/Users/prathamgupta/.m2/repository/org/awaitility/awaitility/4.2.2/awaitility-4.2.2.jar:/Users/prathamgupta/.m2/repository/org/hamcrest/hamcrest/2.2/hamcrest-2.2.jar:/Users/prathamgupta/.m2/repository/org/junit/jupiter/junit-jupiter/5.10.5/junit-jupiter-5.10.5.jar:/Users/prathamgupta/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.10.5/junit-jupiter-api-5.10.5.jar:/Users/prathamgupta/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/Users/prathamgupta/.m2/repository/org/junit/platform/junit-platform-commons/1.10.5/junit-platform-commons-1.10.5.jar:/Users/prathamgupta/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/Users/prathamgupta/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.10.5/junit-jupiter-params-5.10.5.jar:/Users/prathamgupta/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.10.5/junit-jupiter-engine-5.10.5.jar:/Users/prathamgupta/.m2/repository/org/junit/platform/junit-platform-engine/1.10.5/junit-platform-engine-1.10.5.jar:/Users/prathamgupta/.m2/repository/org/mockito/mockito-core/5.11.0/mockito-core-5.11.0.jar:/Users/prathamgupta/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.19/byte-buddy-agent-1.14.19.jar:/Users/prathamgupta/.m2/repository/org/objenesis/objenesis/3.3/objenesis-3.3.jar:/Users/prathamgupta/.m2/repository/org/mockito/mockito-junit-jupiter/5.11.0/mockito-junit-jupiter-5.11.0.jar:/Users/prathamgupta/.m2/repository/org/skyscreamer/jsonassert/1.5.3/jsonassert-1.5.3.jar:/Users/prathamgupta/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-core/6.1.14/spring-core-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-jcl/6.1.14/spring-jcl-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/springframework/spring-test/6.1.14/spring-test-6.1.14.jar:/Users/prathamgupta/.m2/repository/org/xmlunit/xmlunit-core/2.9.1/xmlunit-core-2.9.1.jar:/Users/prathamgupta/.m2/repository/org/springframework/security/spring-security-test/6.3.4/spring-security-test-6.3.4.jar:/Users/prathamgupta/.m2/repository/org/springframework/security/spring-security-core/6.3.4/spring-security-core-6.3.4.jar:/Users/prathamgupta/.m2/repository/org/springframework/security/spring-security-crypto/6.3.4/spring-security-crypto-6.3.4.jar:"/>
     <property name="sun.cpu.endian" value="little"/>
     <property name="user.home" value="/Users/prathamgupta"/>
     <property name="user.language" value="en"/>
@@ -33,9 +32,8 @@
     <property name="FILE_LOG_CHARSET" value="UTF-8"/>
     <property name="java.awt.headless" value="true"/>
     <property name="apple.awt.application.name" value="ForkedBooter"/>
-    <property name="surefire.real.class.path" value="/Users/prathamgupta/Desktop/AttendanceSystem/system/target/surefire/surefirebooter-20260523235625657_3.jar"/>
+    <property name="surefire.real.class.path" value="/Users/prathamgupta/Desktop/AttendanceSystem/system/target/surefire/surefirebooter-20260714150816132_3.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
-    <property name="ftp.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
     <property name="java.runtime.version" value="21.0.1+12-LTS-29"/>
     <property name="user.name" value="prathamgupta"/>
     <property name="stdout.encoding" value="UTF-8"/>
@@ -52,7 +50,7 @@
     <property name="user.dir" value="/Users/prathamgupta/Desktop/AttendanceSystem/system"/>
     <property name="os.arch" value="aarch64"/>
     <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
-    <property name="PID" value="75934"/>
+    <property name="PID" value="1638"/>
     <property name="CONSOLE_LOG_CHARSET" value="UTF-8"/>
     <property name="native.encoding" value="UTF-8"/>
     <property name="java.library.path" value="/Users/prathamgupta/Library/Java/Extensions:/Library/Java/Extensions:/Network/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java:."/>
@@ -61,12 +59,11 @@
     <property name="java.vendor" value="Oracle Corporation"/>
     <property name="java.vm.version" value="21.0.1+12-LTS-29"/>
     <property name="sun.io.unicode.encoding" value="UnicodeBig"/>
-    <property name="socksNonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
     <property name="java.class.version" value="65.0"/>
     <property name="LOGGED_APPLICATION_NAME" value="[system] "/>
   </properties>
-  <testcase name="contextLoads" classname="com.attendance.system.SystemApplicationTests" time="0.006">
-    <error message="Failed to load ApplicationContext for [WebMergedContextConfiguration@3c81cd82 testClass = com.attendance.system.SystemApplicationTests, locations = [], classes = [com.attendance.system.SystemApplication], contextInitializerClasses = [], activeProfiles = [], propertySourceDescriptors = [], propertySourceProperties = [&quot;org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true&quot;], contextCustomizers = [org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@28261e8e, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@3ba987b8, org.springframework.boot.test.mock.mockito.MockitoContextCustomizer@0, org.springframework.boot.test.web.client.TestRestTemplateContextCustomizer@57a78e3, org.springframework.boot.test.web.reactor.netty.DisableReactorResourceFactoryGlobalResourcesContextCustomizerFactory$DisableReactorResourceFactoryGlobalResourcesContextCustomizerCustomizer@7d9d0818, org.springframework.boot.test.autoconfigure.OnFailureConditionReportContextCustomizerFactory$OnFailureConditionReportContextCustomizer@2b40ff9c, org.springframework.boot.test.autoconfigure.actuate.observability.ObservabilityContextCustomizerFactory$DisableObservabilityContextCustomizer@1f, org.springframework.boot.test.autoconfigure.properties.PropertyMappingContextCustomizer@0, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverContextCustomizer@4a8355dd, org.springframework.boot.test.context.SpringBootTestAnnotation@e5160aad], resourceBasePath = &quot;src/main/webapp&quot;, contextLoader = org.springframework.boot.test.context.SpringBootContextLoader, parent = null]" type="java.lang.IllegalStateException"><![CDATA[java.lang.IllegalStateException: Failed to load ApplicationContext for [WebMergedContextConfiguration@3c81cd82 testClass = com.attendance.system.SystemApplicationTests, locations = [], classes = [com.attendance.system.SystemApplication], contextInitializerClasses = [], activeProfiles = [], propertySourceDescriptors = [], propertySourceProperties = ["org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true"], contextCustomizers = [org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@28261e8e, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@3ba987b8, org.springframework.boot.test.mock.mockito.MockitoContextCustomizer@0, org.springframework.boot.test.web.client.TestRestTemplateContextCustomizer@57a78e3, org.springframework.boot.test.web.reactor.netty.DisableReactorResourceFactoryGlobalResourcesContextCustomizerFactory$DisableReactorResourceFactoryGlobalResourcesContextCustomizerCustomizer@7d9d0818, org.springframework.boot.test.autoconfigure.OnFailureConditionReportContextCustomizerFactory$OnFailureConditionReportContextCustomizer@2b40ff9c, org.springframework.boot.test.autoconfigure.actuate.observability.ObservabilityContextCustomizerFactory$DisableObservabilityContextCustomizer@1f, org.springframework.boot.test.autoconfigure.properties.PropertyMappingContextCustomizer@0, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverContextCustomizer@4a8355dd, org.springframework.boot.test.context.SpringBootTestAnnotation@e5160aad], resourceBasePath = "src/main/webapp", contextLoader = org.springframework.boot.test.context.SpringBootContextLoader, parent = null]
+  <testcase name="contextLoads" classname="com.attendance.system.SystemApplicationTests" time="0.004">
+    <error message="Failed to load ApplicationContext for [WebMergedContextConfiguration@559d19c testClass = com.attendance.system.SystemApplicationTests, locations = [], classes = [com.attendance.system.SystemApplication], contextInitializerClasses = [], activeProfiles = [&quot;local&quot;], propertySourceDescriptors = [], propertySourceProperties = [&quot;org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true&quot;], contextCustomizers = [org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@4e5ed836, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@239a307b, org.springframework.boot.test.mock.mockito.MockitoContextCustomizer@0, org.springframework.boot.test.web.client.TestRestTemplateContextCustomizer@5fb759d6, org.springframework.boot.test.web.reactor.netty.DisableReactorResourceFactoryGlobalResourcesContextCustomizerFactory$DisableReactorResourceFactoryGlobalResourcesContextCustomizerCustomizer@7b4c50bc, org.springframework.boot.test.autoconfigure.OnFailureConditionReportContextCustomizerFactory$OnFailureConditionReportContextCustomizer@60f00693, org.springframework.boot.test.autoconfigure.actuate.observability.ObservabilityContextCustomizerFactory$DisableObservabilityContextCustomizer@1f, org.springframework.boot.test.autoconfigure.properties.PropertyMappingContextCustomizer@0, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverContextCustomizer@7dfd3c81, org.springframework.boot.test.context.SpringBootTestAnnotation@80f4e763], resourceBasePath = &quot;src/main/webapp&quot;, contextLoader = org.springframework.boot.test.context.SpringBootContextLoader, parent = null]" type="java.lang.IllegalStateException"><![CDATA[java.lang.IllegalStateException: Failed to load ApplicationContext for [WebMergedContextConfiguration@559d19c testClass = com.attendance.system.SystemApplicationTests, locations = [], classes = [com.attendance.system.SystemApplication], contextInitializerClasses = [], activeProfiles = ["local"], propertySourceDescriptors = [], propertySourceProperties = ["org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true"], contextCustomizers = [org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@4e5ed836, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@239a307b, org.springframework.boot.test.mock.mockito.MockitoContextCustomizer@0, org.springframework.boot.test.web.client.TestRestTemplateContextCustomizer@5fb759d6, org.springframework.boot.test.web.reactor.netty.DisableReactorResourceFactoryGlobalResourcesContextCustomizerFactory$DisableReactorResourceFactoryGlobalResourcesContextCustomizerCustomizer@7b4c50bc, org.springframework.boot.test.autoconfigure.OnFailureConditionReportContextCustomizerFactory$OnFailureConditionReportContextCustomizer@60f00693, org.springframework.boot.test.autoconfigure.actuate.observability.ObservabilityContextCustomizerFactory$DisableObservabilityContextCustomizer@1f, org.springframework.boot.test.autoconfigure.properties.PropertyMappingContextCustomizer@0, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverContextCustomizer@7dfd3c81, org.springframework.boot.test.context.SpringBootTestAnnotation@80f4e763], resourceBasePath = "src/main/webapp", contextLoader = org.springframework.boot.test.context.SpringBootContextLoader, parent = null]
 	at org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate.loadContext(DefaultCacheAwareContextLoaderDelegate.java:180)
 	at org.springframework.test.context.support.DefaultTestContext.getApplicationContext(DefaultTestContext.java:130)
 	at org.springframework.test.context.web.ServletTestExecutionListener.setUpRequestContextIfNecessary(ServletTestExecutionListener.java:191)
@@ -85,11 +82,19 @@
 	at java.base/java.util.Optional.orElseGet(Optional.java:364)
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
-Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: Failed to initialize dependency 'flywayInitializer' of LoadTimeWeaverAware bean 'entityManagerFactory': Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Unable to obtain connection from database: (conn=9) Access denied for user 'attendance'@'localhost' (using password: YES)
--------------------------------------------------------------------------------------------------------------------------
-SQL State  : 28000
-Error Code : 1045
-Message    : (conn=9) Access denied for user 'attendance'@'localhost' (using password: YES)
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: Failed to initialize dependency 'flywayInitializer' of LoadTimeWeaverAware bean 'entityManagerFactory': Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Migration V3__expand_attendance_photo_columns.sql failed
+--------------------------------------------------------
+SQL State  : 42000
+Error Code : 42000
+Message    : Syntax error in SQL statement "ALTER TABLE attendance_records\000a    MODIFY check_in_photo_ref LONGTEXT NULL[*],\000a    MODIFY check_out_photo_ref LONGTEXT NULL"; SQL statement:
+ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL [42000-224]
+Location   : db/migration/V3__expand_attendance_photo_columns.sql (/Users/prathamgupta/Desktop/AttendanceSystem/system/target/classes/db/migration/V3__expand_attendance_photo_columns.sql)
+Line       : 1
+Statement  : ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL
 
 	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:326)
 	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:205)
@@ -108,11 +113,19 @@ Message    : (conn=9) Access denied for user 'attendance'@'localhost' (using pas
 	at org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate.loadContextInternal(DefaultCacheAwareContextLoaderDelegate.java:225)
 	at org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate.loadContext(DefaultCacheAwareContextLoaderDelegate.java:152)
 	... 17 more
-Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Unable to obtain connection from database: (conn=9) Access denied for user 'attendance'@'localhost' (using password: YES)
--------------------------------------------------------------------------------------------------------------------------
-SQL State  : 28000
-Error Code : 1045
-Message    : (conn=9) Access denied for user 'attendance'@'localhost' (using password: YES)
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Migration V3__expand_attendance_photo_columns.sql failed
+--------------------------------------------------------
+SQL State  : 42000
+Error Code : 42000
+Message    : Syntax error in SQL statement "ALTER TABLE attendance_records\000a    MODIFY check_in_photo_ref LONGTEXT NULL[*],\000a    MODIFY check_out_photo_ref LONGTEXT NULL"; SQL statement:
+ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL [42000-224]
+Location   : db/migration/V3__expand_attendance_photo_columns.sql (/Users/prathamgupta/Desktop/AttendanceSystem/system/target/classes/db/migration/V3__expand_attendance_photo_columns.sql)
+Line       : 1
+Statement  : ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL
 
 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1806)
 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:600)
@@ -123,40 +136,88 @@ Message    : (conn=9) Access denied for user 'attendance'@'localhost' (using pas
 	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200)
 	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:313)
 	... 32 more
-Caused by: org.flywaydb.core.internal.exception.FlywaySqlException: Unable to obtain connection from database: (conn=9) Access denied for user 'attendance'@'localhost' (using password: YES)
--------------------------------------------------------------------------------------------------------------------------
-SQL State  : 28000
-Error Code : 1045
-Message    : (conn=9) Access denied for user 'attendance'@'localhost' (using password: YES)
+Caused by: org.flywaydb.core.internal.command.DbMigrate$FlywayMigrateException: Migration V3__expand_attendance_photo_columns.sql failed
+--------------------------------------------------------
+SQL State  : 42000
+Error Code : 42000
+Message    : Syntax error in SQL statement "ALTER TABLE attendance_records\000a    MODIFY check_in_photo_ref LONGTEXT NULL[*],\000a    MODIFY check_out_photo_ref LONGTEXT NULL"; SQL statement:
+ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL [42000-224]
+Location   : db/migration/V3__expand_attendance_photo_columns.sql (/Users/prathamgupta/Desktop/AttendanceSystem/system/target/classes/db/migration/V3__expand_attendance_photo_columns.sql)
+Line       : 1
+Statement  : ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL
 
-	at org.flywaydb.core.internal.jdbc.JdbcUtils.openConnection(JdbcUtils.java:60)
-	at org.flywaydb.core.internal.jdbc.JdbcConnectionFactory.<init>(JdbcConnectionFactory.java:72)
-	at org.flywaydb.core.FlywayExecutor.execute(FlywayExecutor.java:134)
+	at org.flywaydb.core.internal.command.DbMigrate.doMigrateGroup(DbMigrate.java:382)
+	at org.flywaydb.core.internal.command.DbMigrate.lambda$applyMigrations$1(DbMigrate.java:272)
+	at org.flywaydb.core.internal.jdbc.TransactionalExecutionTemplate.execute(TransactionalExecutionTemplate.java:55)
+	at org.flywaydb.core.internal.command.DbMigrate.applyMigrations(DbMigrate.java:271)
+	at org.flywaydb.core.internal.command.DbMigrate.migrateGroup(DbMigrate.java:244)
+	at org.flywaydb.core.internal.command.DbMigrate.lambda$migrateAll$0(DbMigrate.java:139)
+	at org.flywaydb.core.internal.jdbc.TableLockingExecutionTemplate$1.call(TableLockingExecutionTemplate.java:36)
+	at org.flywaydb.core.internal.jdbc.TransactionalExecutionTemplate.execute(TransactionalExecutionTemplate.java:55)
+	at org.flywaydb.core.internal.jdbc.TableLockingExecutionTemplate.execute(TableLockingExecutionTemplate.java:31)
+	at org.flywaydb.core.internal.database.base.Connection.lock(Connection.java:102)
+	at org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory.lock(JdbcTableSchemaHistory.java:145)
+	at org.flywaydb.core.internal.command.DbMigrate.migrateAll(DbMigrate.java:139)
+	at org.flywaydb.core.internal.command.DbMigrate.migrate(DbMigrate.java:97)
+	at org.flywaydb.core.Flyway.lambda$migrate$0(Flyway.java:202)
+	at org.flywaydb.core.FlywayExecutor.execute(FlywayExecutor.java:205)
 	at org.flywaydb.core.Flyway.migrate(Flyway.java:147)
 	at org.springframework.boot.autoconfigure.flyway.FlywayMigrationInitializer.afterPropertiesSet(FlywayMigrationInitializer.java:66)
 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1853)
 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1802)
 	... 39 more
-Caused by: java.sql.SQLInvalidAuthorizationSpecException: (conn=9) Access denied for user 'attendance'@'localhost' (using password: YES)
-	at org.mariadb.jdbc.export.ExceptionFactory.createException(ExceptionFactory.java:293)
-	at org.mariadb.jdbc.export.ExceptionFactory.create(ExceptionFactory.java:378)
-	at org.mariadb.jdbc.client.impl.ConnectionHelper.authenticationHandler(ConnectionHelper.java:279)
-	at org.mariadb.jdbc.client.impl.StandardClient.<init>(StandardClient.java:195)
-	at org.mariadb.jdbc.Driver.connect(Driver.java:69)
-	at org.mariadb.jdbc.Driver.connect(Driver.java:95)
-	at org.mariadb.jdbc.Driver.connect(Driver.java:26)
-	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:137)
-	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:360)
-	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:202)
-	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:461)
-	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:550)
-	at com.zaxxer.hikari.pool.HikariPool.<init>(HikariPool.java:98)
-	at com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:111)
-	at org.flywaydb.core.internal.jdbc.JdbcUtils.openConnection(JdbcUtils.java:48)
-	... 45 more
+Caused by: org.flywaydb.core.internal.sqlscript.FlywaySqlScriptException: Migration V3__expand_attendance_photo_columns.sql failed
+--------------------------------------------------------
+SQL State  : 42000
+Error Code : 42000
+Message    : Syntax error in SQL statement "ALTER TABLE attendance_records\000a    MODIFY check_in_photo_ref LONGTEXT NULL[*],\000a    MODIFY check_out_photo_ref LONGTEXT NULL"; SQL statement:
+ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL [42000-224]
+Location   : db/migration/V3__expand_attendance_photo_columns.sql (/Users/prathamgupta/Desktop/AttendanceSystem/system/target/classes/db/migration/V3__expand_attendance_photo_columns.sql)
+Line       : 1
+Statement  : ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL
+
+	at org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor.handleException(DefaultSqlScriptExecutor.java:252)
+	at org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor.executeStatement(DefaultSqlScriptExecutor.java:214)
+	at org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor.execute(DefaultSqlScriptExecutor.java:133)
+	at org.flywaydb.core.internal.resolver.sql.SqlMigrationExecutor.executeOnce(SqlMigrationExecutor.java:65)
+	at org.flywaydb.core.internal.resolver.sql.SqlMigrationExecutor.lambda$execute$0(SqlMigrationExecutor.java:57)
+	at org.flywaydb.core.internal.database.DefaultExecutionStrategy.execute(DefaultExecutionStrategy.java:27)
+	at org.flywaydb.core.internal.resolver.sql.SqlMigrationExecutor.execute(SqlMigrationExecutor.java:56)
+	at org.flywaydb.core.internal.command.DbMigrate.doMigrateGroup(DbMigrate.java:374)
+	... 57 more
+Caused by: org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "ALTER TABLE attendance_records\000a    MODIFY check_in_photo_ref LONGTEXT NULL[*],\000a    MODIFY check_out_photo_ref LONGTEXT NULL"; SQL statement:
+ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL [42000-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.getSyntaxError(DbException.java:247)
+	at org.h2.command.ParserBase.getSyntaxError(ParserBase.java:748)
+	at org.h2.command.Parser.prepareCommand(Parser.java:486)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:639)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:559)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1166)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:94)
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java)
+	at org.flywaydb.core.internal.jdbc.JdbcTemplate.executeStatement(JdbcTemplate.java:210)
+	at org.flywaydb.core.internal.sqlscript.ParsedSqlStatement.execute(ParsedSqlStatement.java:89)
+	at org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor.executeStatement(DefaultSqlScriptExecutor.java:206)
+	... 63 more
 ]]></error>
-    <system-out><![CDATA[23:56:26.030 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.attendance.system.SystemApplicationTests]: SystemApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-23:56:26.081 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.attendance.system.SystemApplication for test class com.attendance.system.SystemApplicationTests
+    <system-out><![CDATA[15:08:16.591 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.attendance.system.SystemApplicationTests]: SystemApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+15:08:16.649 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.attendance.system.SystemApplication for test class com.attendance.system.SystemApplicationTests
 
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
@@ -167,30 +228,57 @@ Caused by: java.sql.SQLInvalidAuthorizationSpecException: (conn=9) Access denied
 
  :: Spring Boot ::                (v3.3.5)
 
-2026-05-23T23:56:26.278+05:30  INFO 75934 --- [system] [           main] c.a.system.SystemApplicationTests        : Starting SystemApplicationTests using Java 21.0.1 with PID 75934 (started by prathamgupta in /Users/prathamgupta/Desktop/AttendanceSystem/system)
-2026-05-23T23:56:26.279+05:30  INFO 75934 --- [system] [           main] c.a.system.SystemApplicationTests        : No active profile set, falling back to 1 default profile: "default"
-2026-05-23T23:56:26.649+05:30  INFO 75934 --- [system] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-05-23T23:56:26.692+05:30  INFO 75934 --- [system] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 40 ms. Found 5 JPA repository interfaces.
-2026-05-23T23:56:27.055+05:30  INFO 75934 --- [system] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2026-05-23T23:56:27.167+05:30  WARN 75934 --- [system] [           main] o.m.jdbc.message.server.ErrorPacket      : Error: 1045-28000: Access denied for user 'attendance'@'localhost' (using password: YES)
-2026-05-23T23:56:28.178+05:30  INFO 75934 --- [system] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2026-05-23T23:56:28.185+05:30  WARN 75934 --- [system] [           main] o.m.jdbc.message.server.ErrorPacket      : Error: 1045-28000: Access denied for user 'attendance'@'localhost' (using password: YES)
-2026-05-23T23:56:29.199+05:30  WARN 75934 --- [system] [           main] o.s.w.c.s.GenericWebApplicationContext   : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: Failed to initialize dependency 'flywayInitializer' of LoadTimeWeaverAware bean 'entityManagerFactory': Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Unable to obtain connection from database: (conn=9) Access denied for user 'attendance'@'localhost' (using password: YES)
--------------------------------------------------------------------------------------------------------------------------
-SQL State  : 28000
-Error Code : 1045
-Message    : (conn=9) Access denied for user 'attendance'@'localhost' (using password: YES)
+2026-07-14T15:08:16.853+05:30  INFO 1638 --- [system] [           main] c.a.system.SystemApplicationTests        : Starting SystemApplicationTests using Java 21.0.1 with PID 1638 (started by prathamgupta in /Users/prathamgupta/Desktop/AttendanceSystem/system)
+2026-07-14T15:08:16.853+05:30  INFO 1638 --- [system] [           main] c.a.system.SystemApplicationTests        : The following 1 profile is active: "local"
+2026-07-14T15:08:17.270+05:30  INFO 1638 --- [system] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-07-14T15:08:17.320+05:30  INFO 1638 --- [system] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 46 ms. Found 18 JPA repository interfaces.
+2026-07-14T15:08:17.725+05:30  INFO 1638 --- [system] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-07-14T15:08:17.848+05:30  INFO 1638 --- [system] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:file:./data/attendance-system user=SA
+2026-07-14T15:08:17.849+05:30  INFO 1638 --- [system] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-07-14T15:08:17.875+05:30  INFO 1638 --- [system] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:file:./data/attendance-system (H2 2.2)
+2026-07-14T15:08:17.882+05:30  WARN 1638 --- [system] [           main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: H2 2.2.224 is newer than this version of Flyway and support has not been tested. The latest supported version of H2 is 2.2.220.
+2026-07-14T15:08:17.896+05:30  INFO 1638 --- [system] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table "public"."flyway_schema_history" does not exist yet
+2026-07-14T15:08:17.898+05:30  INFO 1638 --- [system] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 15 migrations (execution time 00:00.010s)
+2026-07-14T15:08:17.902+05:30  INFO 1638 --- [system] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table "public"."flyway_schema_history" ...
+2026-07-14T15:08:17.920+05:30  INFO 1638 --- [system] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": << Empty Schema >>
+2026-07-14T15:08:17.925+05:30  INFO 1638 --- [system] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "1 - create core tables"
+2026-07-14T15:08:17.939+05:30  INFO 1638 --- [system] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "2 - add attendance tracking"
+2026-07-14T15:08:17.944+05:30  INFO 1638 --- [system] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "3 - expand attendance photo columns"
+2026-07-14T15:08:17.951+05:30 ERROR 1638 --- [system] [           main] o.f.core.internal.command.DbMigrate      : Migration of schema "public" to version "3 - expand attendance photo columns" failed! Please restore backups and roll back database and code!
+2026-07-14T15:08:17.954+05:30  WARN 1638 --- [system] [           main] o.s.w.c.s.GenericWebApplicationContext   : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: Failed to initialize dependency 'flywayInitializer' of LoadTimeWeaverAware bean 'entityManagerFactory': Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Migration V3__expand_attendance_photo_columns.sql failed
+--------------------------------------------------------
+SQL State  : 42000
+Error Code : 42000
+Message    : Syntax error in SQL statement "ALTER TABLE attendance_records\000a    MODIFY check_in_photo_ref LONGTEXT NULL[*],\000a    MODIFY check_out_photo_ref LONGTEXT NULL"; SQL statement:
+ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL [42000-224]
+Location   : db/migration/V3__expand_attendance_photo_columns.sql (/Users/prathamgupta/Desktop/AttendanceSystem/system/target/classes/db/migration/V3__expand_attendance_photo_columns.sql)
+Line       : 1
+Statement  : ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL
 
-2026-05-23T23:56:29.236+05:30  INFO 75934 --- [system] [           main] .s.b.a.l.ConditionEvaluationReportLogger : 
+2026-07-14T15:08:17.954+05:30  INFO 1638 --- [system] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-07-14T15:08:17.955+05:30  INFO 1638 --- [system] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-07-14T15:08:17.969+05:30  INFO 1638 --- [system] [           main] .s.b.a.l.ConditionEvaluationReportLogger : 
 
 Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
-2026-05-23T23:56:29.253+05:30 ERROR 75934 --- [system] [           main] o.s.boot.SpringApplication               : Application run failed
+2026-07-14T15:08:17.979+05:30 ERROR 1638 --- [system] [           main] o.s.boot.SpringApplication               : Application run failed
 
-org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: Failed to initialize dependency 'flywayInitializer' of LoadTimeWeaverAware bean 'entityManagerFactory': Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Unable to obtain connection from database: (conn=9) Access denied for user 'attendance'@'localhost' (using password: YES)
--------------------------------------------------------------------------------------------------------------------------
-SQL State  : 28000
-Error Code : 1045
-Message    : (conn=9) Access denied for user 'attendance'@'localhost' (using password: YES)
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: Failed to initialize dependency 'flywayInitializer' of LoadTimeWeaverAware bean 'entityManagerFactory': Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Migration V3__expand_attendance_photo_columns.sql failed
+--------------------------------------------------------
+SQL State  : 42000
+Error Code : 42000
+Message    : Syntax error in SQL statement "ALTER TABLE attendance_records\000a    MODIFY check_in_photo_ref LONGTEXT NULL[*],\000a    MODIFY check_out_photo_ref LONGTEXT NULL"; SQL statement:
+ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL [42000-224]
+Location   : db/migration/V3__expand_attendance_photo_columns.sql (/Users/prathamgupta/Desktop/AttendanceSystem/system/target/classes/db/migration/V3__expand_attendance_photo_columns.sql)
+Line       : 1
+Statement  : ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL
 
 	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:326) ~[spring-beans-6.1.14.jar:6.1.14]
 	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:205) ~[spring-beans-6.1.14.jar:6.1.14]
@@ -281,11 +369,19 @@ Message    : (conn=9) Access denied for user 'attendance'@'localhost' (using pas
 	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162) ~[surefire-booter-3.2.5.jar:3.2.5]
 	at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507) ~[surefire-booter-3.2.5.jar:3.2.5]
 	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495) ~[surefire-booter-3.2.5.jar:3.2.5]
-Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Unable to obtain connection from database: (conn=9) Access denied for user 'attendance'@'localhost' (using password: YES)
--------------------------------------------------------------------------------------------------------------------------
-SQL State  : 28000
-Error Code : 1045
-Message    : (conn=9) Access denied for user 'attendance'@'localhost' (using password: YES)
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Migration V3__expand_attendance_photo_columns.sql failed
+--------------------------------------------------------
+SQL State  : 42000
+Error Code : 42000
+Message    : Syntax error in SQL statement "ALTER TABLE attendance_records\000a    MODIFY check_in_photo_ref LONGTEXT NULL[*],\000a    MODIFY check_out_photo_ref LONGTEXT NULL"; SQL statement:
+ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL [42000-224]
+Location   : db/migration/V3__expand_attendance_photo_columns.sql (/Users/prathamgupta/Desktop/AttendanceSystem/system/target/classes/db/migration/V3__expand_attendance_photo_columns.sql)
+Line       : 1
+Statement  : ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL
 
 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1806) ~[spring-beans-6.1.14.jar:6.1.14]
 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:600) ~[spring-beans-6.1.14.jar:6.1.14]
@@ -296,41 +392,89 @@ Message    : (conn=9) Access denied for user 'attendance'@'localhost' (using pas
 	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200) ~[spring-beans-6.1.14.jar:6.1.14]
 	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:313) ~[spring-beans-6.1.14.jar:6.1.14]
 	... 88 common frames omitted
-Caused by: org.flywaydb.core.internal.exception.FlywaySqlException: Unable to obtain connection from database: (conn=9) Access denied for user 'attendance'@'localhost' (using password: YES)
--------------------------------------------------------------------------------------------------------------------------
-SQL State  : 28000
-Error Code : 1045
-Message    : (conn=9) Access denied for user 'attendance'@'localhost' (using password: YES)
+Caused by: org.flywaydb.core.internal.command.DbMigrate$FlywayMigrateException: Migration V3__expand_attendance_photo_columns.sql failed
+--------------------------------------------------------
+SQL State  : 42000
+Error Code : 42000
+Message    : Syntax error in SQL statement "ALTER TABLE attendance_records\000a    MODIFY check_in_photo_ref LONGTEXT NULL[*],\000a    MODIFY check_out_photo_ref LONGTEXT NULL"; SQL statement:
+ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL [42000-224]
+Location   : db/migration/V3__expand_attendance_photo_columns.sql (/Users/prathamgupta/Desktop/AttendanceSystem/system/target/classes/db/migration/V3__expand_attendance_photo_columns.sql)
+Line       : 1
+Statement  : ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL
 
-	at org.flywaydb.core.internal.jdbc.JdbcUtils.openConnection(JdbcUtils.java:60) ~[flyway-core-10.10.0.jar:na]
-	at org.flywaydb.core.internal.jdbc.JdbcConnectionFactory.<init>(JdbcConnectionFactory.java:72) ~[flyway-core-10.10.0.jar:na]
-	at org.flywaydb.core.FlywayExecutor.execute(FlywayExecutor.java:134) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.command.DbMigrate.doMigrateGroup(DbMigrate.java:382) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.command.DbMigrate.lambda$applyMigrations$1(DbMigrate.java:272) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.jdbc.TransactionalExecutionTemplate.execute(TransactionalExecutionTemplate.java:55) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.command.DbMigrate.applyMigrations(DbMigrate.java:271) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.command.DbMigrate.migrateGroup(DbMigrate.java:244) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.command.DbMigrate.lambda$migrateAll$0(DbMigrate.java:139) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.jdbc.TableLockingExecutionTemplate$1.call(TableLockingExecutionTemplate.java:36) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.jdbc.TransactionalExecutionTemplate.execute(TransactionalExecutionTemplate.java:55) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.jdbc.TableLockingExecutionTemplate.execute(TableLockingExecutionTemplate.java:31) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.database.base.Connection.lock(Connection.java:102) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory.lock(JdbcTableSchemaHistory.java:145) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.command.DbMigrate.migrateAll(DbMigrate.java:139) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.command.DbMigrate.migrate(DbMigrate.java:97) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.Flyway.lambda$migrate$0(Flyway.java:202) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.FlywayExecutor.execute(FlywayExecutor.java:205) ~[flyway-core-10.10.0.jar:na]
 	at org.flywaydb.core.Flyway.migrate(Flyway.java:147) ~[flyway-core-10.10.0.jar:na]
 	at org.springframework.boot.autoconfigure.flyway.FlywayMigrationInitializer.afterPropertiesSet(FlywayMigrationInitializer.java:66) ~[spring-boot-autoconfigure-3.3.5.jar:3.3.5]
 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1853) ~[spring-beans-6.1.14.jar:6.1.14]
 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1802) ~[spring-beans-6.1.14.jar:6.1.14]
 	... 95 common frames omitted
-Caused by: java.sql.SQLInvalidAuthorizationSpecException: (conn=9) Access denied for user 'attendance'@'localhost' (using password: YES)
-	at org.mariadb.jdbc.export.ExceptionFactory.createException(ExceptionFactory.java:293) ~[mariadb-java-client-3.3.3.jar:na]
-	at org.mariadb.jdbc.export.ExceptionFactory.create(ExceptionFactory.java:378) ~[mariadb-java-client-3.3.3.jar:na]
-	at org.mariadb.jdbc.client.impl.ConnectionHelper.authenticationHandler(ConnectionHelper.java:279) ~[mariadb-java-client-3.3.3.jar:na]
-	at org.mariadb.jdbc.client.impl.StandardClient.<init>(StandardClient.java:195) ~[mariadb-java-client-3.3.3.jar:na]
-	at org.mariadb.jdbc.Driver.connect(Driver.java:69) ~[mariadb-java-client-3.3.3.jar:na]
-	at org.mariadb.jdbc.Driver.connect(Driver.java:95) ~[mariadb-java-client-3.3.3.jar:na]
-	at org.mariadb.jdbc.Driver.connect(Driver.java:26) ~[mariadb-java-client-3.3.3.jar:na]
-	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:137) ~[HikariCP-5.1.0.jar:na]
-	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:360) ~[HikariCP-5.1.0.jar:na]
-	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:202) ~[HikariCP-5.1.0.jar:na]
-	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:461) ~[HikariCP-5.1.0.jar:na]
-	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:550) ~[HikariCP-5.1.0.jar:na]
-	at com.zaxxer.hikari.pool.HikariPool.<init>(HikariPool.java:98) ~[HikariCP-5.1.0.jar:na]
-	at com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:111) ~[HikariCP-5.1.0.jar:na]
-	at org.flywaydb.core.internal.jdbc.JdbcUtils.openConnection(JdbcUtils.java:48) ~[flyway-core-10.10.0.jar:na]
-	... 101 common frames omitted
+Caused by: org.flywaydb.core.internal.sqlscript.FlywaySqlScriptException: Migration V3__expand_attendance_photo_columns.sql failed
+--------------------------------------------------------
+SQL State  : 42000
+Error Code : 42000
+Message    : Syntax error in SQL statement "ALTER TABLE attendance_records\000a    MODIFY check_in_photo_ref LONGTEXT NULL[*],\000a    MODIFY check_out_photo_ref LONGTEXT NULL"; SQL statement:
+ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL [42000-224]
+Location   : db/migration/V3__expand_attendance_photo_columns.sql (/Users/prathamgupta/Desktop/AttendanceSystem/system/target/classes/db/migration/V3__expand_attendance_photo_columns.sql)
+Line       : 1
+Statement  : ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL
 
-2026-05-23T23:56:29.260+05:30  WARN 75934 --- [system] [           main] o.s.test.context.TestContextManager      : Caught exception while allowing TestExecutionListener [org.springframework.test.context.web.ServletTestExecutionListener] to prepare test instance [com.attendance.system.SystemApplicationTests@111c229c]
+	at org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor.handleException(DefaultSqlScriptExecutor.java:252) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor.executeStatement(DefaultSqlScriptExecutor.java:214) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor.execute(DefaultSqlScriptExecutor.java:133) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.resolver.sql.SqlMigrationExecutor.executeOnce(SqlMigrationExecutor.java:65) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.resolver.sql.SqlMigrationExecutor.lambda$execute$0(SqlMigrationExecutor.java:57) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.database.DefaultExecutionStrategy.execute(DefaultExecutionStrategy.java:27) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.resolver.sql.SqlMigrationExecutor.execute(SqlMigrationExecutor.java:56) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.command.DbMigrate.doMigrateGroup(DbMigrate.java:374) ~[flyway-core-10.10.0.jar:na]
+	... 113 common frames omitted
+Caused by: org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "ALTER TABLE attendance_records\000a    MODIFY check_in_photo_ref LONGTEXT NULL[*],\000a    MODIFY check_out_photo_ref LONGTEXT NULL"; SQL statement:
+ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL [42000-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514) ~[h2-2.2.224.jar:2.2.224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489) ~[h2-2.2.224.jar:2.2.224]
+	at org.h2.message.DbException.get(DbException.java:223) ~[h2-2.2.224.jar:2.2.224]
+	at org.h2.message.DbException.get(DbException.java:199) ~[h2-2.2.224.jar:2.2.224]
+	at org.h2.message.DbException.getSyntaxError(DbException.java:247) ~[h2-2.2.224.jar:2.2.224]
+	at org.h2.command.ParserBase.getSyntaxError(ParserBase.java:748) ~[h2-2.2.224.jar:2.2.224]
+	at org.h2.command.Parser.prepareCommand(Parser.java:486) ~[h2-2.2.224.jar:2.2.224]
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:639) ~[h2-2.2.224.jar:2.2.224]
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:559) ~[h2-2.2.224.jar:2.2.224]
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1166) ~[h2-2.2.224.jar:2.2.224]
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245) ~[h2-2.2.224.jar:2.2.224]
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231) ~[h2-2.2.224.jar:2.2.224]
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:94) ~[HikariCP-5.1.0.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java) ~[HikariCP-5.1.0.jar:na]
+	at org.flywaydb.core.internal.jdbc.JdbcTemplate.executeStatement(JdbcTemplate.java:210) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.sqlscript.ParsedSqlStatement.execute(ParsedSqlStatement.java:89) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor.executeStatement(DefaultSqlScriptExecutor.java:206) ~[flyway-core-10.10.0.jar:na]
+	... 119 common frames omitted
 
-java.lang.IllegalStateException: Failed to load ApplicationContext for [WebMergedContextConfiguration@3c81cd82 testClass = com.attendance.system.SystemApplicationTests, locations = [], classes = [com.attendance.system.SystemApplication], contextInitializerClasses = [], activeProfiles = [], propertySourceDescriptors = [], propertySourceProperties = ["org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true"], contextCustomizers = [org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@28261e8e, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@3ba987b8, org.springframework.boot.test.mock.mockito.MockitoContextCustomizer@0, org.springframework.boot.test.web.client.TestRestTemplateContextCustomizer@57a78e3, org.springframework.boot.test.web.reactor.netty.DisableReactorResourceFactoryGlobalResourcesContextCustomizerFactory$DisableReactorResourceFactoryGlobalResourcesContextCustomizerCustomizer@7d9d0818, org.springframework.boot.test.autoconfigure.OnFailureConditionReportContextCustomizerFactory$OnFailureConditionReportContextCustomizer@2b40ff9c, org.springframework.boot.test.autoconfigure.actuate.observability.ObservabilityContextCustomizerFactory$DisableObservabilityContextCustomizer@1f, org.springframework.boot.test.autoconfigure.properties.PropertyMappingContextCustomizer@0, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverContextCustomizer@4a8355dd, org.springframework.boot.test.context.SpringBootTestAnnotation@e5160aad], resourceBasePath = "src/main/webapp", contextLoader = org.springframework.boot.test.context.SpringBootContextLoader, parent = null]
+2026-07-14T15:08:17.984+05:30  WARN 1638 --- [system] [           main] o.s.test.context.TestContextManager      : Caught exception while allowing TestExecutionListener [org.springframework.test.context.web.ServletTestExecutionListener] to prepare test instance [com.attendance.system.SystemApplicationTests@719c1faf]
+
+java.lang.IllegalStateException: Failed to load ApplicationContext for [WebMergedContextConfiguration@559d19c testClass = com.attendance.system.SystemApplicationTests, locations = [], classes = [com.attendance.system.SystemApplication], contextInitializerClasses = [], activeProfiles = ["local"], propertySourceDescriptors = [], propertySourceProperties = ["org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true"], contextCustomizers = [org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@4e5ed836, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@239a307b, org.springframework.boot.test.mock.mockito.MockitoContextCustomizer@0, org.springframework.boot.test.web.client.TestRestTemplateContextCustomizer@5fb759d6, org.springframework.boot.test.web.reactor.netty.DisableReactorResourceFactoryGlobalResourcesContextCustomizerFactory$DisableReactorResourceFactoryGlobalResourcesContextCustomizerCustomizer@7b4c50bc, org.springframework.boot.test.autoconfigure.OnFailureConditionReportContextCustomizerFactory$OnFailureConditionReportContextCustomizer@60f00693, org.springframework.boot.test.autoconfigure.actuate.observability.ObservabilityContextCustomizerFactory$DisableObservabilityContextCustomizer@1f, org.springframework.boot.test.autoconfigure.properties.PropertyMappingContextCustomizer@0, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverContextCustomizer@7dfd3c81, org.springframework.boot.test.context.SpringBootTestAnnotation@80f4e763], resourceBasePath = "src/main/webapp", contextLoader = org.springframework.boot.test.context.SpringBootContextLoader, parent = null]
 	at org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate.loadContext(DefaultCacheAwareContextLoaderDelegate.java:180) ~[spring-test-6.1.14.jar:6.1.14]
 	at org.springframework.test.context.support.DefaultTestContext.getApplicationContext(DefaultTestContext.java:130) ~[spring-test-6.1.14.jar:6.1.14]
 	at org.springframework.test.context.web.ServletTestExecutionListener.setUpRequestContextIfNecessary(ServletTestExecutionListener.java:191) ~[spring-test-6.1.14.jar:6.1.14]
@@ -405,11 +549,19 @@ java.lang.IllegalStateException: Failed to load ApplicationContext for [WebMerge
 	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162) ~[surefire-booter-3.2.5.jar:3.2.5]
 	at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507) ~[surefire-booter-3.2.5.jar:3.2.5]
 	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495) ~[surefire-booter-3.2.5.jar:3.2.5]
-Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: Failed to initialize dependency 'flywayInitializer' of LoadTimeWeaverAware bean 'entityManagerFactory': Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Unable to obtain connection from database: (conn=9) Access denied for user 'attendance'@'localhost' (using password: YES)
--------------------------------------------------------------------------------------------------------------------------
-SQL State  : 28000
-Error Code : 1045
-Message    : (conn=9) Access denied for user 'attendance'@'localhost' (using password: YES)
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: Failed to initialize dependency 'flywayInitializer' of LoadTimeWeaverAware bean 'entityManagerFactory': Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Migration V3__expand_attendance_photo_columns.sql failed
+--------------------------------------------------------
+SQL State  : 42000
+Error Code : 42000
+Message    : Syntax error in SQL statement "ALTER TABLE attendance_records\000a    MODIFY check_in_photo_ref LONGTEXT NULL[*],\000a    MODIFY check_out_photo_ref LONGTEXT NULL"; SQL statement:
+ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL [42000-224]
+Location   : db/migration/V3__expand_attendance_photo_columns.sql (/Users/prathamgupta/Desktop/AttendanceSystem/system/target/classes/db/migration/V3__expand_attendance_photo_columns.sql)
+Line       : 1
+Statement  : ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL
 
 	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:326) ~[spring-beans-6.1.14.jar:6.1.14]
 	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:205) ~[spring-beans-6.1.14.jar:6.1.14]
@@ -428,11 +580,19 @@ Message    : (conn=9) Access denied for user 'attendance'@'localhost' (using pas
 	at org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate.loadContextInternal(DefaultCacheAwareContextLoaderDelegate.java:225) ~[spring-test-6.1.14.jar:6.1.14]
 	at org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate.loadContext(DefaultCacheAwareContextLoaderDelegate.java:152) ~[spring-test-6.1.14.jar:6.1.14]
 	... 73 common frames omitted
-Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Unable to obtain connection from database: (conn=9) Access denied for user 'attendance'@'localhost' (using password: YES)
--------------------------------------------------------------------------------------------------------------------------
-SQL State  : 28000
-Error Code : 1045
-Message    : (conn=9) Access denied for user 'attendance'@'localhost' (using password: YES)
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Migration V3__expand_attendance_photo_columns.sql failed
+--------------------------------------------------------
+SQL State  : 42000
+Error Code : 42000
+Message    : Syntax error in SQL statement "ALTER TABLE attendance_records\000a    MODIFY check_in_photo_ref LONGTEXT NULL[*],\000a    MODIFY check_out_photo_ref LONGTEXT NULL"; SQL statement:
+ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL [42000-224]
+Location   : db/migration/V3__expand_attendance_photo_columns.sql (/Users/prathamgupta/Desktop/AttendanceSystem/system/target/classes/db/migration/V3__expand_attendance_photo_columns.sql)
+Line       : 1
+Statement  : ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL
 
 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1806) ~[spring-beans-6.1.14.jar:6.1.14]
 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:600) ~[spring-beans-6.1.14.jar:6.1.14]
@@ -443,37 +603,85 @@ Message    : (conn=9) Access denied for user 'attendance'@'localhost' (using pas
 	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200) ~[spring-beans-6.1.14.jar:6.1.14]
 	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:313) ~[spring-beans-6.1.14.jar:6.1.14]
 	... 88 common frames omitted
-Caused by: org.flywaydb.core.internal.exception.FlywaySqlException: Unable to obtain connection from database: (conn=9) Access denied for user 'attendance'@'localhost' (using password: YES)
--------------------------------------------------------------------------------------------------------------------------
-SQL State  : 28000
-Error Code : 1045
-Message    : (conn=9) Access denied for user 'attendance'@'localhost' (using password: YES)
+Caused by: org.flywaydb.core.internal.command.DbMigrate$FlywayMigrateException: Migration V3__expand_attendance_photo_columns.sql failed
+--------------------------------------------------------
+SQL State  : 42000
+Error Code : 42000
+Message    : Syntax error in SQL statement "ALTER TABLE attendance_records\000a    MODIFY check_in_photo_ref LONGTEXT NULL[*],\000a    MODIFY check_out_photo_ref LONGTEXT NULL"; SQL statement:
+ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL [42000-224]
+Location   : db/migration/V3__expand_attendance_photo_columns.sql (/Users/prathamgupta/Desktop/AttendanceSystem/system/target/classes/db/migration/V3__expand_attendance_photo_columns.sql)
+Line       : 1
+Statement  : ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL
 
-	at org.flywaydb.core.internal.jdbc.JdbcUtils.openConnection(JdbcUtils.java:60) ~[flyway-core-10.10.0.jar:na]
-	at org.flywaydb.core.internal.jdbc.JdbcConnectionFactory.<init>(JdbcConnectionFactory.java:72) ~[flyway-core-10.10.0.jar:na]
-	at org.flywaydb.core.FlywayExecutor.execute(FlywayExecutor.java:134) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.command.DbMigrate.doMigrateGroup(DbMigrate.java:382) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.command.DbMigrate.lambda$applyMigrations$1(DbMigrate.java:272) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.jdbc.TransactionalExecutionTemplate.execute(TransactionalExecutionTemplate.java:55) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.command.DbMigrate.applyMigrations(DbMigrate.java:271) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.command.DbMigrate.migrateGroup(DbMigrate.java:244) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.command.DbMigrate.lambda$migrateAll$0(DbMigrate.java:139) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.jdbc.TableLockingExecutionTemplate$1.call(TableLockingExecutionTemplate.java:36) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.jdbc.TransactionalExecutionTemplate.execute(TransactionalExecutionTemplate.java:55) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.jdbc.TableLockingExecutionTemplate.execute(TableLockingExecutionTemplate.java:31) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.database.base.Connection.lock(Connection.java:102) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory.lock(JdbcTableSchemaHistory.java:145) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.command.DbMigrate.migrateAll(DbMigrate.java:139) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.command.DbMigrate.migrate(DbMigrate.java:97) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.Flyway.lambda$migrate$0(Flyway.java:202) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.FlywayExecutor.execute(FlywayExecutor.java:205) ~[flyway-core-10.10.0.jar:na]
 	at org.flywaydb.core.Flyway.migrate(Flyway.java:147) ~[flyway-core-10.10.0.jar:na]
 	at org.springframework.boot.autoconfigure.flyway.FlywayMigrationInitializer.afterPropertiesSet(FlywayMigrationInitializer.java:66) ~[spring-boot-autoconfigure-3.3.5.jar:3.3.5]
 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1853) ~[spring-beans-6.1.14.jar:6.1.14]
 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1802) ~[spring-beans-6.1.14.jar:6.1.14]
 	... 95 common frames omitted
-Caused by: java.sql.SQLInvalidAuthorizationSpecException: (conn=9) Access denied for user 'attendance'@'localhost' (using password: YES)
-	at org.mariadb.jdbc.export.ExceptionFactory.createException(ExceptionFactory.java:293) ~[mariadb-java-client-3.3.3.jar:na]
-	at org.mariadb.jdbc.export.ExceptionFactory.create(ExceptionFactory.java:378) ~[mariadb-java-client-3.3.3.jar:na]
-	at org.mariadb.jdbc.client.impl.ConnectionHelper.authenticationHandler(ConnectionHelper.java:279) ~[mariadb-java-client-3.3.3.jar:na]
-	at org.mariadb.jdbc.client.impl.StandardClient.<init>(StandardClient.java:195) ~[mariadb-java-client-3.3.3.jar:na]
-	at org.mariadb.jdbc.Driver.connect(Driver.java:69) ~[mariadb-java-client-3.3.3.jar:na]
-	at org.mariadb.jdbc.Driver.connect(Driver.java:95) ~[mariadb-java-client-3.3.3.jar:na]
-	at org.mariadb.jdbc.Driver.connect(Driver.java:26) ~[mariadb-java-client-3.3.3.jar:na]
-	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:137) ~[HikariCP-5.1.0.jar:na]
-	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:360) ~[HikariCP-5.1.0.jar:na]
-	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:202) ~[HikariCP-5.1.0.jar:na]
-	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:461) ~[HikariCP-5.1.0.jar:na]
-	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:550) ~[HikariCP-5.1.0.jar:na]
-	at com.zaxxer.hikari.pool.HikariPool.<init>(HikariPool.java:98) ~[HikariCP-5.1.0.jar:na]
-	at com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:111) ~[HikariCP-5.1.0.jar:na]
-	at org.flywaydb.core.internal.jdbc.JdbcUtils.openConnection(JdbcUtils.java:48) ~[flyway-core-10.10.0.jar:na]
-	... 101 common frames omitted
+Caused by: org.flywaydb.core.internal.sqlscript.FlywaySqlScriptException: Migration V3__expand_attendance_photo_columns.sql failed
+--------------------------------------------------------
+SQL State  : 42000
+Error Code : 42000
+Message    : Syntax error in SQL statement "ALTER TABLE attendance_records\000a    MODIFY check_in_photo_ref LONGTEXT NULL[*],\000a    MODIFY check_out_photo_ref LONGTEXT NULL"; SQL statement:
+ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL [42000-224]
+Location   : db/migration/V3__expand_attendance_photo_columns.sql (/Users/prathamgupta/Desktop/AttendanceSystem/system/target/classes/db/migration/V3__expand_attendance_photo_columns.sql)
+Line       : 1
+Statement  : ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL
+
+	at org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor.handleException(DefaultSqlScriptExecutor.java:252) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor.executeStatement(DefaultSqlScriptExecutor.java:214) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor.execute(DefaultSqlScriptExecutor.java:133) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.resolver.sql.SqlMigrationExecutor.executeOnce(SqlMigrationExecutor.java:65) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.resolver.sql.SqlMigrationExecutor.lambda$execute$0(SqlMigrationExecutor.java:57) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.database.DefaultExecutionStrategy.execute(DefaultExecutionStrategy.java:27) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.resolver.sql.SqlMigrationExecutor.execute(SqlMigrationExecutor.java:56) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.command.DbMigrate.doMigrateGroup(DbMigrate.java:374) ~[flyway-core-10.10.0.jar:na]
+	... 113 common frames omitted
+Caused by: org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "ALTER TABLE attendance_records\000a    MODIFY check_in_photo_ref LONGTEXT NULL[*],\000a    MODIFY check_out_photo_ref LONGTEXT NULL"; SQL statement:
+ALTER TABLE attendance_records
+    MODIFY check_in_photo_ref LONGTEXT NULL,
+    MODIFY check_out_photo_ref LONGTEXT NULL [42000-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514) ~[h2-2.2.224.jar:2.2.224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489) ~[h2-2.2.224.jar:2.2.224]
+	at org.h2.message.DbException.get(DbException.java:223) ~[h2-2.2.224.jar:2.2.224]
+	at org.h2.message.DbException.get(DbException.java:199) ~[h2-2.2.224.jar:2.2.224]
+	at org.h2.message.DbException.getSyntaxError(DbException.java:247) ~[h2-2.2.224.jar:2.2.224]
+	at org.h2.command.ParserBase.getSyntaxError(ParserBase.java:748) ~[h2-2.2.224.jar:2.2.224]
+	at org.h2.command.Parser.prepareCommand(Parser.java:486) ~[h2-2.2.224.jar:2.2.224]
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:639) ~[h2-2.2.224.jar:2.2.224]
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:559) ~[h2-2.2.224.jar:2.2.224]
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1166) ~[h2-2.2.224.jar:2.2.224]
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245) ~[h2-2.2.224.jar:2.2.224]
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231) ~[h2-2.2.224.jar:2.2.224]
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:94) ~[HikariCP-5.1.0.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java) ~[HikariCP-5.1.0.jar:na]
+	at org.flywaydb.core.internal.jdbc.JdbcTemplate.executeStatement(JdbcTemplate.java:210) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.sqlscript.ParsedSqlStatement.execute(ParsedSqlStatement.java:89) ~[flyway-core-10.10.0.jar:na]
+	at org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor.executeStatement(DefaultSqlScriptExecutor.java:206) ~[flyway-core-10.10.0.jar:na]
+	... 119 common frames omitted
 
 ]]></system-out>
     <system-err><![CDATA[
@@ -498,6 +706,10 @@ Positive matches:
 
    ApplicationAvailabilityAutoConfiguration#applicationAvailability matched:
       - @ConditionalOnMissingBean (types: org.springframework.boot.availability.ApplicationAvailability; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   CaffeineCacheConfiguration matched:
+      - @ConditionalOnClass found required classes 'com.github.benmanes.caffeine.cache.Caffeine', 'org.springframework.cache.caffeine.CaffeineCacheManager' (OnClassCondition)
+      - Cache org.springframework.boot.autoconfigure.cache.CaffeineCacheConfiguration automatic cache type (CacheCondition)
 
    DataSourceAutoConfiguration matched:
       - @ConditionalOnClass found required classes 'javax.sql.DataSource', 'org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType' (OnClassCondition)
@@ -595,6 +807,11 @@ Positive matches:
 
    GsonHttpMessageConvertersConfiguration matched:
       - @ConditionalOnClass found required class 'com.google.gson.Gson' (OnClassCondition)
+
+   H2ConsoleAutoConfiguration matched:
+      - @ConditionalOnClass found required class 'org.h2.server.web.JakartaWebServlet' (OnClassCondition)
+      - found 'session' scope (OnWebApplicationCondition)
+      - @ConditionalOnProperty (spring.h2.console.enabled=true) matched (OnPropertyCondition)
 
    HibernateJpaAutoConfiguration matched:
       - @ConditionalOnClass found required classes 'org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean', 'jakarta.persistence.EntityManager', 'org.hibernate.engine.spi.SessionImplementor' (OnClassCondition)
@@ -695,6 +912,17 @@ Positive matches:
    LifecycleAutoConfiguration#defaultLifecycleProcessor matched:
       - @ConditionalOnMissingBean (names: lifecycleProcessor; SearchStrategy: current) did not find any beans (OnBeanCondition)
 
+   MailSenderAutoConfiguration matched:
+      - @ConditionalOnClass found required classes 'jakarta.mail.internet.MimeMessage', 'jakarta.activation.MimeType', 'org.springframework.mail.MailSender' (OnClassCondition)
+      - AnyNestedCondition 1 matched 1 did not; NestedCondition on MailSenderAutoConfiguration.MailSenderCondition.JndiNameProperty @ConditionalOnProperty (spring.mail.jndi-name) did not find property 'jndi-name'; NestedCondition on MailSenderAutoConfiguration.MailSenderCondition.HostProperty @ConditionalOnProperty (spring.mail.host) matched (MailSenderAutoConfiguration.MailSenderCondition)
+      - @ConditionalOnMissingBean (types: org.springframework.mail.MailSender; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   MailSenderPropertiesConfiguration matched:
+      - @ConditionalOnProperty (spring.mail.host) matched (OnPropertyCondition)
+
+   MailSenderPropertiesConfiguration#mailSender matched:
+      - @ConditionalOnMissingBean (types: org.springframework.mail.javamail.JavaMailSender; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
    MultipartAutoConfiguration matched:
       - @ConditionalOnClass found required classes 'jakarta.servlet.Servlet', 'org.springframework.web.multipart.support.StandardServletMultipartResolver', 'jakarta.servlet.MultipartConfigElement' (OnClassCondition)
       - found 'session' scope (OnWebApplicationCondition)
@@ -708,6 +936,9 @@ Positive matches:
 
    NamedParameterJdbcTemplateConfiguration matched:
       - @ConditionalOnSingleCandidate (types: org.springframework.jdbc.core.JdbcTemplate; SearchStrategy: all) found a single bean 'jdbcTemplate'; @ConditionalOnMissingBean (types: org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   NettyAutoConfiguration matched:
+      - @ConditionalOnClass found required class 'io.netty.util.NettyRuntime' (OnClassCondition)
 
    NoOpCacheConfiguration matched:
       - Cache org.springframework.boot.autoconfigure.cache.NoOpCacheConfiguration automatic cache type (CacheCondition)
@@ -942,10 +1173,6 @@ Negative matches:
       Matched:
          - @ConditionalOnClass found required class 'org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean' (OnClassCondition)
 
-   CaffeineCacheConfiguration:
-      Did not match:
-         - @ConditionalOnClass did not find required class 'org.springframework.cache.caffeine.CaffeineCacheManager' (OnClassCondition)
-
    CassandraAutoConfiguration:
       Did not match:
          - @ConditionalOnClass did not find required class 'com.datastax.oss.driver.api.core.CqlSession' (OnClassCondition)
@@ -1140,13 +1367,6 @@ Negative matches:
       Did not match:
          - AnyNestedCondition 0 matched 2 did not; NestedCondition on GsonHttpMessageConvertersConfiguration.PreferGsonOrJacksonAndJsonbUnavailableCondition.JacksonJsonbUnavailable NoneNestedConditions 1 matched 1 did not; NestedCondition on GsonHttpMessageConvertersConfiguration.JacksonAndJsonbUnavailableCondition.JsonbPreferred @ConditionalOnProperty (spring.mvc.converters.preferred-json-mapper=jsonb) did not find property 'spring.mvc.converters.preferred-json-mapper'; NestedCondition on GsonHttpMessageConvertersConfiguration.JacksonAndJsonbUnavailableCondition.JacksonAvailable @ConditionalOnBean (types: org.springframework.http.converter.json.MappingJackson2HttpMessageConverter; SearchStrategy: all) found bean 'mappingJackson2HttpMessageConverter'; NestedCondition on GsonHttpMessageConvertersConfiguration.PreferGsonOrJacksonAndJsonbUnavailableCondition.GsonPreferred @ConditionalOnProperty (spring.mvc.converters.preferred-json-mapper=gson) did not find property 'spring.mvc.converters.preferred-json-mapper' (GsonHttpMessageConvertersConfiguration.PreferGsonOrJacksonAndJsonbUnavailableCondition)
 
-   H2ConsoleAutoConfiguration:
-      Did not match:
-         - @ConditionalOnProperty (spring.h2.console.enabled=true) did not find property 'enabled' (OnPropertyCondition)
-      Matched:
-         - @ConditionalOnClass found required class 'org.h2.server.web.JakartaWebServlet' (OnClassCondition)
-         - found 'session' scope (OnWebApplicationCondition)
-
    HazelcastAutoConfiguration:
       Did not match:
          - @ConditionalOnClass did not find required class 'com.hazelcast.core.HazelcastInstance' (OnClassCondition)
@@ -1260,13 +1480,15 @@ Negative matches:
       Did not match:
          - @ConditionalOnClass did not find required class 'liquibase.change.DatabaseChange' (OnClassCondition)
 
-   MailSenderAutoConfiguration:
+   MailSenderJndiConfiguration:
       Did not match:
-         - @ConditionalOnClass did not find required class 'jakarta.mail.internet.MimeMessage' (OnClassCondition)
+         - @ConditionalOnProperty (spring.mail.jndi-name) did not find property 'jndi-name' (OnPropertyCondition)
+      Matched:
+         - @ConditionalOnClass found required class 'jakarta.mail.Session' (OnClassCondition)
 
    MailSenderValidatorAutoConfiguration:
       Did not match:
-         - @ConditionalOnSingleCandidate did not find required type 'org.springframework.mail.javamail.JavaMailSenderImpl' (OnBeanCondition)
+         - @ConditionalOnProperty (spring.mail.test-connection) did not find property 'test-connection' (OnPropertyCondition)
 
    MessageSourceAutoConfiguration:
       Did not match:
@@ -1319,10 +1541,6 @@ Negative matches:
    Neo4jRepositoriesAutoConfiguration:
       Did not match:
          - @ConditionalOnClass did not find required class 'org.neo4j.driver.Driver' (OnClassCondition)
-
-   NettyAutoConfiguration:
-      Did not match:
-         - @ConditionalOnClass did not find required class 'io.netty.util.NettyRuntime' (OnClassCondition)
 
    OAuth2AuthorizationServerAutoConfiguration:
       Did not match:
@@ -1402,7 +1620,7 @@ Negative matches:
 
    RSocketStrategiesAutoConfiguration:
       Did not match:
-         - @ConditionalOnClass did not find required class 'io.netty.buffer.PooledByteBufAllocator' (OnClassCondition)
+         - @ConditionalOnClass did not find required class 'io.rsocket.RSocket' (OnClassCondition)
 
    RabbitAutoConfiguration:
       Did not match:
@@ -1611,9 +1829,9 @@ Unconditional classes:
 
     org.springframework.boot.autoconfigure.ssl.SslAutoConfiguration
 
-    org.springframework.boot.autoconfigure.context.LifecycleAutoConfiguration
-
     org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration
+
+    org.springframework.boot.autoconfigure.context.LifecycleAutoConfiguration
 
     org.springframework.boot.autoconfigure.availability.ApplicationAvailabilityAutoConfiguration
 

@@ -13,6 +13,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -59,6 +60,12 @@ public class EmployeeEntity {
 
     @Column(name = "advance_paid", nullable = false, precision = 12, scale = 2)
     private BigDecimal advancePaid = BigDecimal.ZERO;
+
+    @Column(name = "start_date", nullable = false)
+    private LocalDate startDate;
+
+    @Column(name = "onboarding_paid_leave_days", nullable = false)
+    private Integer onboardingPaidLeaveDays = 0;
 
     @Column(name = "profile_image_ref", columnDefinition = "LONGTEXT")
     private String profileImageRef;
@@ -156,6 +163,22 @@ public class EmployeeEntity {
 
     public void setAdvancePaid(BigDecimal advancePaid) {
         this.advancePaid = advancePaid;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public Integer getOnboardingPaidLeaveDays() {
+        return onboardingPaidLeaveDays;
+    }
+
+    public void setOnboardingPaidLeaveDays(Integer onboardingPaidLeaveDays) {
+        this.onboardingPaidLeaveDays = onboardingPaidLeaveDays;
     }
 
     public String getProfileImageRef() {

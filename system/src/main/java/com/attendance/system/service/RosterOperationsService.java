@@ -2,6 +2,8 @@ package com.attendance.system.service;
 
 import com.attendance.system.dto.RosterAssignmentResponse;
 import com.attendance.system.dto.RosterAssignmentUpsertRequest;
+import com.attendance.system.dto.RosterBulkAssignmentRequest;
+import com.attendance.system.dto.RosterBulkAssignmentResponse;
 import com.attendance.system.dto.RosterConflictResponse;
 import com.attendance.system.dto.RosterExceptionReportResponse;
 import com.attendance.system.dto.RosterGenerateRequest;
@@ -258,6 +260,83 @@ public class RosterOperationsService {
                 assignmentSnapshot(saved)
         );
         return toAssignmentResponse(saved);
+    }
+
+    @Transactional
+    public RosterBulkAssignmentResponse saveBulkAssignment(AuthenticatedUser user, RosterBulkAssignmentRequest request) {
+        requireAdmin(user);
+        EmployeeEntity employee = loadEmployee(user.vendorId(), request.employeeId());
+        RosterShiftEntity shift = loadShift(user.vendorId(), request.shiftId());
+        if (!employee.getBranch().getId().equals(shift.getBranch().getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Employee and shift must belong to the same branch.");
+        }
+
+        LocalDate startDate = parseDate(request.startDate(), "Start date must use YYYY-MM-DD format.");
+        LocalDate endDate = resolveBulkEndDate(startDate, request.rangeMode(), request.endDate());
+        if (endDate.isBefore(startDate)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "End date cannot be before start date.");
+        }
+
+        Set<DayOfWeek> weeklyOffDays = Boolean.TRUE.equals(request.skipWeeklyOffs())
+                ? parseWeeklyOffDays(employee.getBranch().getWeeklyOffDaysCsv())
+                : Set.of();
+        String assignmentType = normalizeAssignmentType(request.assignmentType());
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+        int created = 0;
+        int updated = 0;
+        int skipped = 0;
+
+        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+            if (weeklyOffDays.contains(date.getDayOfWeek())) {
+                skipped++;
+                continue;
+            }
+
+            Optional<RosterAssignmentEntity> existing = rosterAssignmentRepository
+                    .findByEmployee_IdAndAssignmentDateOrderByCreatedAtAsc(employee.getId(), date)
+                    .stream()
+                    .findFirst();
+            RosterAssignmentEntity assignment = existing.orElseGet(RosterAssignmentEntity::new);
+            boolean isNew = existing.isEmpty();
+            if (isNew) {
+                assignment.setVendor(employee.getVendor());
+                assignment.setCreatedAt(now);
+            }
+            assignment.setBranch(employee.getBranch());
+            assignment.setEmployee(employee);
+            assignment.setRosterShift(shift);
+            assignment.setAssignmentDate(date);
+            assignment.setAssignmentType(assignmentType);
+            assignment.setStatus(assignment.getStatus() == null ? "DRAFT" : assignment.getStatus());
+            assignment.setNotes(request.notes() == null ? null : request.notes().trim());
+            assignment.setUpdatedAt(now);
+
+            if (hasRestConflict(assignment, user.vendorId())) {
+                skipped++;
+                continue;
+            }
+
+            rosterAssignmentRepository.save(assignment);
+            if (isNew) {
+                created++;
+            } else {
+                updated++;
+            }
+        }
+
+        writeAuditLog(
+                user,
+                employee.getBranch(),
+                "BULK_ASSIGN",
+                "ROSTER_ASSIGNMENT",
+                employee.getId().toString(),
+                "Saved bulk roster assignment",
+                null,
+                "{\"shift\":\"" + shift.getCode() + "\",\"startDate\":\"" + startDate + "\",\"endDate\":\"" + endDate + "\",\"created\":" + created + ",\"updated\":" + updated + ",\"skipped\":" + skipped + "}"
+        );
+
+        String message = "Bulk assignment saved: %d created, %d updated, %d skipped.".formatted(created, updated, skipped);
+        return new RosterBulkAssignmentResponse(created, updated, skipped, startDate.toString(), endDate.toString(), message);
     }
 
     @Transactional
@@ -942,6 +1021,28 @@ public class RosterOperationsService {
         } catch (DateTimeParseException exception) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
         }
+    }
+
+    private LocalDate resolveBulkEndDate(LocalDate startDate, String rangeMode, String explicitEndDate) {
+        String mode = rangeMode == null || rangeMode.isBlank() ? "CUSTOM" : rangeMode.trim().toUpperCase(Locale.ROOT);
+        return switch (mode) {
+            case "WEEK" -> startDate.plusDays(6);
+            case "MONTH" -> YearMonth.from(startDate).atEndOfMonth();
+            case "ONGOING" -> startDate.plusYears(1).minusDays(1);
+            case "CUSTOM" -> {
+                if (explicitEndDate == null || explicitEndDate.isBlank()) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "End date is required for custom roster assignment.");
+                }
+                yield parseDate(explicitEndDate, "End date must use YYYY-MM-DD format.");
+            }
+            default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Range mode must be WEEK, MONTH, CUSTOM, or ONGOING.");
+        };
+    }
+
+    private Set<DayOfWeek> parseWeeklyOffDays(String weeklyOffDaysCsv) {
+        return parseCsv(weeklyOffDaysCsv).stream()
+                .map(DayOfWeek::valueOf)
+                .collect(Collectors.toCollection(HashSet::new));
     }
 
     private String normalizeAssignmentType(String assignmentType) {

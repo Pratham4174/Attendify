@@ -292,8 +292,12 @@ export function EmployeeDirectory({
                     <strong>{selectedEmployee.branchName}</strong>
                     <span>Monthly salary</span>
                     <strong>{formatMoney(selectedEmployee.monthlySalary)}</strong>
+                    <span>Start date</span>
+                    <strong>{selectedEmployee.startDate}</strong>
                     <span>Allowed leaves</span>
                     <strong>{selectedEmployee.monthlyLeaveAllowance}</strong>
+                    <span>Prior leaves</span>
+                    <strong>{selectedEmployee.onboardingPaidLeaveDays}</strong>
                     <span>Login</span>
                     <strong>{selectedEmployee.loginEnabled ? "Enabled" : "Disabled"}</strong>
                     <span>Email</span>

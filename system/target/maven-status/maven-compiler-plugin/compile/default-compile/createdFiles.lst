@@ -4,6 +4,7 @@ com/attendance/system/model/SalaryAdvancePaymentEntity.class
 com/attendance/system/dto/EmployeeBulkImportRequest.class
 com/attendance/system/dto/PricingCatalogResponse.class
 com/attendance/system/dto/RosterExceptionReportResponse$RosterExceptionRow.class
+com/attendance/system/dto/RosterBulkAssignmentResponse.class
 com/attendance/system/repository/AttendanceCorrectionRequestRepository.class
 com/attendance/system/controller/CashfreeWebhookController.class
 com/attendance/system/dto/LeaveRequestResponse.class
@@ -152,6 +153,7 @@ com/attendance/system/security/AuthenticatedUser.class
 com/attendance/system/dto/RosterExceptionReportResponse.class
 com/attendance/system/service/PropertyRegistrationService.class
 com/attendance/system/dto/AdminSubscriptionSummaryResponse$PaymentHistoryEntry.class
+com/attendance/system/dto/RosterBulkAssignmentRequest.class
 com/attendance/system/model/AttendanceCorrectionStatus.class
 com/attendance/system/service/AttendanceService.class
 com/attendance/system/dto/HolidayUpsertRequest.class

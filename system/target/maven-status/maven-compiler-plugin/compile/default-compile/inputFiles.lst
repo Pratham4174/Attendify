@@ -56,6 +56,8 @@
 /Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/dto/PublicCheckoutSessionVerificationResponse.java
 /Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/dto/RosterAssignmentResponse.java
 /Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/dto/RosterAssignmentUpsertRequest.java
+/Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/dto/RosterBulkAssignmentRequest.java
+/Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/dto/RosterBulkAssignmentResponse.java
 /Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/dto/RosterConflictResponse.java
 /Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/dto/RosterExceptionReportResponse.java
 /Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/dto/RosterGenerateRequest.java

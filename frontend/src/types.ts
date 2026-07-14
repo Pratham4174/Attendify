@@ -158,6 +158,8 @@ export type Employee = {
   advancePaid: string;
   loginEnabled: boolean;
   profileImageRef: string | null;
+  startDate: string;
+  onboardingPaidLeaveDays: number;
   createdAt: string;
 };
 
@@ -241,6 +243,15 @@ export type RosterAssignment = {
   endTime: string;
   colorHex: string;
   notes: string | null;
+};
+
+export type RosterBulkAssignmentResponse = {
+  created: number;
+  updated: number;
+  skipped: number;
+  startDate: string;
+  endDate: string;
+  message: string;
 };
 
 export type RosterConflict = {
