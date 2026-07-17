@@ -25,6 +25,6 @@ public record BranchUpsertRequest(
         Boolean lateAbsentEnabled,
         @Min(1) @Max(1440) Integer lateAbsentAfterMinutes,
         @NotBlank String weeklyOffMode,
-        @NotNull List<@NotBlank String> weeklyOffDays
+        @NotNull List<String> weeklyOffDays
 ) {
 }

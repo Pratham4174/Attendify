@@ -374,6 +374,10 @@
   height: 72px;
 }
 
+.profile-setup-logout {
+  margin-left: auto;
+}
+
 .profile-setup-camera {
   margin-top: 4px;
 }
@@ -465,6 +469,11 @@
 
   .profile-setup-header {
     align-items: flex-start;
+  }
+
+  .profile-setup-logout {
+    margin-left: 0;
+    width: 100%;
   }
 
   .profile-setup-actions {

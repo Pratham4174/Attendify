@@ -649,12 +649,20 @@ public class AdminService {
                 && request.lateAbsentAfterMinutes() < request.lateHalfDayAfterMinutes()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Absent late threshold must be greater than or equal to half-day late threshold.");
         }
+        String weeklyOffMode = request.weeklyOffMode().trim().toUpperCase(Locale.ROOT);
+        if (!List.of("FIXED", "ROTATIONAL", "NONE").contains(weeklyOffMode)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Weekly off mode must be fixed, rotational, or none.");
+        }
         List<String> validDays = List.of("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY");
         List<String> weeklyOffDays = request.weeklyOffDays().stream()
                 .map(day -> day.trim().toUpperCase(Locale.ROOT))
+                .filter(day -> !day.isBlank())
                 .distinct()
                 .toList();
-        if (weeklyOffDays.isEmpty() || weeklyOffDays.stream().anyMatch(day -> !validDays.contains(day))) {
+        if (!"NONE".equals(weeklyOffMode) && weeklyOffDays.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Weekly off days are required unless the branch works all 7 days.");
+        }
+        if (weeklyOffDays.stream().anyMatch(day -> !validDays.contains(day))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Weekly off days must use valid day names.");
         }
         branch.setName(request.name().trim());
@@ -671,8 +679,8 @@ public class AdminService {
         branch.setLateHalfDayAfterMinutes(lateHalfDayEnabled ? request.lateHalfDayAfterMinutes() : null);
         branch.setLateAbsentEnabled(lateAbsentEnabled);
         branch.setLateAbsentAfterMinutes(lateAbsentEnabled ? request.lateAbsentAfterMinutes() : null);
-        branch.setWeeklyOffMode(request.weeklyOffMode().trim().toUpperCase(Locale.ROOT));
-        branch.setWeeklyOffDaysCsv(String.join(",", weeklyOffDays));
+        branch.setWeeklyOffMode(weeklyOffMode);
+        branch.setWeeklyOffDaysCsv("NONE".equals(weeklyOffMode) ? "" : String.join(",", weeklyOffDays));
     }
 
     private PayrollSummaryResponse.EmployeePayrollRow buildPayrollRow(

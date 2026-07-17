@@ -771,7 +771,7 @@ export function RosterManagement({
                   </div>
                   <div className="attendance-card-grid">
                     <span>Weekly off</span>
-                    <strong>{selectedBranch.weeklyOffDays.join(", ")}</strong>
+                    <strong>{selectedBranch.weeklyOffMode === "NONE" ? "7 days working" : selectedBranch.weeklyOffDays.join(", ")}</strong>
                     <span>Shift policy</span>
                     <strong>{selectedBranch.shiftStartTime} - {selectedBranch.shiftEndTime}</strong>
                     <span>Workday rule</span>
@@ -1051,7 +1051,7 @@ export function RosterManagement({
               {operationBranch ? (
                 <div className="attendance-card-grid roster-summary-grid">
                   <span>Branch weekly off</span>
-                  <strong>{operationBranch.weeklyOffMode} · {operationBranch.weeklyOffDays.join(", ")}</strong>
+                  <strong>{operationBranch.weeklyOffMode === "NONE" ? "7 days working" : `${operationBranch.weeklyOffMode} · ${operationBranch.weeklyOffDays.join(", ")}`}</strong>
                   <span>Shifts configured</span>
                   <strong>{operationBranchShifts.length}</strong>
                   <span>Templates ready</span>

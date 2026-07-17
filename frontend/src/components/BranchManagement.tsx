@@ -72,6 +72,14 @@ export function BranchManagement({
     setBranchForm((current) => ({ ...current, [key]: value }));
   }
 
+  function updateWeeklyOffMode(value: string) {
+    setBranchForm((current) => ({
+      ...current,
+      weeklyOffMode: value,
+      weeklyOffDays: value === "NONE" ? [] : current.weeklyOffDays.length ? current.weeklyOffDays : ["SUNDAY"]
+    }));
+  }
+
   function startEditingBranch(branch: Branch) {
     setEditingBranchId(branch.id);
     setStatusMessage("");
@@ -297,34 +305,42 @@ export function BranchManagement({
               </label>
               <label>
                 Weekly off mode
-                <select value={branchForm.weeklyOffMode} onChange={(event) => updateBranchForm("weeklyOffMode", event.target.value)}>
+                <select value={branchForm.weeklyOffMode} onChange={(event) => updateWeeklyOffMode(event.target.value)}>
                   <option value="FIXED">Fixed</option>
                   <option value="ROTATIONAL">Rotational</option>
+                  <option value="NONE">No weekly off / 7 days working</option>
                 </select>
               </label>
             </div>
-            <div className="selection-chip-group">
-              <strong>Weekly off days</strong>
-              <div className="selection-chip-list">
-                {weekdayOptions.map((day) => (
-                  <button
-                    key={day}
-                    className={`selection-chip ${branchForm.weeklyOffDays.includes(day) ? "selection-chip-active" : ""}`}
-                    onClick={() =>
-                      setBranchForm((current) => ({
-                        ...current,
-                        weeklyOffDays: current.weeklyOffDays.includes(day)
-                          ? current.weeklyOffDays.filter((entry) => entry !== day)
-                          : [...current.weeklyOffDays, day]
-                      }))
-                    }
-                    type="button"
-                  >
-                    {day.slice(0, 3)}
-                  </button>
-                ))}
+            {branchForm.weeklyOffMode === "NONE" ? (
+              <div className="info-card">
+                <strong>7-day working enabled</strong>
+                <span className="muted">No weekly off will be skipped for this branch or roster planning.</span>
               </div>
-            </div>
+            ) : (
+              <div className="selection-chip-group">
+                <strong>Weekly off days</strong>
+                <div className="selection-chip-list">
+                  {weekdayOptions.map((day) => (
+                    <button
+                      key={day}
+                      className={`selection-chip ${branchForm.weeklyOffDays.includes(day) ? "selection-chip-active" : ""}`}
+                      onClick={() =>
+                        setBranchForm((current) => ({
+                          ...current,
+                          weeklyOffDays: current.weeklyOffDays.includes(day)
+                            ? current.weeklyOffDays.filter((entry) => entry !== day)
+                            : [...current.weeklyOffDays, day]
+                        }))
+                      }
+                      type="button"
+                    >
+                      {day.slice(0, 3)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             <p className="muted form-helper-text">
               Example: 4 hours for half day and 8 hours for full day. Optional late rules can cap payroll to half day or absent if check-in is too late for the assigned shift.
             </p>
@@ -381,7 +397,7 @@ export function BranchManagement({
                         </span>
                       ) : null}
                     </td>
-                    <td>{branch.weeklyOffMode} · {branch.weeklyOffDays.join(", ")}</td>
+                    <td>{branch.weeklyOffMode === "NONE" ? "7 days working" : `${branch.weeklyOffMode} · ${branch.weeklyOffDays.join(", ")}`}</td>
                     <td>{branch.latitude.toFixed(5)}, {branch.longitude.toFixed(5)}</td>
                     <td>
                       <button className="ghost-button compact-button" onClick={() => startEditingBranch(branch)} type="button">
@@ -416,7 +432,7 @@ export function BranchManagement({
                         : "Disabled"}
                     </strong>
                     <span>Weekly off</span>
-                    <strong>{branch.weeklyOffMode} · {branch.weeklyOffDays.join(", ")}</strong>
+                    <strong>{branch.weeklyOffMode === "NONE" ? "7 days working" : `${branch.weeklyOffMode} · ${branch.weeklyOffDays.join(", ")}`}</strong>
                     <span>Coordinates</span>
                     <strong>{branch.latitude.toFixed(5)}, {branch.longitude.toFixed(5)}</strong>
                   </div>

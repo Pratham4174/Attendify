@@ -704,6 +704,16 @@ export function EmployeeScreen({
                   Capture a live profile image before using your PEEPLIFY portal. The owner will see this in the employee directory.
                 </p>
               </div>
+              <button
+                className="ghost-button compact-button profile-setup-logout"
+                onClick={() => {
+                  stopCameraStream();
+                  onLogout();
+                }}
+                type="button"
+              >
+                Log out
+              </button>
             </div>
 
             <div className="camera-panel single-camera-panel profile-setup-camera">
