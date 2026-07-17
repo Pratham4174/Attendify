@@ -12,11 +12,13 @@ import com.attendance.system.model.AttendanceRecordEntity;
 import com.attendance.system.model.AttendanceStatus;
 import com.attendance.system.model.BranchEntity;
 import com.attendance.system.model.EmployeeEntity;
+import com.attendance.system.model.RosterAssignmentEntity;
 import com.attendance.system.model.UserRole;
 import com.attendance.system.repository.AttendanceRecordRepository;
 import com.attendance.system.repository.AttendanceLocationLogRepository;
 import com.attendance.system.repository.BranchRepository;
 import com.attendance.system.repository.EmployeeRepository;
+import com.attendance.system.repository.RosterAssignmentRepository;
 import com.attendance.system.security.AuthenticatedUser;
 import com.attendance.system.util.GeoUtils;
 import org.springframework.http.HttpStatus;
@@ -28,17 +30,24 @@ import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class AttendanceService {
+    private static final ZoneId BUSINESS_ZONE = ZoneId.of("Asia/Kolkata");
+    private static final int OVERNIGHT_CHECK_IN_GRACE_HOURS = 4;
+    private static final int OVERNIGHT_CHECK_OUT_GRACE_HOURS = 6;
+
     private final AttendanceRecordRepository attendanceRecordRepository;
     private final AttendanceLocationLogRepository attendanceLocationLogRepository;
     private final EmployeeRepository employeeRepository;
     private final BranchRepository branchRepository;
+    private final RosterAssignmentRepository rosterAssignmentRepository;
     private final AttendanceMapper mapper;
     private final TrackingProperties trackingProperties;
     private final AttendanceImageStorageService attendanceImageStorageService;
@@ -48,6 +57,7 @@ public class AttendanceService {
             AttendanceLocationLogRepository attendanceLocationLogRepository,
             EmployeeRepository employeeRepository,
             BranchRepository branchRepository,
+            RosterAssignmentRepository rosterAssignmentRepository,
             AttendanceMapper mapper,
             TrackingProperties trackingProperties,
             AttendanceImageStorageService attendanceImageStorageService
@@ -56,6 +66,7 @@ public class AttendanceService {
         this.attendanceLocationLogRepository = attendanceLocationLogRepository;
         this.employeeRepository = employeeRepository;
         this.branchRepository = branchRepository;
+        this.rosterAssignmentRepository = rosterAssignmentRepository;
         this.mapper = mapper;
         this.trackingProperties = trackingProperties;
         this.attendanceImageStorageService = attendanceImageStorageService;
@@ -68,17 +79,20 @@ public class AttendanceService {
         validateEmployeeBranch(employee, branch);
         BigDecimal distanceMeters = validateGeofence(branch, request.latitude(), request.longitude(), request.accuracyMeters());
 
-        attendanceRecordRepository.findFirstByEmployee_IdAndAttendanceDateOrderByCheckInTimeDesc(employee.getId(), LocalDate.now(ZoneOffset.UTC))
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+        LocalDate attendanceDate = resolveAttendanceDateForCheckIn(employee, now);
+
+        attendanceRecordRepository.findFirstByEmployee_IdAndAttendanceDateOrderByCheckInTimeDesc(employee.getId(), attendanceDate)
                 .ifPresent(record -> {
-                    throw new ResponseStatusException(HttpStatus.CONFLICT, "Attendance already exists for today.");
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "Attendance already exists for this roster day.");
                 });
 
         AttendanceRecordEntity record = new AttendanceRecordEntity();
         record.setVendor(employee.getVendor());
         record.setEmployee(employee);
         record.setBranch(branch);
-        record.setAttendanceDate(LocalDate.now(ZoneOffset.UTC));
-        record.setCheckInTime(OffsetDateTime.now(ZoneOffset.UTC));
+        record.setAttendanceDate(attendanceDate);
+        record.setCheckInTime(now);
         record.setCheckInLatitude(scale(request.latitude()));
         record.setCheckInLongitude(scale(request.longitude()));
         record.setCheckInDistanceMeters(distanceMeters);
@@ -99,11 +113,11 @@ public class AttendanceService {
         validateEmployeeBranch(employee, branch);
         BigDecimal distanceMeters = validateGeofence(branch, request.latitude(), request.longitude(), request.accuracyMeters());
 
-        AttendanceRecordEntity record = attendanceRecordRepository
-                .findFirstByEmployee_IdAndAttendanceDateAndCheckOutTimeIsNull(employee.getId(), LocalDate.now(ZoneOffset.UTC))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No active check-in found for today."));
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+        AttendanceRecordEntity record = resolveActiveAttendanceRecord(employee, now)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No active check-in found for this shift."));
 
-        record.setCheckOutTime(OffsetDateTime.now(ZoneOffset.UTC));
+        record.setCheckOutTime(now);
         record.setCheckOutLatitude(scale(request.latitude()));
         record.setCheckOutLongitude(scale(request.longitude()));
         record.setCheckOutDistanceMeters(distanceMeters);
@@ -119,8 +133,9 @@ public class AttendanceService {
         EmployeeEntity employee = requireEmployeeUser(user);
         List<AttendanceRecordEntity> history = attendanceRecordRepository.findByEmployee_IdOrderByAttendanceDateDescCheckInTimeDesc(employee.getId());
         AttendanceRecordEntity latestRecord = history.isEmpty() ? null : history.get(0);
+        LocalDate today = currentBusinessDate(OffsetDateTime.now(ZoneOffset.UTC));
         AttendanceRecordEntity todayRecord = history.stream()
-                .filter(record -> LocalDate.now(ZoneOffset.UTC).equals(record.getAttendanceDate()))
+                .filter(record -> today.equals(record.getAttendanceDate()))
                 .findFirst()
                 .orElse(null);
         EmployeeOverviewResponse.TrackingSummary trackingSummary = resolveTrackingSummary(todayRecord);
@@ -148,8 +163,8 @@ public class AttendanceService {
         }
 
         EmployeeEntity employee = requireEmployeeUser(user);
-        AttendanceRecordEntity record = attendanceRecordRepository
-                .findFirstByEmployee_IdAndAttendanceDateAndCheckOutTimeIsNull(employee.getId(), LocalDate.now(ZoneOffset.UTC))
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+        AttendanceRecordEntity record = resolveActiveAttendanceRecord(employee, now)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT, "Tracking starts only after check-in and stops after check-out."));
 
         try {
@@ -214,6 +229,86 @@ public class AttendanceService {
 
     private BigDecimal scale(double value) {
         return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private LocalDate resolveAttendanceDateForCheckIn(EmployeeEntity employee, OffsetDateTime now) {
+        LocalDateTime businessTime = now.atZoneSameInstant(BUSINESS_ZONE).toLocalDateTime();
+        LocalDate today = businessTime.toLocalDate();
+        LocalDate yesterday = today.minusDays(1);
+
+        return rosterAssignmentRepository.findByEmployee_IdAndAssignmentDateOrderByCreatedAtAsc(employee.getId(), yesterday)
+                .stream()
+                .filter(this::isWorkingOvernightAssignment)
+                .filter(assignment -> isInsideAssignmentWindow(
+                        assignment,
+                        businessTime,
+                        OVERNIGHT_CHECK_IN_GRACE_HOURS,
+                        OVERNIGHT_CHECK_IN_GRACE_HOURS
+                ))
+                .map(RosterAssignmentEntity::getAssignmentDate)
+                .findFirst()
+                .orElse(today);
+    }
+
+    private java.util.Optional<AttendanceRecordEntity> resolveActiveAttendanceRecord(EmployeeEntity employee, OffsetDateTime now) {
+        LocalDate today = currentBusinessDate(now);
+        return attendanceRecordRepository
+                .findByEmployee_IdAndAttendanceDateBetweenAndCheckOutTimeIsNullOrderByAttendanceDateDescCheckInTimeDesc(
+                        employee.getId(),
+                        today.minusDays(1),
+                        today
+                )
+                .stream()
+                .filter(record -> today.equals(record.getAttendanceDate()) || isOpenOvernightRecord(record, now))
+                .findFirst();
+    }
+
+    private boolean isOpenOvernightRecord(AttendanceRecordEntity record, OffsetDateTime now) {
+        LocalDateTime businessTime = now.atZoneSameInstant(BUSINESS_ZONE).toLocalDateTime();
+        return rosterAssignmentRepository.findByEmployee_IdAndAssignmentDateOrderByCreatedAtAsc(
+                        record.getEmployee().getId(),
+                        record.getAttendanceDate()
+                )
+                .stream()
+                .filter(this::isWorkingOvernightAssignment)
+                .anyMatch(assignment -> isInsideAssignmentWindow(
+                        assignment,
+                        businessTime,
+                        OVERNIGHT_CHECK_IN_GRACE_HOURS,
+                        OVERNIGHT_CHECK_OUT_GRACE_HOURS
+                ));
+    }
+
+    private boolean isWorkingOvernightAssignment(RosterAssignmentEntity assignment) {
+        return assignment.getRosterShift().isCrossesMidnight()
+                && !"OFF".equalsIgnoreCase(assignment.getAssignmentType());
+    }
+
+    private boolean isInsideAssignmentWindow(
+            RosterAssignmentEntity assignment,
+            LocalDateTime businessTime,
+            int beforeStartGraceHours,
+            int afterEndGraceHours
+    ) {
+        LocalDateTime windowStart = assignmentStart(assignment).minusHours(beforeStartGraceHours);
+        LocalDateTime windowEnd = assignmentEnd(assignment).plusHours(afterEndGraceHours);
+        return !businessTime.isBefore(windowStart) && !businessTime.isAfter(windowEnd);
+    }
+
+    private LocalDateTime assignmentStart(RosterAssignmentEntity assignment) {
+        return LocalDateTime.of(assignment.getAssignmentDate(), assignment.getRosterShift().getStartTime());
+    }
+
+    private LocalDateTime assignmentEnd(RosterAssignmentEntity assignment) {
+        LocalDate assignmentDate = assignment.getAssignmentDate();
+        if (assignment.getRosterShift().isCrossesMidnight()) {
+            return LocalDateTime.of(assignmentDate.plusDays(1), assignment.getRosterShift().getEndTime());
+        }
+        return LocalDateTime.of(assignmentDate, assignment.getRosterShift().getEndTime());
+    }
+
+    private LocalDate currentBusinessDate(OffsetDateTime now) {
+        return now.atZoneSameInstant(BUSINESS_ZONE).toLocalDate();
     }
 
     private EmployeeOverviewResponse.TrackingSummary resolveTrackingSummary(AttendanceRecordEntity latestRecord) {

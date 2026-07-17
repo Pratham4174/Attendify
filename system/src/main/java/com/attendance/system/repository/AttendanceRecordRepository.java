@@ -13,6 +13,7 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
     List<AttendanceRecordEntity> findByEmployee_IdOrderByAttendanceDateDescCheckInTimeDesc(UUID employeeId);
     Optional<AttendanceRecordEntity> findFirstByEmployee_IdAndAttendanceDateOrderByCheckInTimeDesc(UUID employeeId, LocalDate attendanceDate);
     Optional<AttendanceRecordEntity> findFirstByEmployee_IdAndAttendanceDateAndCheckOutTimeIsNull(UUID employeeId, LocalDate attendanceDate);
+    List<AttendanceRecordEntity> findByEmployee_IdAndAttendanceDateBetweenAndCheckOutTimeIsNullOrderByAttendanceDateDescCheckInTimeDesc(UUID employeeId, LocalDate startDate, LocalDate endDate);
     long countByVendor_IdAndAttendanceDate(UUID vendorId, LocalDate attendanceDate);
     long countByVendor_IdAndAttendanceDateAndCheckOutTimeIsNotNull(UUID vendorId, LocalDate attendanceDate);
     long countByVendor_IdAndBranch_IdAndAttendanceDate(UUID vendorId, UUID branchId, LocalDate attendanceDate);
