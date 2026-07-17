@@ -20,6 +20,10 @@ public record BranchUpsertRequest(
         @NotNull @Min(0) @Max(240) Integer graceMinutes,
         @NotNull @Min(1) @Max(24) Integer halfDayHours,
         @NotNull @Min(1) @Max(24) Integer fullDayHours,
+        Boolean lateHalfDayEnabled,
+        @Min(1) @Max(1440) Integer lateHalfDayAfterMinutes,
+        Boolean lateAbsentEnabled,
+        @Min(1) @Max(1440) Integer lateAbsentAfterMinutes,
         @NotBlank String weeklyOffMode,
         @NotNull List<@NotBlank String> weeklyOffDays
 ) {

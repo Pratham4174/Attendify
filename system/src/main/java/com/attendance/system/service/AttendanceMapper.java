@@ -93,6 +93,10 @@ public class AttendanceMapper {
                 branch.getGraceMinutes(),
                 Math.max(1, branch.getHalfDayMinutes() / 60),
                 Math.max(1, branch.getFullDayMinutes() / 60),
+                Boolean.TRUE.equals(branch.getLateHalfDayEnabled()),
+                branch.getLateHalfDayAfterMinutes(),
+                Boolean.TRUE.equals(branch.getLateAbsentEnabled()),
+                branch.getLateAbsentAfterMinutes(),
                 branch.getWeeklyOffMode(),
                 splitCsv(branch.getWeeklyOffDaysCsv())
         );

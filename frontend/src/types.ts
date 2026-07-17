@@ -188,6 +188,10 @@ export type Branch = {
   graceMinutes: number;
   halfDayHours: number;
   fullDayHours: number;
+  lateHalfDayEnabled: boolean;
+  lateHalfDayAfterMinutes: number | null;
+  lateAbsentEnabled: boolean;
+  lateAbsentAfterMinutes: number | null;
   weeklyOffMode: string;
   weeklyOffDays: string[];
 };

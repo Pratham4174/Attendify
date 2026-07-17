@@ -14,6 +14,10 @@ public record BranchResponse(
         int graceMinutes,
         int halfDayHours,
         int fullDayHours,
+        boolean lateHalfDayEnabled,
+        Integer lateHalfDayAfterMinutes,
+        boolean lateAbsentEnabled,
+        Integer lateAbsentAfterMinutes,
         String weeklyOffMode,
         List<String> weeklyOffDays
 ) {

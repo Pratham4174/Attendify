@@ -50,8 +50,10 @@ import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
@@ -68,6 +70,8 @@ import java.util.UUID;
 
 @Service
 public class AdminService {
+    private static final ZoneId BUSINESS_ZONE = ZoneId.of("Asia/Kolkata");
+
     private final EmployeeRepository employeeRepository;
     private final BranchRepository branchRepository;
     private final AttendanceRecordRepository attendanceRecordRepository;
@@ -633,6 +637,18 @@ public class AdminService {
         if (request.fullDayHours() < request.halfDayHours()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Full day hours must be greater than or equal to half day hours.");
         }
+        boolean lateHalfDayEnabled = Boolean.TRUE.equals(request.lateHalfDayEnabled());
+        boolean lateAbsentEnabled = Boolean.TRUE.equals(request.lateAbsentEnabled());
+        if (lateHalfDayEnabled && request.lateHalfDayAfterMinutes() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Add late minutes for half-day rule or disable the rule.");
+        }
+        if (lateAbsentEnabled && request.lateAbsentAfterMinutes() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Add late minutes for absent rule or disable the rule.");
+        }
+        if (lateHalfDayEnabled && lateAbsentEnabled
+                && request.lateAbsentAfterMinutes() < request.lateHalfDayAfterMinutes()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Absent late threshold must be greater than or equal to half-day late threshold.");
+        }
         List<String> validDays = List.of("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY");
         List<String> weeklyOffDays = request.weeklyOffDays().stream()
                 .map(day -> day.trim().toUpperCase(Locale.ROOT))
@@ -651,6 +667,10 @@ public class AdminService {
         branch.setGraceMinutes(request.graceMinutes());
         branch.setHalfDayMinutes(request.halfDayHours() * 60);
         branch.setFullDayMinutes(request.fullDayHours() * 60);
+        branch.setLateHalfDayEnabled(lateHalfDayEnabled);
+        branch.setLateHalfDayAfterMinutes(lateHalfDayEnabled ? request.lateHalfDayAfterMinutes() : null);
+        branch.setLateAbsentEnabled(lateAbsentEnabled);
+        branch.setLateAbsentAfterMinutes(lateAbsentEnabled ? request.lateAbsentAfterMinutes() : null);
         branch.setWeeklyOffMode(request.weeklyOffMode().trim().toUpperCase(Locale.ROOT));
         branch.setWeeklyOffDaysCsv(String.join(",", weeklyOffDays));
     }
@@ -851,12 +871,46 @@ public class AdminService {
         int fullDayMinutes = record.getBranch().getFullDayMinutes() == null ? 480 : record.getBranch().getFullDayMinutes();
 
         if (minutesWorked >= fullDayMinutes) {
-            return BigDecimal.ONE;
+            return applyLateArrivalPenalty(record, BigDecimal.ONE);
         }
         if (minutesWorked >= halfDayMinutes) {
+            return applyLateArrivalPenalty(record, BigDecimal.valueOf(0.5));
+        }
+        return applyLateArrivalPenalty(record, BigDecimal.ZERO);
+    }
+
+    private BigDecimal applyLateArrivalPenalty(AttendanceRecordEntity record, BigDecimal workedDayUnits) {
+        BranchEntity branch = record.getBranch();
+        long lateMinutes = resolveLateArrivalMinutes(record);
+        if (Boolean.TRUE.equals(branch.getLateAbsentEnabled())
+                && branch.getLateAbsentAfterMinutes() != null
+                && lateMinutes >= branch.getLateAbsentAfterMinutes()) {
+            return BigDecimal.ZERO;
+        }
+        if (Boolean.TRUE.equals(branch.getLateHalfDayEnabled())
+                && branch.getLateHalfDayAfterMinutes() != null
+                && lateMinutes >= branch.getLateHalfDayAfterMinutes()
+                && workedDayUnits.compareTo(BigDecimal.valueOf(0.5)) > 0) {
             return BigDecimal.valueOf(0.5);
         }
-        return BigDecimal.ZERO;
+        return workedDayUnits;
+    }
+
+    private long resolveLateArrivalMinutes(AttendanceRecordEntity record) {
+        if (record.getCheckInTime() == null || record.getAttendanceDate() == null) {
+            return 0;
+        }
+        LocalTime scheduledStartTime = rosterAssignmentRepository
+                .findByEmployee_IdAndAssignmentDateOrderByCreatedAtAsc(record.getEmployee().getId(), record.getAttendanceDate())
+                .stream()
+                .filter(assignment -> !"OFF".equalsIgnoreCase(assignment.getAssignmentType()))
+                .findFirst()
+                .map(assignment -> assignment.getRosterShift().getStartTime())
+                .orElse(record.getBranch().getShiftStartTime());
+        LocalDateTime scheduledStart = LocalDateTime.of(record.getAttendanceDate(), scheduledStartTime);
+        LocalDateTime actualCheckIn = record.getCheckInTime().atZoneSameInstant(BUSINESS_ZONE).toLocalDateTime();
+        long lateMinutes = java.time.Duration.between(scheduledStart, actualCheckIn).toMinutes();
+        return Math.max(lateMinutes, 0);
     }
 
     private BigDecimal scaleMoney(BigDecimal amount) {

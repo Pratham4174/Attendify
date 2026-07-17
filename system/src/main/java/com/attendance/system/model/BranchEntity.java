@@ -59,6 +59,18 @@ public class BranchEntity {
     @Column(name = "full_day_minutes", nullable = false)
     private Integer fullDayMinutes = 480;
 
+    @Column(name = "late_half_day_enabled", nullable = false)
+    private Boolean lateHalfDayEnabled = false;
+
+    @Column(name = "late_half_day_after_minutes")
+    private Integer lateHalfDayAfterMinutes;
+
+    @Column(name = "late_absent_enabled", nullable = false)
+    private Boolean lateAbsentEnabled = false;
+
+    @Column(name = "late_absent_after_minutes")
+    private Integer lateAbsentAfterMinutes;
+
     @Column(name = "weekly_off_mode", nullable = false, length = 30)
     private String weeklyOffMode = "FIXED";
 
@@ -155,6 +167,38 @@ public class BranchEntity {
 
     public void setFullDayMinutes(Integer fullDayMinutes) {
         this.fullDayMinutes = fullDayMinutes;
+    }
+
+    public Boolean getLateHalfDayEnabled() {
+        return lateHalfDayEnabled;
+    }
+
+    public void setLateHalfDayEnabled(Boolean lateHalfDayEnabled) {
+        this.lateHalfDayEnabled = lateHalfDayEnabled;
+    }
+
+    public Integer getLateHalfDayAfterMinutes() {
+        return lateHalfDayAfterMinutes;
+    }
+
+    public void setLateHalfDayAfterMinutes(Integer lateHalfDayAfterMinutes) {
+        this.lateHalfDayAfterMinutes = lateHalfDayAfterMinutes;
+    }
+
+    public Boolean getLateAbsentEnabled() {
+        return lateAbsentEnabled;
+    }
+
+    public void setLateAbsentEnabled(Boolean lateAbsentEnabled) {
+        this.lateAbsentEnabled = lateAbsentEnabled;
+    }
+
+    public Integer getLateAbsentAfterMinutes() {
+        return lateAbsentAfterMinutes;
+    }
+
+    public void setLateAbsentAfterMinutes(Integer lateAbsentAfterMinutes) {
+        this.lateAbsentAfterMinutes = lateAbsentAfterMinutes;
     }
 
     public String getWeeklyOffMode() {

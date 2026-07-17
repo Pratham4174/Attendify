@@ -14,6 +14,10 @@ type BranchFormState = {
   graceMinutes: string;
   halfDayHours: string;
   fullDayHours: string;
+  lateHalfDayEnabled: boolean;
+  lateHalfDayAfterMinutes: string;
+  lateAbsentEnabled: boolean;
+  lateAbsentAfterMinutes: string;
   weeklyOffMode: string;
   weeklyOffDays: string[];
 };
@@ -32,6 +36,10 @@ function buildEmptyBranchForm(): BranchFormState {
     graceMinutes: "15",
     halfDayHours: "4",
     fullDayHours: "8",
+    lateHalfDayEnabled: false,
+    lateHalfDayAfterMinutes: "30",
+    lateAbsentEnabled: false,
+    lateAbsentAfterMinutes: "120",
     weeklyOffMode: "FIXED",
     weeklyOffDays: ["SUNDAY"]
   };
@@ -78,6 +86,10 @@ export function BranchManagement({
       graceMinutes: String(branch.graceMinutes),
       halfDayHours: String(branch.halfDayHours),
       fullDayHours: String(branch.fullDayHours),
+      lateHalfDayEnabled: branch.lateHalfDayEnabled,
+      lateHalfDayAfterMinutes: String(branch.lateHalfDayAfterMinutes ?? 30),
+      lateAbsentEnabled: branch.lateAbsentEnabled,
+      lateAbsentAfterMinutes: String(branch.lateAbsentAfterMinutes ?? 120),
       weeklyOffMode: branch.weeklyOffMode,
       weeklyOffDays: branch.weeklyOffDays
     });
@@ -116,6 +128,10 @@ export function BranchManagement({
             graceMinutes: Number(branchForm.graceMinutes),
             halfDayHours: Number(branchForm.halfDayHours),
             fullDayHours: Number(branchForm.fullDayHours),
+            lateHalfDayEnabled: branchForm.lateHalfDayEnabled,
+            lateHalfDayAfterMinutes: branchForm.lateHalfDayEnabled ? Number(branchForm.lateHalfDayAfterMinutes) : null,
+            lateAbsentEnabled: branchForm.lateAbsentEnabled,
+            lateAbsentAfterMinutes: branchForm.lateAbsentEnabled ? Number(branchForm.lateAbsentAfterMinutes) : null,
             weeklyOffMode: branchForm.weeklyOffMode,
             weeklyOffDays: branchForm.weeklyOffDays
           })
@@ -238,6 +254,48 @@ export function BranchManagement({
                 <input required min="1" max="24" type="number" value={branchForm.fullDayHours} onChange={(event) => updateBranchForm("fullDayHours", event.target.value)} />
               </label>
               <label>
+                Late half-day rule
+                <select
+                  value={branchForm.lateHalfDayEnabled ? "enabled" : "disabled"}
+                  onChange={(event) => setBranchForm((current) => ({ ...current, lateHalfDayEnabled: event.target.value === "enabled" }))}
+                >
+                  <option value="disabled">Disabled</option>
+                  <option value="enabled">Enabled</option>
+                </select>
+              </label>
+              <label>
+                Half day if late by (min)
+                <input
+                  disabled={!branchForm.lateHalfDayEnabled}
+                  min="1"
+                  max="1440"
+                  type="number"
+                  value={branchForm.lateHalfDayAfterMinutes}
+                  onChange={(event) => updateBranchForm("lateHalfDayAfterMinutes", event.target.value)}
+                />
+              </label>
+              <label>
+                Late absent rule
+                <select
+                  value={branchForm.lateAbsentEnabled ? "enabled" : "disabled"}
+                  onChange={(event) => setBranchForm((current) => ({ ...current, lateAbsentEnabled: event.target.value === "enabled" }))}
+                >
+                  <option value="disabled">Disabled</option>
+                  <option value="enabled">Enabled</option>
+                </select>
+              </label>
+              <label>
+                Absent if late by (min)
+                <input
+                  disabled={!branchForm.lateAbsentEnabled}
+                  min="1"
+                  max="1440"
+                  type="number"
+                  value={branchForm.lateAbsentAfterMinutes}
+                  onChange={(event) => updateBranchForm("lateAbsentAfterMinutes", event.target.value)}
+                />
+              </label>
+              <label>
                 Weekly off mode
                 <select value={branchForm.weeklyOffMode} onChange={(event) => updateBranchForm("weeklyOffMode", event.target.value)}>
                   <option value="FIXED">Fixed</option>
@@ -268,7 +326,7 @@ export function BranchManagement({
               </div>
             </div>
             <p className="muted form-helper-text">
-              Example: 4 hours for half day and 8 hours for full day. Anything below the half-day rule is treated as absent in payroll. Weekly off is now decided branch-wise by the business owner.
+              Example: 4 hours for half day and 8 hours for full day. Optional late rules can cap payroll to half day or absent if check-in is too late for the assigned shift.
             </p>
 
             <div className="action-row">
@@ -313,7 +371,16 @@ export function BranchManagement({
                     <td>{branch.radiusMeters}m</td>
                     <td>{branch.shiftStartTime} - {branch.shiftEndTime}</td>
                     <td>{branch.graceMinutes} min</td>
-                    <td>{branch.halfDayHours}h half day / {branch.fullDayHours}h full day</td>
+                    <td>
+                      {branch.halfDayHours}h half day / {branch.fullDayHours}h full day
+                      {branch.lateHalfDayEnabled || branch.lateAbsentEnabled ? (
+                        <span className="muted table-subtext">
+                          Late: {branch.lateHalfDayEnabled ? `${branch.lateHalfDayAfterMinutes}m = half day` : "half off"}
+                          {" · "}
+                          {branch.lateAbsentEnabled ? `${branch.lateAbsentAfterMinutes}m = absent` : "absent off"}
+                        </span>
+                      ) : null}
+                    </td>
                     <td>{branch.weeklyOffMode} · {branch.weeklyOffDays.join(", ")}</td>
                     <td>{branch.latitude.toFixed(5)}, {branch.longitude.toFixed(5)}</td>
                     <td>
@@ -342,6 +409,12 @@ export function BranchManagement({
                     <strong>{branch.graceMinutes} min</strong>
                     <span>Workday rule</span>
                     <strong>{branch.halfDayHours}h half day / {branch.fullDayHours}h full day</strong>
+                    <span>Late rule</span>
+                    <strong>
+                      {branch.lateHalfDayEnabled || branch.lateAbsentEnabled
+                        ? `${branch.lateHalfDayEnabled ? `${branch.lateHalfDayAfterMinutes}m half day` : "Half day off"} · ${branch.lateAbsentEnabled ? `${branch.lateAbsentAfterMinutes}m absent` : "Absent off"}`
+                        : "Disabled"}
+                    </strong>
                     <span>Weekly off</span>
                     <strong>{branch.weeklyOffMode} · {branch.weeklyOffDays.join(", ")}</strong>
                     <span>Coordinates</span>
