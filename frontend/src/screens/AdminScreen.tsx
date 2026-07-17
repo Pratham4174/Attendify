@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { AttendanceOverview } from "../components/AttendanceOverview";
 import { AdminEmployeeAttendance } from "../components/AdminEmployeeAttendance";
 import { AdminSubscriptionDashboard } from "../components/AdminSubscriptionDashboard";
-import { AttendancePayrollTable, TrackingLink } from "../components/AttendanceTable";
+import { AttendancePayrollTable, PayrollCalendarView, TrackingLink } from "../components/AttendanceTable";
 import { AttendanceCorrectionTable } from "../components/AttendanceCorrections";
 import { BranchManagement } from "../components/BranchManagement";
 import { BulkEmployeeImport } from "../components/BulkEmployeeImport";
@@ -1050,6 +1050,17 @@ export function AdminScreen({
                     ) : null}
                   </form>
                 </article>
+              </section>
+              <section className="panel">
+                <h3>Salary day calendar</h3>
+                <p className="muted section-intro">
+                  See each employee on their salary day with payable amount, worked days, half days, leaves, and salary cycle.
+                </p>
+                {payroll?.employees.length ? (
+                  <PayrollCalendarView payroll={payroll} />
+                ) : (
+                  <EmptyState title="No salary calendar yet" message="Salary days will appear here once employees have salary and start date details." />
+                )}
               </section>
               <section className="panel">
                 <h3>Payroll details</h3>

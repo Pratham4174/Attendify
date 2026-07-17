@@ -519,6 +519,77 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.payroll-calendar {
+  display: grid;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.payroll-calendar-weekdays,
+.payroll-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(150px, 1fr));
+  min-width: 980px;
+}
+
+.payroll-calendar-weekdays span {
+  color: var(--text-soft);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 0 8px;
+  text-transform: uppercase;
+}
+
+.payroll-calendar-grid {
+  gap: 10px;
+}
+
+.payroll-calendar-day {
+  min-height: 132px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.74);
+}
+
+.payroll-calendar-day.has-payroll {
+  background: linear-gradient(180deg, rgba(239, 246, 255, 0.96), rgba(255, 255, 255, 0.92));
+  border-color: rgba(37, 99, 235, 0.28);
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.08);
+}
+
+.payroll-calendar-empty {
+  background: transparent;
+  border-color: transparent;
+}
+
+.payroll-calendar-date {
+  color: var(--brand);
+  font-size: 0.9rem;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.payroll-calendar-item {
+  display: grid;
+  gap: 5px;
+  padding: 10px;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
+}
+
+.payroll-calendar-item div {
+  display: grid;
+  gap: 2px;
+}
+
+.payroll-calendar-item span {
+  font-size: 0.78rem;
+}
+
 .payroll-action-grid {
   align-items: start;
 }
@@ -729,6 +800,12 @@
 
   .payroll-card-grid {
     grid-template-columns: 1fr;
+  }
+
+  .payroll-calendar-weekdays,
+  .payroll-calendar-grid {
+    grid-template-columns: repeat(7, minmax(180px, 1fr));
+    min-width: 1260px;
   }
 
   .payroll-card-highlight {

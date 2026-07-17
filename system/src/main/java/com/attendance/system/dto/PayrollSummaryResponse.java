@@ -27,7 +27,10 @@ public record PayrollSummaryResponse(
             BigDecimalValue openingAdvance,
             BigDecimalValue monthAdvancePaid,
             BigDecimalValue totalAdvanceDeducted,
-            BigDecimalValue netPayable
+            BigDecimalValue netPayable,
+            String cycleStartDate,
+            String cycleEndDate,
+            String salaryDate
     ) {
     }
 

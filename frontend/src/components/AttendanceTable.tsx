@@ -3,6 +3,71 @@ import type { AttendancePreview, AttendanceRow, PayrollSummary } from "../types"
 import { buildMapsUrl, formatDateTime, formatMoney, formatTimeOnly, formatWorkedHours } from "../lib/format";
 import { EmptyState } from "./shared";
 
+function monthDays(month: string) {
+  const [year, monthNumber] = month.split("-").map(Number);
+  const totalDays = new Date(year, monthNumber, 0).getDate();
+  const firstDay = new Date(year, monthNumber - 1, 1).getDay();
+  return {
+    leadingBlanks: Array.from({ length: firstDay }),
+    days: Array.from({ length: totalDays }, (_, index) => {
+      const day = index + 1;
+      return `${month}-${String(day).padStart(2, "0")}`;
+    })
+  };
+}
+
+function shortDate(date: string) {
+  return date.slice(8, 10);
+}
+
+export function PayrollCalendarView({ payroll }: { payroll: PayrollSummary }) {
+  const { leadingBlanks, days } = monthDays(payroll.month);
+  const employeesBySalaryDate = new Map<string, PayrollSummary["employees"]>();
+  for (const employee of payroll.employees) {
+    const items = employeesBySalaryDate.get(employee.salaryDate) ?? [];
+    items.push(employee);
+    employeesBySalaryDate.set(employee.salaryDate, items);
+  }
+
+  return (
+    <div className="payroll-calendar">
+      <div className="payroll-calendar-weekdays">
+        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+          <span key={day}>{day}</span>
+        ))}
+      </div>
+      <div className="payroll-calendar-grid">
+        {leadingBlanks.map((_, index) => (
+          <div className="payroll-calendar-day payroll-calendar-empty" key={`blank-${index}`} />
+        ))}
+        {days.map((date) => {
+          const dayEmployees = employeesBySalaryDate.get(date) ?? [];
+          return (
+            <div className={`payroll-calendar-day${dayEmployees.length ? " has-payroll" : ""}`} key={date}>
+              <div className="payroll-calendar-date">{shortDate(date)}</div>
+              {dayEmployees.map((employee) => (
+                <article className="payroll-calendar-item" key={employee.employeeId}>
+                  <div>
+                    <strong>{employee.employeeName}</strong>
+                    <span>{employee.designation}</span>
+                  </div>
+                  <strong>{formatMoney(employee.netPayable.value)}</strong>
+                  <span className="muted">
+                    {employee.workedDays} worked · {employee.halfDays} half · {employee.paidLeaveDays + employee.unpaidLeaveDays} leaves
+                  </span>
+                  <span className="muted">
+                    Cycle {employee.cycleStartDate} to {employee.cycleEndDate}
+                  </span>
+                </article>
+              ))}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function AttendancePayrollTable({
   payroll,
   onDownloadSlip
@@ -27,9 +92,10 @@ export function AttendancePayrollTable({
             <th>Payable days</th>
             <th>Opening advance</th>
             <th>Month advance</th>
-            <th>Total advance</th>
-            <th>Net payable</th>
-            {onDownloadSlip ? <th>Slip</th> : null}
+              <th>Total advance</th>
+              <th>Net payable</th>
+              <th>Salary date</th>
+              {onDownloadSlip ? <th>Slip</th> : null}
           </tr>
         </thead>
         <tbody>
@@ -52,6 +118,10 @@ export function AttendancePayrollTable({
               <td>{formatMoney(employee.monthAdvancePaid.value)}</td>
               <td>{formatMoney(employee.totalAdvanceDeducted.value)}</td>
               <td>{formatMoney(employee.netPayable.value)}</td>
+              <td>
+                <strong>{employee.salaryDate}</strong>
+                <div className="table-subtext">{employee.cycleStartDate} to {employee.cycleEndDate}</div>
+              </td>
               {onDownloadSlip ? (
                 <td>
                   <button className="ghost-button compact-button" onClick={() => onDownloadSlip(employee.employeeId)} type="button">
@@ -81,6 +151,10 @@ export function AttendancePayrollTable({
             <div className="attendance-card-grid payroll-card-grid">
               <span>Monthly salary</span>
               <strong>{formatMoney(employee.monthlySalary.value)}</strong>
+              <span>Salary date</span>
+              <strong>{employee.salaryDate}</strong>
+              <span>Salary cycle</span>
+              <strong>{employee.cycleStartDate} to {employee.cycleEndDate}</strong>
               <span>Worked days</span>
               <strong>{employee.workedDays}</strong>
               <span>Half days</span>

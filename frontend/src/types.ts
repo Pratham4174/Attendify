@@ -379,6 +379,9 @@ export type PayrollSummary = {
     monthAdvancePaid: { value: string };
     totalAdvanceDeducted: { value: string };
     netPayable: { value: string };
+    cycleStartDate: string;
+    cycleEndDate: string;
+    salaryDate: string;
   }>;
 };
 

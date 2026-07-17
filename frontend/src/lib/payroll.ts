@@ -21,7 +21,10 @@ export function downloadPayrollCsv(payroll: PayrollSummary) {
     "Opening Advance",
     "Month Advance Paid",
     "Total Advance Deducted",
-    "Net Payable"
+    "Net Payable",
+    "Cycle Start",
+    "Cycle End",
+    "Salary Date"
   ];
 
   const rows = payroll.employees.map((employee) => [
@@ -43,7 +46,10 @@ export function downloadPayrollCsv(payroll: PayrollSummary) {
     employee.openingAdvance.value,
     employee.monthAdvancePaid.value,
     employee.totalAdvanceDeducted.value,
-    employee.netPayable.value
+    employee.netPayable.value,
+    employee.cycleStartDate,
+    employee.cycleEndDate,
+    employee.salaryDate
   ]);
 
   const csv = [header, ...rows]
@@ -85,6 +91,8 @@ export function downloadSalarySlip(payroll: PayrollSummary, employeeId: string) 
     <h2>${employee.employeeName} · ${employee.designation} · ${payroll.month}</h2>
     <table>
       <tr><th>Monthly salary</th><td>${formatMoney(employee.monthlySalary.value)}</td></tr>
+      <tr><th>Salary cycle</th><td>${employee.cycleStartDate} to ${employee.cycleEndDate}</td></tr>
+      <tr><th>Salary date</th><td>${employee.salaryDate}</td></tr>
       <tr><th>Worked days</th><td>${employee.workedDays}</td></tr>
       <tr><th>Half days</th><td>${employee.halfDays}</td></tr>
       <tr><th>Holiday days</th><td>${employee.holidayDays}</td></tr>

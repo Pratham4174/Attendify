@@ -781,7 +781,10 @@ public class AdminService {
                     moneyValue(openingAdvance),
                     moneyValue(BigDecimal.ZERO),
                     moneyValue(openingAdvance),
-                    moneyValue(BigDecimal.ZERO)
+                    moneyValue(BigDecimal.ZERO),
+                    payrollWindow.startDate().toString(),
+                    payrollWindow.endDate().toString(),
+                    payrollWindow.salaryDate().toString()
             );
         }
 
@@ -917,7 +920,10 @@ public class AdminService {
                 moneyValue(openingAdvance),
                 moneyValue(monthAdvancePaid),
                 moneyValue(totalAdvanceDeducted),
-                moneyValue(netPayable)
+                moneyValue(netPayable),
+                payrollWindow.startDate().toString(),
+                payrollWindow.endDate().toString(),
+                payrollWindow.salaryDate().toString()
         );
     }
 
@@ -987,7 +993,8 @@ public class AdminService {
         while (cycleStart.plusDays(29).isBefore(targetMonthStart)) {
             cycleStart = cycleStart.plusDays(30);
         }
-        return new PayrollWindow(cycleStart, cycleStart.plusDays(29));
+        LocalDate cycleEnd = cycleStart.plusDays(29);
+        return new PayrollWindow(cycleStart, cycleEnd, cycleEnd.plusDays(1));
     }
 
     private LocalDate resolvePayrollCompletedThrough(PayrollWindow payrollWindow, LocalDate today) {
@@ -1000,7 +1007,7 @@ public class AdminService {
                 : lastCompletedDate;
     }
 
-    private record PayrollWindow(LocalDate startDate, LocalDate endDate) {
+    private record PayrollWindow(LocalDate startDate, LocalDate endDate, LocalDate salaryDate) {
     }
 
     private BigDecimal scaleMoney(BigDecimal amount) {
