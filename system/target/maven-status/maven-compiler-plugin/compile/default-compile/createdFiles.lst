@@ -101,6 +101,7 @@ com/attendance/system/model/LeaveRequestEntity.class
 com/attendance/system/dto/DashboardSummaryResponse$SummaryCards.class
 com/attendance/system/repository/EmployeeRepository.class
 com/attendance/system/dto/RosterGenerateRequest.class
+com/attendance/system/service/AdminService$PayrollWindow.class
 com/attendance/system/controller/LeaveController.class
 com/attendance/system/dto/AdminTrackingResponse.class
 com/attendance/system/repository/PublicCheckoutSessionRepository.class
@@ -122,6 +123,7 @@ com/attendance/system/model/AttendanceCorrectionRequestEntity.class
 com/attendance/system/controller/PublicController.class
 com/attendance/system/dto/EmployeeBranchTransferRequest.class
 com/attendance/system/config/CashfreeProperties.class
+com/attendance/system/dto/EmployeeAttendanceStartRequest.class
 com/attendance/system/dto/RosterShiftUpsertRequest.class
 com/attendance/system/model/AttendanceStatus.class
 com/attendance/system/dto/MessageResponse.class

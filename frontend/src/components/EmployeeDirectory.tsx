@@ -32,6 +32,8 @@ export function EmployeeDirectory({
   const [passwordTargetId, setPasswordTargetId] = useState<string | null>(null);
   const [newPassword, setNewPassword] = useState("");
   const [working, setWorking] = useState(false);
+  const [attendanceStartDate, setAttendanceStartDate] = useState(formatLocalDateKey(new Date()));
+  const [attendanceStartSelection, setAttendanceStartSelection] = useState<string[]>([]);
 
   useEffect(() => {
     if (!employees.length) {
@@ -104,6 +106,39 @@ export function EmployeeDirectory({
       await onReload();
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message : "Unable to update employee login.");
+    } finally {
+      setWorking(false);
+    }
+  }
+
+  function toggleAttendanceStartSelection(employeeId: string) {
+    setAttendanceStartSelection((current) =>
+      current.includes(employeeId)
+        ? current.filter((id) => id !== employeeId)
+        : [...current, employeeId]
+    );
+  }
+
+  async function startGeoPhotoAttendance() {
+    if (!attendanceStartSelection.length) {
+      setStatusMessage("Select at least one employee to start geo-photo attendance.");
+      return;
+    }
+    setWorking(true);
+    setStatusMessage("");
+    try {
+      await apiFetch<Employee[]>(session, "/admin/employees/attendance-start", {
+        method: "PATCH",
+        body: JSON.stringify({
+          employeeIds: attendanceStartSelection,
+          startDate: attendanceStartDate
+        })
+      });
+      setStatusMessage("Geo-photo attendance started for selected employees.");
+      setAttendanceStartSelection([]);
+      await onReload();
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "Unable to start geo-photo attendance.");
     } finally {
       setWorking(false);
     }
@@ -202,10 +237,32 @@ export function EmployeeDirectory({
       </div>
 
       {statusMessage ? (
-        <p className={statusMessage.includes("successfully") || statusMessage.includes("enabled") || statusMessage.includes("disabled") ? "status-text" : "error-text"}>
+        <p className={statusMessage.includes("successfully") || statusMessage.includes("enabled") || statusMessage.includes("disabled") || statusMessage.includes("started") ? "status-text" : "error-text"}>
           {statusMessage}
         </p>
       ) : null}
+
+      <div className="info-card">
+        <strong>Start geo-photo attendance</strong>
+        <span className="muted">Before this date, payroll counts days as present except leaves already taken before adding.</span>
+        <div className="action-row">
+          <input
+            aria-label="Geo-photo attendance start date"
+            className="payroll-date-input"
+            type="date"
+            value={attendanceStartDate}
+            onChange={(event) => setAttendanceStartDate(event.target.value)}
+          />
+          <button
+            className="ghost-button compact-button"
+            disabled={working || !attendanceStartSelection.length}
+            onClick={() => void startGeoPhotoAttendance()}
+            type="button"
+          >
+            Start for selected ({attendanceStartSelection.length})
+          </button>
+        </div>
+      </div>
 
       <div className="employee-directory-layout">
         <div className="employee-summary-grid">
@@ -233,9 +290,21 @@ export function EmployeeDirectory({
                   </div>
                   <span className="pill">{employee.status}</span>
                 </div>
+                <label className="inline-checkbox" onClick={(event) => event.stopPropagation()}>
+                  <input
+                    checked={attendanceStartSelection.includes(employee.id)}
+                    onChange={() => toggleAttendanceStartSelection(employee.id)}
+                    type="checkbox"
+                  />
+                  Select for geo attendance
+                </label>
                 <div className="employee-summary-pay">
                   <span>Net payable</span>
                   <strong>{formatMoney(employeePayroll?.netPayable.value ?? "0")}</strong>
+                </div>
+                <div className="employee-summary-pay">
+                  <span>Geo-photo starts</span>
+                  <strong>{employee.attendanceStartedOn ?? "Not started"}</strong>
                 </div>
               </button>
             );
@@ -298,6 +367,8 @@ export function EmployeeDirectory({
                     <strong>{selectedEmployee.monthlyLeaveAllowance}</strong>
                     <span>Prior leaves</span>
                     <strong>{selectedEmployee.onboardingPaidLeaveDays}</strong>
+                    <span>Geo-photo attendance</span>
+                    <strong>{selectedEmployee.attendanceStartedOn ?? "Not started"}</strong>
                     <span>Login</span>
                     <strong>{selectedEmployee.loginEnabled ? "Enabled" : "Disabled"}</strong>
                     <span>Email</span>

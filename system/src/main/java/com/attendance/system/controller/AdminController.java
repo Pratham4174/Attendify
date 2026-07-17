@@ -24,6 +24,7 @@ import com.attendance.system.dto.DashboardSummaryResponse;
 import com.attendance.system.dto.EmployeeBranchTransferRequest;
 import com.attendance.system.dto.EmployeeBulkImportRequest;
 import com.attendance.system.dto.EmployeeBulkImportResponse;
+import com.attendance.system.dto.EmployeeAttendanceStartRequest;
 import com.attendance.system.dto.EmployeeLoginStatusRequest;
 import com.attendance.system.dto.EmployeePasswordResetRequest;
 import com.attendance.system.dto.EmployeeResponse;
@@ -122,6 +123,14 @@ public class AdminController {
             @Valid @RequestBody EmployeeLoginStatusRequest request
     ) {
         return adminService.updateEmployeeLoginStatus(currentUser(authentication), employeeId, request);
+    }
+
+    @PatchMapping("/employees/attendance-start")
+    public List<EmployeeResponse> startEmployeeAttendance(
+            Authentication authentication,
+            @Valid @RequestBody EmployeeAttendanceStartRequest request
+    ) {
+        return adminService.startEmployeeAttendance(currentUser(authentication), request);
     }
 
     @PatchMapping("/employees/{employeeId}/branch")

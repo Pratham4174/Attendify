@@ -17,6 +17,7 @@ public record EmployeeResponse(
         String profileImageRef,
         String startDate,
         int onboardingPaidLeaveDays,
+        String attendanceStartedOn,
         String createdAt
 ) {
 }

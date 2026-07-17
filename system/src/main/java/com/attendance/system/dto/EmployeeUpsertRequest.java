@@ -20,6 +20,7 @@ public record EmployeeUpsertRequest(
         @NotNull @Min(0) @Max(31) Integer monthlyLeaveAllowance,
         @NotNull @DecimalMin("0.0") BigDecimal advancePaid,
         String startDate,
-        @Min(0) @Max(31) Integer onboardingPaidLeaveDays
+        @Min(0) @Max(31) Integer onboardingPaidLeaveDays,
+        String attendanceStartedOn
 ) {
 }

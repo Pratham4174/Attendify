@@ -51,6 +51,7 @@ type EmployeeFormState = {
   advancePaid: string;
   startDate: string;
   onboardingPaidLeaveDays: string;
+  attendanceStartedOn: string;
 };
 
 type RenewalBanner = {
@@ -178,7 +179,8 @@ export function AdminScreen({
     monthlyLeaveAllowance: "0",
     advancePaid: "0",
     startDate: new Date().toISOString().slice(0, 10),
-    onboardingPaidLeaveDays: "0"
+    onboardingPaidLeaveDays: "0",
+    attendanceStartedOn: ""
   });
 
   const adminTabs: Array<{ id: AdminTab; label: string; compactLabel: string; icon: ReactNode }> = [
@@ -276,7 +278,8 @@ export function AdminScreen({
       monthlyLeaveAllowance: "0",
       advancePaid: "0",
       startDate: new Date().toISOString().slice(0, 10),
-      onboardingPaidLeaveDays: "0"
+      onboardingPaidLeaveDays: "0",
+      attendanceStartedOn: ""
     });
   }
 
@@ -429,7 +432,8 @@ export function AdminScreen({
       monthlyLeaveAllowance: String(employee.monthlyLeaveAllowance),
       advancePaid: employee.advancePaid,
       startDate: employee.startDate,
-      onboardingPaidLeaveDays: String(employee.onboardingPaidLeaveDays)
+      onboardingPaidLeaveDays: String(employee.onboardingPaidLeaveDays),
+      attendanceStartedOn: employee.attendanceStartedOn ?? ""
     });
     setActiveTab("add-employee");
   }
@@ -445,7 +449,8 @@ export function AdminScreen({
         monthlySalary: Number(employeeForm.monthlySalary || "0"),
         monthlyLeaveAllowance: Number(employeeForm.monthlyLeaveAllowance || "0"),
         advancePaid: Number(employeeForm.advancePaid || "0"),
-        onboardingPaidLeaveDays: Number(employeeForm.onboardingPaidLeaveDays || "0")
+        onboardingPaidLeaveDays: Number(employeeForm.onboardingPaidLeaveDays || "0"),
+        attendanceStartedOn: employeeForm.attendanceStartedOn || null
       };
 
       await apiFetch<Employee>(
@@ -884,12 +889,19 @@ export function AdminScreen({
                     <label>
                       Employee start date
                       <input required type="date" value={employeeForm.startDate} onChange={(event) => updateEmployeeForm("startDate", event.target.value)} />
-                      <span className="field-hint">Payroll starts from this date. It can be a past date in the current month.</span>
+                      <span className="field-hint">Payroll cycle starts from this date and runs for 30 days.</span>
                     </label>
                     <label>
                       Leaves already taken before adding
                       <input required min="0" max="31" type="number" value={employeeForm.onboardingPaidLeaveDays} onChange={(event) => updateEmployeeForm("onboardingPaidLeaveDays", event.target.value)} placeholder="0" />
-                      <span className="field-hint">For backdated joining only. Remaining past days count as working without attendance proof.</span>
+                      <span className="field-hint">These days are deducted before geo-photo attendance starts. Remaining past days count as present.</span>
+                    </label>
+                  </div>
+                  <div className="grid two-column compact-grid">
+                    <label>
+                      Geo-photo attendance starts from
+                      <input type="date" value={employeeForm.attendanceStartedOn} onChange={(event) => updateEmployeeForm("attendanceStartedOn", event.target.value)} />
+                      <span className="field-hint">Leave blank until you want live geo-photo proof to become compulsory.</span>
                     </label>
                   </div>
                   <div className="action-row">

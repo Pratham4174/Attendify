@@ -9,6 +9,7 @@ import com.attendance.system.dto.DashboardSummaryResponse;
 import com.attendance.system.dto.EmployeeBranchTransferRequest;
 import com.attendance.system.dto.EmployeeBulkImportRequest;
 import com.attendance.system.dto.EmployeeBulkImportResponse;
+import com.attendance.system.dto.EmployeeAttendanceStartRequest;
 import com.attendance.system.dto.EmployeeLoginStatusRequest;
 import com.attendance.system.dto.EmployeePasswordResetRequest;
 import com.attendance.system.dto.EmployeeResponse;
@@ -227,6 +228,36 @@ public class AdminService {
         employeeUser.setActive(Boolean.TRUE.equals(request.enabled()));
         userRepository.save(employeeUser);
         return mapper.toEmployeeResponse(employee, employeeUser.isActive());
+    }
+
+    @Transactional
+    public List<EmployeeResponse> startEmployeeAttendance(AuthenticatedUser user, EmployeeAttendanceStartRequest request) {
+        requireAdmin(user);
+        LocalDate startDate = parseDate(request.startDate(), "Attendance start date must use YYYY-MM-DD format.");
+        List<UUID> employeeIds = request.employeeIds().stream()
+                .map(id -> {
+                    try {
+                        return UUID.fromString(id);
+                    } catch (IllegalArgumentException exception) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Employee id is invalid.");
+                    }
+                })
+                .distinct()
+                .toList();
+        List<EmployeeEntity> employeesToUpdate = employeeRepository.findByVendor_IdOrderByNameAsc(user.vendorId()).stream()
+                .filter(employee -> employeeIds.contains(employee.getId()))
+                .toList();
+        if (employeesToUpdate.size() != employeeIds.size()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One or more employees were not found.");
+        }
+        for (EmployeeEntity employee : employeesToUpdate) {
+            if (employee.getStartDate() != null && startDate.isBefore(employee.getStartDate())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Attendance start date cannot be before employee start date.");
+            }
+            employee.setAttendanceStartedOn(startDate);
+        }
+        employeeRepository.saveAll(employeesToUpdate);
+        return employeesToUpdate.stream().map(this::toEmployeeResponse).toList();
     }
 
     @Transactional
@@ -496,6 +527,18 @@ public class AdminService {
         }
     }
 
+    private LocalDate parseDate(String date, String errorMessage) {
+        if (date == null || date.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
+        }
+
+        try {
+            return LocalDate.parse(date);
+        } catch (DateTimeParseException exception) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
+        }
+    }
+
     private YearMonth parseMonth(String month) {
         if (month == null || month.isBlank()) {
             return YearMonth.now(ZoneOffset.UTC);
@@ -614,12 +657,26 @@ public class AdminService {
         employee.setAdvancePaid(scaleMoney(request.advancePaid()));
         employee.setStartDate(resolveEmployeeStartDate(request.startDate()));
         employee.setOnboardingPaidLeaveDays(request.onboardingPaidLeaveDays() == null ? 0 : request.onboardingPaidLeaveDays());
+        if (request.attendanceStartedOn() != null) {
+            LocalDate attendanceStartedOn = resolveOptionalDate(request.attendanceStartedOn(), "Attendance start date must use YYYY-MM-DD format.");
+            if (attendanceStartedOn != null && attendanceStartedOn.isBefore(employee.getStartDate())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Attendance start date cannot be before employee start date.");
+            }
+            employee.setAttendanceStartedOn(attendanceStartedOn);
+        }
         if (employee.getCreatedAt() == null) {
             employee.setCreatedAt(OffsetDateTime.now(ZoneOffset.UTC));
         }
         if (employee.getStatus() == null || employee.getStatus().isBlank()) {
             employee.setStatus("ACTIVE");
         }
+    }
+
+    private LocalDate resolveOptionalDate(String value, String message) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return parseDate(value, message);
     }
 
     private LocalDate resolveEmployeeStartDate(String startDate) {
@@ -694,12 +751,14 @@ public class AdminService {
         LocalDate employeeStartDate = employee.getStartDate() == null
                 ? employee.getCreatedAt().toLocalDate()
                 : employee.getStartDate();
-        LocalDate effectiveStartDate = employeeStartDate.isAfter(startDate) ? employeeStartDate : startDate;
-        int elapsedDaysCounted = completedThrough.isBefore(effectiveStartDate)
+        PayrollWindow payrollWindow = resolvePayrollWindow(employeeStartDate, YearMonth.from(startDate));
+        LocalDate windowCompletedThrough = resolvePayrollCompletedThrough(payrollWindow, LocalDate.now(ZoneOffset.UTC));
+        LocalDate effectiveStartDate = employeeStartDate.isAfter(payrollWindow.startDate()) ? employeeStartDate : payrollWindow.startDate();
+        int elapsedDaysCounted = windowCompletedThrough.isBefore(effectiveStartDate)
                 ? 0
-                : (int) effectiveStartDate.datesUntil(completedThrough.plusDays(1)).count();
+                : (int) effectiveStartDate.datesUntil(windowCompletedThrough.plusDays(1)).count();
 
-        if (daysCounted == 0 || elapsedDaysCounted == 0 || completedThrough.isBefore(effectiveStartDate)) {
+        if (elapsedDaysCounted == 0 || windowCompletedThrough.isBefore(effectiveStartDate)) {
             BigDecimal monthlySalary = safeMoney(employee.getMonthlySalary());
             BigDecimal openingAdvance = safeMoney(employee.getAdvancePaid());
             return new PayrollSummaryResponse.EmployeePayrollRow(
@@ -727,12 +786,12 @@ public class AdminService {
         }
 
         List<AttendanceRecordEntity> attendanceRows = attendanceRecordRepository
-                .findByEmployee_IdAndAttendanceDateBetweenOrderByAttendanceDateAsc(employee.getId(), effectiveStartDate, completedThrough)
+                .findByEmployee_IdAndAttendanceDateBetweenOrderByAttendanceDateAsc(employee.getId(), effectiveStartDate, windowCompletedThrough)
                 .stream()
                 .filter(record -> record.getAttendanceDate() != null)
                 .toList();
         List<RosterAssignmentEntity> rosterAssignments = rosterAssignmentRepository
-                .findByEmployee_IdAndAssignmentDateBetweenOrderByAssignmentDateAsc(employee.getId(), effectiveStartDate, completedThrough);
+                .findByEmployee_IdAndAssignmentDateBetweenOrderByAssignmentDateAsc(employee.getId(), effectiveStartDate, windowCompletedThrough);
         Map<LocalDate, AttendanceRecordEntity> attendanceByDate = new LinkedHashMap<>();
         for (AttendanceRecordEntity record : attendanceRows) {
             attendanceByDate.putIfAbsent(record.getAttendanceDate(), record);
@@ -744,7 +803,7 @@ public class AdminService {
         boolean rosterEnabledForPeriod = !scheduledWorkingDates.isEmpty();
 
         Set<LocalDate> holidayDates = holidayRepository
-                .findByVendor_IdAndHolidayDateBetweenOrderByHolidayDateAsc(employee.getVendor().getId(), effectiveStartDate, completedThrough)
+                .findByVendor_IdAndHolidayDateBetweenOrderByHolidayDateAsc(employee.getVendor().getId(), effectiveStartDate, windowCompletedThrough)
                 .stream()
                 .map(HolidayEntity::getHolidayDate)
                 .collect(java.util.stream.Collectors.toCollection(HashSet::new));
@@ -754,7 +813,7 @@ public class AdminService {
                         employee.getId(),
                         LeaveStatus.APPROVED,
                         effectiveStartDate,
-                        completedThrough
+                        windowCompletedThrough
                 );
 
         Set<LocalDate> requestedPaidLeaveDates = new HashSet<>();
@@ -763,7 +822,7 @@ public class AdminService {
             Set<LocalDate> targetSet = leaveRequest.getLeaveType() == LeaveType.PAID
                     ? requestedPaidLeaveDates
                     : requestedUnpaidLeaveDates;
-            expandDates(leaveRequest.getStartDate(), leaveRequest.getEndDate(), effectiveStartDate, completedThrough).stream()
+            expandDates(leaveRequest.getStartDate(), leaveRequest.getEndDate(), effectiveStartDate, windowCompletedThrough).stream()
                     .filter(date -> !holidayDates.contains(date) && !attendanceByDate.containsKey(date))
                     .forEach(targetSet::add);
         }
@@ -775,18 +834,19 @@ public class AdminService {
         int requestedUnpaidLeaveDays = 0;
         int absenceDays = 0;
         int rosterDaysCounted = 0;
-        int onboardingPaidLeaveBudget = employee.getOnboardingPaidLeaveDays() == null ? 0 : employee.getOnboardingPaidLeaveDays();
-        LocalDate employeeCreatedDate = employee.getCreatedAt().toLocalDate();
-        for (LocalDate date = effectiveStartDate; !date.isAfter(completedThrough); date = date.plusDays(1)) {
+        int onboardingLeaveBudget = employee.getOnboardingPaidLeaveDays() == null ? 0 : employee.getOnboardingPaidLeaveDays();
+        LocalDate attendanceStartedOn = employee.getAttendanceStartedOn();
+        for (LocalDate date = effectiveStartDate; !date.isAfter(windowCompletedThrough); date = date.plusDays(1)) {
             AttendanceRecordEntity attendanceRecord = attendanceByDate.get(date);
+            boolean proofRequired = attendanceStartedOn != null && !date.isBefore(attendanceStartedOn);
             if (holidayDates.contains(date)) {
                 holidayDays++;
                 rosterDaysCounted++;
-            } else if (date.isBefore(employeeCreatedDate) && attendanceRecord == null) {
+            } else if (!proofRequired && attendanceRecord == null) {
                 rosterDaysCounted++;
-                if (onboardingPaidLeaveBudget > 0) {
-                    requestedPaidLeaveDays++;
-                    onboardingPaidLeaveBudget--;
+                if (onboardingLeaveBudget > 0) {
+                    requestedUnpaidLeaveDays++;
+                    onboardingLeaveBudget--;
                 } else {
                     workedDays++;
                 }
@@ -830,7 +890,7 @@ public class AdminService {
         int effectiveDaysCounted = rosterEnabledForPeriod ? rosterDaysCounted : elapsedDaysCounted;
         BigDecimal dailyRate = effectiveDaysCounted == 0
                 ? BigDecimal.ZERO
-                : monthlySalary.divide(BigDecimal.valueOf(effectiveDaysCounted), 2, RoundingMode.HALF_UP);
+                : monthlySalary.divide(BigDecimal.valueOf(30), 2, RoundingMode.HALF_UP);
         BigDecimal grossPayable = dailyRate.multiply(payableDays).setScale(2, RoundingMode.HALF_UP);
         BigDecimal openingAdvance = safeMoney(employee.getAdvancePaid());
         BigDecimal monthAdvancePaid = safeMoney(advanceTotalsByEmployee.get(employee.getId()));
@@ -919,6 +979,28 @@ public class AdminService {
         LocalDateTime actualCheckIn = record.getCheckInTime().atZoneSameInstant(BUSINESS_ZONE).toLocalDateTime();
         long lateMinutes = java.time.Duration.between(scheduledStart, actualCheckIn).toMinutes();
         return Math.max(lateMinutes, 0);
+    }
+
+    private PayrollWindow resolvePayrollWindow(LocalDate employeeStartDate, YearMonth targetMonth) {
+        LocalDate cycleStart = employeeStartDate;
+        LocalDate targetMonthStart = targetMonth.atDay(1);
+        while (cycleStart.plusDays(29).isBefore(targetMonthStart)) {
+            cycleStart = cycleStart.plusDays(30);
+        }
+        return new PayrollWindow(cycleStart, cycleStart.plusDays(29));
+    }
+
+    private LocalDate resolvePayrollCompletedThrough(PayrollWindow payrollWindow, LocalDate today) {
+        LocalDate lastCompletedDate = today.minusDays(1);
+        if (payrollWindow.startDate().isAfter(lastCompletedDate)) {
+            return payrollWindow.startDate().minusDays(1);
+        }
+        return payrollWindow.endDate().isBefore(lastCompletedDate)
+                ? payrollWindow.endDate()
+                : lastCompletedDate;
+    }
+
+    private record PayrollWindow(LocalDate startDate, LocalDate endDate) {
     }
 
     private BigDecimal scaleMoney(BigDecimal amount) {

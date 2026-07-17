@@ -25,6 +25,7 @@
 /Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/dto/BranchResponse.java
 /Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/dto/BranchUpsertRequest.java
 /Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/dto/DashboardSummaryResponse.java
+/Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/dto/EmployeeAttendanceStartRequest.java
 /Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/dto/EmployeeBranchTransferRequest.java
 /Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/dto/EmployeeBulkImportRequest.java
 /Users/prathamgupta/Desktop/AttendanceSystem/system/src/main/java/com/attendance/system/dto/EmployeeBulkImportResponse.java

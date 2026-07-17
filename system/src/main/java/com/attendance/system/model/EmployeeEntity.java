@@ -67,6 +67,9 @@ public class EmployeeEntity {
     @Column(name = "onboarding_paid_leave_days", nullable = false)
     private Integer onboardingPaidLeaveDays = 0;
 
+    @Column(name = "attendance_started_on")
+    private LocalDate attendanceStartedOn;
+
     @Column(name = "profile_image_ref", columnDefinition = "LONGTEXT")
     private String profileImageRef;
 
@@ -179,6 +182,14 @@ public class EmployeeEntity {
 
     public void setOnboardingPaidLeaveDays(Integer onboardingPaidLeaveDays) {
         this.onboardingPaidLeaveDays = onboardingPaidLeaveDays;
+    }
+
+    public LocalDate getAttendanceStartedOn() {
+        return attendanceStartedOn;
+    }
+
+    public void setAttendanceStartedOn(LocalDate attendanceStartedOn) {
+        this.attendanceStartedOn = attendanceStartedOn;
     }
 
     public String getProfileImageRef() {

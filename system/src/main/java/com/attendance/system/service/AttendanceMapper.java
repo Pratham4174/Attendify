@@ -76,6 +76,7 @@ public class AttendanceMapper {
                 employee.getProfileImageRef(),
                 employee.getStartDate().toString(),
                 employee.getOnboardingPaidLeaveDays() == null ? 0 : employee.getOnboardingPaidLeaveDays(),
+                employee.getAttendanceStartedOn() == null ? null : employee.getAttendanceStartedOn().toString(),
                 employee.getCreatedAt().toString()
         );
     }

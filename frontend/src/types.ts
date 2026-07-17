@@ -160,6 +160,7 @@ export type Employee = {
   profileImageRef: string | null;
   startDate: string;
   onboardingPaidLeaveDays: number;
+  attendanceStartedOn: string | null;
   createdAt: string;
 };
 
