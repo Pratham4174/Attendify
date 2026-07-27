@@ -67,6 +67,241 @@
   gap: 24px;
 }
 
+.overview-phone-dashboard {
+  width: min(100%, 520px);
+  margin: 0 auto;
+  padding: 22px;
+  border-radius: 34px;
+  background:
+    radial-gradient(circle at 88% 12%, rgba(219, 234, 254, 0.95), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 251, 255, 0.94));
+  border: 1px solid rgba(37, 99, 235, 0.12);
+  box-shadow: 0 26px 70px rgba(15, 23, 42, 0.12);
+}
+
+.overview-app-header {
+  display: grid;
+  grid-template-columns: 42px 1fr 42px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.overview-brand-logo {
+  justify-self: center;
+  width: 142px;
+  height: auto;
+}
+
+.overview-icon-button,
+.overview-bell-button {
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--text-main);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.overview-icon-button {
+  gap: 4px;
+  align-content: center;
+}
+
+.overview-icon-button span {
+  width: 18px;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.overview-bell-button svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.overview-greeting {
+  margin-bottom: 14px;
+}
+
+.overview-greeting h2 {
+  margin: 0;
+  font-size: clamp(1.45rem, 4vw, 1.85rem);
+  letter-spacing: -0.03em;
+}
+
+.overview-greeting p {
+  margin: 4px 0 0;
+  color: var(--text-soft);
+}
+
+.overview-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 16px 0 22px;
+}
+
+.overview-stat-card {
+  min-height: 128px;
+  padding: 16px 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+  display: grid;
+  place-items: center;
+  text-align: center;
+  gap: 6px;
+}
+
+.overview-stat-card strong {
+  color: #050816;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.overview-stat-card > span:last-child {
+  color: #050816;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.overview-stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+}
+
+.overview-stat-icon svg {
+  width: 25px;
+  height: 25px;
+  fill: currentColor;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.3;
+}
+
+.overview-stat-icon.present {
+  background: rgba(34, 197, 94, 0.16);
+  color: #16a34a;
+}
+
+.overview-stat-icon.late {
+  background: rgba(249, 115, 22, 0.14);
+  color: #f97316;
+}
+
+.overview-stat-icon.absent {
+  background: rgba(239, 68, 68, 0.14);
+  color: #ef4444;
+}
+
+.overview-stat-icon.total {
+  background: rgba(124, 58, 237, 0.12);
+  color: #7c3aed;
+}
+
+.overview-recent-card {
+  display: grid;
+  gap: 14px;
+}
+
+.overview-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.overview-section-title h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.overview-section-title button {
+  border: none;
+  background: transparent;
+  color: var(--primary-strong);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.overview-recent-list {
+  display: grid;
+  gap: 12px;
+}
+
+.overview-recent-item {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.overview-recent-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+}
+
+.overview-recent-item div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.overview-recent-item strong,
+.overview-recent-item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.overview-recent-item strong {
+  color: #050816;
+  font-size: 0.95rem;
+}
+
+.overview-recent-item div span {
+  color: var(--text-soft);
+  font-size: 0.86rem;
+}
+
+.overview-status-pill {
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.overview-status-pill.present {
+  background: rgba(34, 197, 94, 0.12);
+  color: #15803d;
+}
+
+.overview-status-pill.late {
+  background: rgba(249, 115, 22, 0.12);
+  color: #ea580c;
+}
+
+.overview-status-pill.absent {
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+}
+
 .tab-transition {
   animation-duration: 220ms;
   animation-timing-function: ease;
@@ -738,6 +973,56 @@
 @media (max-width: 560px) {
   .admin-shell {
     gap: 16px;
+  }
+
+  .overview-phone-dashboard {
+    width: 100%;
+    padding: 18px;
+    border-radius: 28px;
+  }
+
+  .overview-app-header {
+    grid-template-columns: 38px 1fr 38px;
+    margin-bottom: 14px;
+  }
+
+  .overview-brand-logo {
+    width: 128px;
+  }
+
+  .overview-icon-button,
+  .overview-bell-button {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+  }
+
+  .overview-stats-grid {
+    gap: 10px;
+  }
+
+  .overview-stat-card {
+    min-height: 112px;
+    padding: 14px 10px;
+  }
+
+  .overview-stat-card strong {
+    font-size: 1.7rem;
+  }
+
+  .overview-recent-item {
+    grid-template-columns: 38px minmax(0, 1fr) auto;
+    gap: 10px;
+  }
+
+  .overview-recent-avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .overview-status-pill {
+    padding: 7px 9px;
+    font-size: 0.74rem;
   }
 
   .image-modal-backdrop {

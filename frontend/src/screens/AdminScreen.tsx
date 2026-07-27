@@ -12,7 +12,7 @@ import { DockIcon, FloatingTabDock } from "../components/FloatingTabDock";
 import { HolidayList, LeaveRequestTable } from "../components/LeaveManagement";
 import { RosterManagement } from "../components/RosterManagement";
 import { SupportRequestModal } from "../components/SupportRequestModal";
-import { ActionList, BrandLogo, EmptyState, LoadingWorkspace, MetricCard } from "../components/shared";
+import { ActionList, BrandLogo, EmptyState, LoadingWorkspace, MetricCard, ProfileAvatar } from "../components/shared";
 import { apiFetch, apiFetchVoid, ApiRequestError } from "../lib/api";
 import {
   formatDateTime,
@@ -108,6 +108,40 @@ function buildRenewalBanner(subscription: SubscriptionDashboard | null): Renewal
   }
 
   return null;
+}
+
+function OverviewStatCard({
+  label,
+  value,
+  tone
+}: {
+  label: string;
+  value: number | string;
+  tone: "total" | "present" | "late" | "absent";
+}) {
+  return (
+    <article className="overview-stat-card">
+      <span className={`overview-stat-icon ${tone}`}>
+        {tone === "present" ? (
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="m6 12 4 4 8-8" />
+          </svg>
+        ) : tone === "late" ? (
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="8" />
+            <path d="M12 7v5l3 2" />
+          </svg>
+        ) : (
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />
+            <path d="M5 21a7 7 0 0 1 14 0" />
+          </svg>
+        )}
+      </span>
+      <strong>{value}</strong>
+      <span>{label}</span>
+    </article>
+  );
 }
 
 type AdminTab =
@@ -626,6 +660,29 @@ export function AdminScreen({
   const checkedInEmployees = todayAttendance.filter((record) => record.status === "CHECKED_IN");
   const checkedOutEmployees = todayAttendance.filter((record) => record.status === "COMPLETED");
   const lateArrivals = todayAttendance.filter((record) => isLateCheckIn(record.checkInTime));
+  const employeeById = new Map(employees.map((employee) => [employee.id, employee]));
+  const overviewRecentRows = [
+    ...todayAttendance.map((record) => {
+      const employee = employeeById.get(record.employeeId);
+      const late = isLateCheckIn(record.checkInTime);
+      return {
+        id: record.recordId,
+        name: record.employeeName,
+        detail: `Check-in ${formatTimeOnly(record.checkInTime)}`,
+        image: employee?.profileImageRef ?? null,
+        status: late ? "Late" : record.status === "COMPLETED" ? "Present" : "On shift",
+        tone: late ? "late" : "present"
+      };
+    }),
+    ...absentEmployees.map((employee) => ({
+      id: `absent-${employee.id}`,
+      name: employee.name,
+      detail: "Not marked today",
+      image: employee.profileImageRef,
+      status: "Absent",
+      tone: "absent"
+    }))
+  ].slice(0, 5);
 
   return (
     <main className="workspace workspace-with-dock">
@@ -708,57 +765,68 @@ export function AdminScreen({
 
           {activeTab === "overview" ? (
             <>
-              <section className="metric-grid">
-                <MetricCard label="Present today" value={todayAttendance.length} />
-                <MetricCard label="Absent today" value={absentEmployees.length} />
-                <MetricCard label="Late today" value={lateArrivals.length} />
-                <MetricCard label="Forgot checkout" value={checkedInEmployees.length} />
-              </section>
-
-              <section className="panel">
-                <div className="topbar">
-                  <div>
-                    <h3>Today&apos;s action center</h3>
-                    <p className="muted section-intro">
-                      See who is present, absent, late, or still missing checkout without opening any other tab.
-                    </p>
-                  </div>
-                  <span className="pill">{todayKey}</span>
+              <section className="overview-phone-dashboard">
+                <div className="overview-app-header">
+                  <button
+                    aria-label="Open menu"
+                    className="overview-icon-button"
+                    onClick={() => setDrawerOpen((current) => !current)}
+                    type="button"
+                  >
+                    <span />
+                    <span />
+                    <span />
+                  </button>
+                  <BrandLogo className="overview-brand-logo" />
+                  <button
+                    aria-label="Open support"
+                    className="overview-bell-button"
+                    onClick={() => setSupportOpen(true)}
+                    type="button"
+                  >
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                      <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+                      <path d="M13.7 21a2 2 0 0 1-3.4 0" />
+                    </svg>
+                  </button>
                 </div>
-              </section>
 
-              <section className="grid two-column payroll-action-grid">
-                <article className="panel">
-                  <h3>Present today</h3>
-                  <p className="muted section-intro">Everyone who has already marked attendance today.</p>
-                  <ActionList
-                    items={todayAttendance.map(
-                      (record) => `${record.employeeName} · ${record.branchName} · ${formatTimeOnly(record.checkInTime)}`
-                    )}
-                    emptyMessage="No one has marked attendance yet today."
-                  />
-                </article>
-                <article className="panel">
-                  <h3>Absent today</h3>
-                  <p className="muted section-intro">People who have still not marked attendance today.</p>
-                  <ActionList
-                    items={absentEmployees.map((employee) => `${employee.name} · ${employee.designation}`)}
-                    emptyMessage="Everyone assigned today has already marked attendance."
-                  />
-                </article>
-              </section>
+                <div className="overview-greeting">
+                  <h2>Good Morning, {session.user.name || "Admin"}</h2>
+                  <p>Here&apos;s what&apos;s happening today.</p>
+                </div>
 
-              <section className="grid two-column payroll-action-grid">
-                <article className="panel">
-                  <h3>Late arrivals</h3>
-                  <p className="muted section-intro">Quick reminders for check-ins that happened later than usual.</p>
-                  <ActionList
-                    items={lateArrivals.map(
-                      (record) => `${record.employeeName} · checked in at ${formatTimeOnly(record.checkInTime)}`
-                    )}
-                    emptyMessage="No late arrivals so far today."
-                  />
-                </article>
+                <section className="overview-stats-grid" aria-label="Today attendance summary">
+                  <OverviewStatCard label="Total Employees" tone="total" value={activeEmployees.length} />
+                  <OverviewStatCard label="Present" tone="present" value={todayAttendance.length} />
+                  <OverviewStatCard label="Late" tone="late" value={lateArrivals.length} />
+                  <OverviewStatCard label="Absent" tone="absent" value={absentEmployees.length} />
+                </section>
+
+                <section className="overview-recent-card">
+                  <div className="overview-section-title">
+                    <h3>Recent Attendance</h3>
+                    <button onClick={() => setActiveTab("attendance")} type="button">
+                      View all
+                    </button>
+                  </div>
+                  {overviewRecentRows.length ? (
+                    <div className="overview-recent-list">
+                      {overviewRecentRows.map((row) => (
+                        <article className="overview-recent-item" key={row.id}>
+                          <ProfileAvatar className="overview-recent-avatar" image={row.image} name={row.name} />
+                          <div>
+                            <strong>{row.name}</strong>
+                            <span>{row.detail}</span>
+                          </div>
+                          <span className={`overview-status-pill ${row.tone}`}>{row.status}</span>
+                        </article>
+                      ))}
+                    </div>
+                  ) : (
+                    <EmptyState title="No attendance yet" message="Today&apos;s employee activity will appear here." />
+                  )}
+                </section>
               </section>
 
               {subscription ? (
