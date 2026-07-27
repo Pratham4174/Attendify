@@ -395,7 +395,7 @@ export function AdminScreen({
 
     return Boolean(
       target.closest(
-        "input, select, textarea, button, a, .responsive-table-shell, .floating-tab-dock, .image-modal-backdrop, .image-modal-card"
+        "input, select, textarea, button, a, .responsive-table-shell, .payroll-calendar, .floating-tab-dock, .image-modal-backdrop, .image-modal-card"
       )
     );
   }
