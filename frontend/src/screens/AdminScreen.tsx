@@ -195,6 +195,8 @@ export function AdminScreen({
   const [swipeTransitionDirection, setSwipeTransitionDirection] = useState<"left" | "right" | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [supportOpen, setSupportOpen] = useState(false);
+  const [overviewEmployeesOpen, setOverviewEmployeesOpen] = useState(false);
+  const [focusedEmployeeId, setFocusedEmployeeId] = useState<string | null>(null);
   const [leaveStatusMessage, setLeaveStatusMessage] = useState("");
   const [holidaySaving, setHolidaySaving] = useState(false);
   const [holidayForm, setHolidayForm] = useState({
@@ -661,12 +663,40 @@ export function AdminScreen({
   const checkedOutEmployees = todayAttendance.filter((record) => record.status === "COMPLETED");
   const lateArrivals = todayAttendance.filter((record) => isLateCheckIn(record.checkInTime));
   const employeeById = new Map(employees.map((employee) => [employee.id, employee]));
+  const attendanceByEmployeeId = new Map(todayAttendance.map((record) => [record.employeeId, record]));
+  function openEmployeeFromOverview(employeeId: string) {
+    setFocusedEmployeeId(employeeId);
+    setOverviewEmployeesOpen(false);
+    setActiveTab("employees");
+  }
+  const overviewAllEmployeeRows = activeEmployees.map((employee) => {
+    const record = attendanceByEmployeeId.get(employee.id);
+    const late = isLateCheckIn(record?.checkInTime);
+    const status = !record
+      ? "Absent"
+      : late
+        ? "Late"
+        : record.status === "CHECKED_IN"
+          ? "On shift"
+          : "Present";
+    return {
+      employeeId: employee.id,
+      name: employee.name,
+      designation: employee.designation,
+      branchName: employee.branchName,
+      detail: record ? `Check-in ${formatTimeOnly(record.checkInTime)}` : "Not marked today",
+      image: employee.profileImageRef,
+      status,
+      tone: !record ? "absent" : late ? "late" : "present"
+    };
+  });
   const overviewRecentRows = [
     ...todayAttendance.map((record) => {
       const employee = employeeById.get(record.employeeId);
       const late = isLateCheckIn(record.checkInTime);
       return {
         id: record.recordId,
+        employeeId: record.employeeId,
         name: record.employeeName,
         detail: `Check-in ${formatTimeOnly(record.checkInTime)}`,
         image: employee?.profileImageRef ?? null,
@@ -676,6 +706,7 @@ export function AdminScreen({
     }),
     ...absentEmployees.map((employee) => ({
       id: `absent-${employee.id}`,
+      employeeId: employee.id,
       name: employee.name,
       detail: "Not marked today",
       image: employee.profileImageRef,
@@ -785,21 +816,26 @@ export function AdminScreen({
                 <section className="overview-recent-card">
                   <div className="overview-section-title">
                     <h3>Recent Attendance</h3>
-                    <button onClick={() => setActiveTab("attendance")} type="button">
+                    <button onClick={() => setOverviewEmployeesOpen(true)} type="button">
                       View all
                     </button>
                   </div>
                   {overviewRecentRows.length ? (
                     <div className="overview-recent-list">
                       {overviewRecentRows.map((row) => (
-                        <article className="overview-recent-item" key={row.id}>
+                        <button
+                          className="overview-recent-item overview-employee-shortcut"
+                          key={row.id}
+                          onClick={() => openEmployeeFromOverview(row.employeeId)}
+                          type="button"
+                        >
                           <ProfileAvatar className="overview-recent-avatar" image={row.image} name={row.name} />
                           <div>
                             <strong>{row.name}</strong>
                             <span>{row.detail}</span>
                           </div>
                           <span className={`overview-status-pill ${row.tone}`}>{row.status}</span>
-                        </article>
+                        </button>
                       ))}
                     </div>
                   ) : (
@@ -807,6 +843,41 @@ export function AdminScreen({
                   )}
                 </section>
               </section>
+
+              {overviewEmployeesOpen ? (
+                <div className="overview-employee-modal-backdrop" role="presentation">
+                  <section aria-modal="true" className="overview-employee-modal" role="dialog">
+                    <div className="overview-employee-modal-head">
+                      <div>
+                        <span className="eyebrow">All employees</span>
+                        <h3>Today&apos;s team status</h3>
+                        <p className="muted">Tap an employee to open their full detail card.</p>
+                      </div>
+                      <button className="ghost-button compact-button" onClick={() => setOverviewEmployeesOpen(false)} type="button">
+                        Close
+                      </button>
+                    </div>
+                    <div className="overview-employee-modal-list">
+                      {overviewAllEmployeeRows.map((employee) => (
+                        <button
+                          className="overview-employee-modal-row"
+                          key={employee.employeeId}
+                          onClick={() => openEmployeeFromOverview(employee.employeeId)}
+                          type="button"
+                        >
+                          <ProfileAvatar className="overview-recent-avatar" image={employee.image} name={employee.name} />
+                          <div>
+                            <strong>{employee.name}</strong>
+                            <span>{employee.designation} · {employee.branchName}</span>
+                            <span>{employee.detail}</span>
+                          </div>
+                          <span className={`overview-status-pill ${employee.tone}`}>{employee.status}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </section>
+                </div>
+              ) : null}
 
               {subscription ? (
                 <section className="panel billing-usage-banner">
@@ -984,6 +1055,7 @@ export function AdminScreen({
               payroll={payroll}
               onReload={loadAdminData}
               onEditEmployee={startEditingEmployee}
+              initialSelectedEmployeeId={focusedEmployeeId}
               title="Active employees"
               description="Review active team members quickly, then open their details for attendance, payroll, payments, and account actions."
             />

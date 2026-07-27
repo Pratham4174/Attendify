@@ -12,6 +12,7 @@ export function EmployeeDirectory({
   payroll,
   onReload,
   onEditEmployee,
+  initialSelectedEmployeeId,
   title = "Employees",
   description = "Review each team member quickly, then open their details for actions like transfer, password reset, or login control."
 }: {
@@ -22,11 +23,12 @@ export function EmployeeDirectory({
   payroll: PayrollSummary | null;
   onReload: () => Promise<void>;
   onEditEmployee: (employee: Employee) => void;
+  initialSelectedEmployeeId?: string | null;
   title?: string;
   description?: string;
 }) {
   const [statusMessage, setStatusMessage] = useState("");
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(employees[0]?.id ?? null);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(initialSelectedEmployeeId ?? employees[0]?.id ?? null);
   const [transferTargetId, setTransferTargetId] = useState<string | null>(null);
   const [transferBranchId, setTransferBranchId] = useState("");
   const [passwordTargetId, setPasswordTargetId] = useState<string | null>(null);
@@ -44,6 +46,14 @@ export function EmployeeDirectory({
       setSelectedEmployeeId(employees[0].id);
     }
   }, [employees, selectedEmployeeId]);
+
+  useEffect(() => {
+    if (initialSelectedEmployeeId && employees.some((employee) => employee.id === initialSelectedEmployeeId)) {
+      setSelectedEmployeeId(initialSelectedEmployeeId);
+      setTransferTargetId(null);
+      setPasswordTargetId(null);
+    }
+  }, [employees, initialSelectedEmployeeId]);
 
   const payrollByEmployeeId = useMemo(() => {
     return new Map(

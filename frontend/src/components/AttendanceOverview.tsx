@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { formatLocalDateKey, formatTimeOnly, formatWorkedHours } from "../lib/format";
 import { buildAttendanceStatusRecords } from "../lib/attendanceStatus";
 import type { AttendancePreview, AttendanceRow, Employee, Holiday, LeaveRequest } from "../types";
-import { AttendanceTable } from "./AttendanceTable";
 import { EmptyState, MetricCard, ProfileAvatar } from "./shared";
 
 function getWorkedMinutes(record: AttendanceRow) {
@@ -292,39 +291,6 @@ export function AttendanceOverview({
           )}
         </section>
       ) : null}
-
-      <section className="attendance-detail-panel attendance-app-card">
-        <div className="attendance-detail-panel-head">
-          <div>
-            <h4>Detailed records</h4>
-            <p className="muted">
-              {selectedEmployee
-                ? `${selectedEmployee.name}'s attendance across the selected dates, including missed days and auto-used leave.`
-                : "Filtered attendance records with missed days, leave usage, and worked hours."}
-            </p>
-          </div>
-          {statusRecords.length ? (
-            <div className="attendance-detail-summary">
-              <span>Average</span>
-              <strong>{formatMinutes(averageWorkedMinutes)}</strong>
-            </div>
-          ) : null}
-        </div>
-
-        {statusRecords.length ? (
-          <AttendanceTable
-            records={statusRecords}
-            onPreviewImage={onPreviewImage}
-            onOpenRecord={setSelectedRecord}
-            emptyMessage="No attendance records match these filters."
-          />
-        ) : (
-          <EmptyState
-            title="No matching attendance"
-            message="Try another employee or widen the selected date range."
-          />
-        )}
-      </section>
 
       {selectedRecord ? (
         <div className="attendance-record-modal-backdrop" role="presentation">
