@@ -686,34 +686,6 @@ export function AdminScreen({
 
   return (
     <main className="workspace workspace-with-dock">
-      <header className="topbar">
-        <div className="workspace-brand-lockup">
-          <BrandLogo className="brand-logo-compact" />
-          <div>
-            <span className="eyebrow">PEEPLIFY admin view</span>
-            <h2>{session.user.name}</h2>
-            <p className="muted">
-              Track today&apos;s attendance, review proof, and focus on what needs attention first.
-            </p>
-          </div>
-        </div>
-        <div className="admin-header-actions">
-          <button className="ghost-button" onClick={() => setSupportOpen(true)} type="button">
-            Need help?
-          </button>
-          <button
-            className="ghost-button admin-drawer-button"
-            onClick={() => setDrawerOpen((current) => !current)}
-            type="button"
-          >
-            Menu
-          </button>
-          <button className="ghost-button" onClick={onLogout} type="button">
-            Log out
-          </button>
-        </div>
-      </header>
-
       {drawerOpen ? (
         <button
           aria-label="Close menu"
@@ -744,6 +716,21 @@ export function AdminScreen({
               </button>
             ))}
           </nav>
+          <div className="admin-sidebar-actions">
+            <button
+              className="admin-nav-button"
+              onClick={() => {
+                setSupportOpen(true);
+                setDrawerOpen(false);
+              }}
+              type="button"
+            >
+              Need help?
+            </button>
+            <button className="admin-nav-button admin-nav-button-danger" onClick={onLogout} type="button">
+              Log out
+            </button>
+          </div>
         </aside>
 
         <section
@@ -778,16 +765,8 @@ export function AdminScreen({
                     <span />
                   </button>
                   <BrandLogo className="overview-brand-logo" />
-                  <button
-                    aria-label="Open support"
-                    className="overview-bell-button"
-                    onClick={() => setSupportOpen(true)}
-                    type="button"
-                  >
-                    <svg aria-hidden="true" viewBox="0 0 24 24">
-                      <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
-                      <path d="M13.7 21a2 2 0 0 1-3.4 0" />
-                    </svg>
+                  <button className="overview-help-button" onClick={() => setSupportOpen(true)} type="button">
+                    Need help
                   </button>
                 </div>
 
