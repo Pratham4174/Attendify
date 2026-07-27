@@ -1076,22 +1076,29 @@ export function AdminScreen({
           ) : null}
 
           {activeTab === "payroll" ? (
-            <>
-              <section className="panel">
-                <div className="topbar">
+            <section className="payroll-workspace">
+              <section className="payroll-hero-card">
+                <div className="payroll-hero-top">
                   <div>
                     <h3>Payroll snapshot</h3>
                     <p className="muted section-intro">
-                      Check how much is payable this month after worked days, allowed leave, and advances.
+                      Net payable, salary days, and advance deductions in one simple view.
                     </p>
                   </div>
-                  <label className="date-filter payroll-period-filter">
-                    Payroll month
-                    <input className="payroll-period-input" type="month" value={payrollMonth} onChange={(event) => setPayrollMonth(event.target.value)} />
-                  </label>
+                  <div className="payroll-hero-actions">
+                    <label className="date-filter payroll-period-filter">
+                      Payroll month
+                      <input className="payroll-period-input" type="month" value={payrollMonth} onChange={(event) => setPayrollMonth(event.target.value)} />
+                    </label>
+                    {payroll?.employees.length ? (
+                      <button className="primary-button compact-button" onClick={() => downloadPayrollCsv(payroll)} type="button">
+                        Export CSV
+                      </button>
+                    ) : null}
+                  </div>
                 </div>
                 {payroll?.employees.length ? (
-                  <div className="payroll-summary-grid">
+                  <div className="payroll-summary-grid payroll-mobile-summary">
                     <MetricCard label="People in payroll" value={payroll.employees.length} />
                     <MetricCard
                       label="Total payable"
@@ -1106,33 +1113,17 @@ export function AdminScreen({
                   <EmptyState title="No payroll data yet" message="Payroll will appear here after employees are added with salary details." />
                 )}
               </section>
-              <section className="grid two-column">
-                <article className="panel">
-                  <div className="topbar">
-                    <div>
-                      <h3>Monthly export</h3>
-                      <p className="muted section-intro">
-                        Download a month-wise payroll report or a salary slip for each employee.
-                      </p>
-                    </div>
-                    {payroll?.employees.length ? (
-                      <button className="primary-button" onClick={() => downloadPayrollCsv(payroll)} type="button">
-                        Export CSV
-                      </button>
-                    ) : null}
+
+              <details className="payroll-accordion" open>
+                <summary>
+                  <div>
+                    <strong>Add advance payment</strong>
+                    <span>Record early salary paid during the month.</span>
                   </div>
-                  <div className="info-card">
-                    <strong>Included in export</strong>
-                    <span className="muted">Worked days, half days, paid and unpaid leave breakup, advance deductions, and net payable.</span>
-                  </div>
-                </article>
-                <article className="panel">
-                  <h3>Add advance payment</h3>
-                  <p className="muted section-intro">
-                    Record any salary amount paid early during the month so it is settled from the final payout.
-                  </p>
+                </summary>
+                <div className="payroll-accordion-body">
                   <form className="leave-form-grid payroll-advance-form" onSubmit={submitAdvancePayment}>
-                    <div className="grid two-column compact-grid">
+                    <div className="payroll-form-grid">
                       <label>
                         Employee
                         <select value={advancePaymentForm.employeeId} onChange={(event) => updateAdvancePaymentForm("employeeId", event.target.value)} required>
@@ -1146,8 +1137,6 @@ export function AdminScreen({
                         Payment date
                         <input className="payroll-date-input" type="date" value={advancePaymentForm.paymentDate} onChange={(event) => updateAdvancePaymentForm("paymentDate", event.target.value)} required />
                       </label>
-                    </div>
-                    <div className="grid two-column compact-grid">
                       <label>
                         Amount
                         <input type="number" min="0" step="0.01" value={advancePaymentForm.amount} onChange={(event) => updateAdvancePaymentForm("amount", event.target.value)} placeholder="5000" required />
@@ -1168,35 +1157,49 @@ export function AdminScreen({
                       </p>
                     ) : null}
                   </form>
-                </article>
-              </section>
-              <section className="panel">
-                <h3>Salary day calendar</h3>
-                <p className="muted section-intro">
-                  See each employee on their salary day with payable amount, worked days, half days, leaves, and salary cycle.
-                </p>
+                </div>
+              </details>
+
+              <details className="payroll-accordion">
+                <summary>
+                  <div>
+                    <strong>Salary day calendar</strong>
+                    <span>See who gets salary on which date.</span>
+                  </div>
+                </summary>
+                <div className="payroll-accordion-body">
                 {payroll?.employees.length ? (
                   <PayrollCalendarView payroll={payroll} />
                 ) : (
                   <EmptyState title="No salary calendar yet" message="Salary days will appear here once employees have salary and start date details." />
                 )}
-              </section>
-              <section className="panel">
-                <h3>Payroll details</h3>
-                <p className="muted section-intro">
-                  Owners can see monthly salary, half-day deduction impact, paid and unpaid leave breakup, and advance settlement in one report.
-                </p>
+                </div>
+              </details>
+
+              <details className="payroll-accordion">
+                <summary>
+                  <div>
+                    <strong>Payroll details</strong>
+                    <span>Salary, leave, advance, and net payable report.</span>
+                  </div>
+                </summary>
+                <div className="payroll-accordion-body">
                 {payroll?.employees.length ? (
                   <AttendancePayrollTable payroll={payroll} onDownloadSlip={(employeeId) => downloadSalarySlip(payroll, employeeId)} />
                 ) : (
                   <EmptyState title="No salary records yet" message="Add salary details to employees and this section will show daily rate, gross, advance, and net payable." />
                 )}
-              </section>
-              <section className="panel">
-                <h3>Advance payment history</h3>
-                <p className="muted section-intro">
-                  Every early payment made during the month is listed here for payroll settlement.
-                </p>
+                </div>
+              </details>
+
+              <details className="payroll-accordion">
+                <summary>
+                  <div>
+                    <strong>Advance payment history</strong>
+                    <span>Early payments settled in this payroll month.</span>
+                  </div>
+                </summary>
+                <div className="payroll-accordion-body">
                 {payroll?.advancePayments.length ? (
                   <>
                     <table className="data-table desktop-table">
@@ -1239,8 +1242,9 @@ export function AdminScreen({
                 ) : (
                   <EmptyState title="No advance payments this month" message="Recorded salary advances will appear here and be settled in the payroll." />
                 )}
-              </section>
-            </>
+                </div>
+              </details>
+            </section>
           ) : null}
 
           {activeTab === "subscription" ? (

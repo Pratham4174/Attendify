@@ -1035,6 +1035,114 @@
   margin-bottom: 18px;
 }
 
+.payroll-workspace {
+  display: grid;
+  gap: 18px;
+}
+
+.payroll-hero-card,
+.payroll-accordion {
+  border: 1px solid rgba(37, 99, 235, 0.12);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 18px 45px rgba(37, 99, 235, 0.08);
+}
+
+.payroll-hero-card {
+  padding: 22px;
+  border-radius: 28px;
+}
+
+.payroll-hero-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.payroll-hero-top h3 {
+  margin-top: 0;
+  font-size: clamp(1.45rem, 4vw, 2rem);
+  letter-spacing: -0.03em;
+}
+
+.payroll-hero-actions {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.payroll-mobile-summary {
+  margin-bottom: 0;
+}
+
+.payroll-mobile-summary .metric-card {
+  border-radius: 22px;
+  background: rgba(239, 246, 255, 0.7);
+  border: 1px solid rgba(37, 99, 235, 0.1);
+}
+
+.payroll-accordion {
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.payroll-accordion summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 18px 20px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.payroll-accordion summary::-webkit-details-marker {
+  display: none;
+}
+
+.payroll-accordion summary::after {
+  content: "+";
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  color: var(--primary-strong);
+  background: rgba(37, 99, 235, 0.1);
+  font-weight: 900;
+  flex: 0 0 auto;
+}
+
+.payroll-accordion[open] summary::after {
+  content: "-";
+}
+
+.payroll-accordion summary div {
+  display: grid;
+  gap: 4px;
+}
+
+.payroll-accordion summary strong {
+  color: var(--text-main);
+}
+
+.payroll-accordion summary span {
+  color: var(--text-soft);
+  font-size: 0.92rem;
+}
+
+.payroll-accordion-body {
+  padding: 0 20px 20px;
+}
+
+.payroll-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
 .employee-card-list,
 .payroll-card-list {
   gap: 14px;
@@ -1236,6 +1344,21 @@
 }
 
 @media (max-width: 720px) {
+  .payroll-hero-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .payroll-hero-actions,
+  .payroll-hero-actions .date-filter,
+  .payroll-hero-actions .primary-button {
+    width: 100%;
+  }
+
+  .payroll-form-grid {
+    grid-template-columns: 1fr;
+  }
+
   .attendance-app-header,
   .attendance-record-modal-head,
   .overview-employee-modal-head {
@@ -1322,6 +1445,31 @@
 @media (max-width: 560px) {
   .admin-shell {
     gap: 16px;
+  }
+
+  .payroll-workspace {
+    gap: 14px;
+  }
+
+  .payroll-hero-card {
+    padding: 16px;
+    border-radius: 22px;
+  }
+
+  .payroll-accordion {
+    border-radius: 20px;
+  }
+
+  .payroll-accordion summary {
+    padding: 16px;
+  }
+
+  .payroll-accordion-body {
+    padding: 0 16px 16px;
+  }
+
+  .payroll-mobile-summary {
+    gap: 10px;
   }
 
   .attendance-app-dashboard {
