@@ -3,7 +3,7 @@ import { formatLocalDateKey, formatTimeOnly, formatWorkedHours } from "../lib/fo
 import { buildAttendanceStatusRecords } from "../lib/attendanceStatus";
 import type { AttendancePreview, AttendanceRow, Employee, Holiday, LeaveRequest } from "../types";
 import { AttendanceTable } from "./AttendanceTable";
-import { EmptyState, MetricCard } from "./shared";
+import { EmptyState, MetricCard, ProfileAvatar } from "./shared";
 
 function getWorkedMinutes(record: AttendanceRow) {
   if (!record.checkInTime || !record.checkOutTime) {
@@ -47,6 +47,20 @@ function getAttendanceState(record: AttendanceRow, todayKey: string) {
   return "In progress";
 }
 
+function getAttendanceTone(record: AttendanceRow, todayKey: string) {
+  const state = getAttendanceState(record, todayKey).toLowerCase();
+  if (state.includes("absent") || state.includes("not marked")) {
+    return "absent";
+  }
+  if (state.includes("leave") || state.includes("holiday")) {
+    return "leave";
+  }
+  if (state.includes("progress")) {
+    return "progress";
+  }
+  return "present";
+}
+
 export function AttendanceOverview({
   attendance,
   employees,
@@ -64,6 +78,7 @@ export function AttendanceOverview({
   const [selectedEmployeeId, setSelectedEmployeeId] = useState("all");
   const [fromDate, setFromDate] = useState(todayKey);
   const [toDate, setToDate] = useState(todayKey);
+  const [selectedRecord, setSelectedRecord] = useState<AttendanceRow | null>(null);
 
   const activeEmployees = useMemo(
     () => employees.filter((employee) => employee.status === "ACTIVE"),
@@ -110,6 +125,11 @@ export function AttendanceOverview({
     [employees, selectedEmployeeId]
   );
 
+  const employeeById = useMemo(
+    () => new Map(employees.map((employee) => [employee.id, employee])),
+    [employees]
+  );
+
   const completedRecords = useMemo(
     () => statusRecords.filter((record) => Boolean(getWorkedMinutes(record))),
     [statusRecords]
@@ -140,12 +160,13 @@ export function AttendanceOverview({
   const notMarkedCount = dayRecords.filter((record) => record.status === "Not marked").length;
 
   return (
-    <section className="panel">
-      <div className="attendance-overview-header">
+    <section className="attendance-app-dashboard">
+      <div className="attendance-app-header">
         <div>
-          <h3>Attendance</h3>
+          <span className="eyebrow">Attendance command center</span>
+          <h3>{safeFromDate === todayKey && safeToDate === todayKey ? "Today attendance" : "Attendance records"}</h3>
           <p className="muted section-intro">
-            Start with today, then narrow by employee or day range for a simpler view.
+            Review present, absent, leave, and working-hour proof quickly.
           </p>
         </div>
         <button
@@ -161,7 +182,7 @@ export function AttendanceOverview({
         </button>
       </div>
 
-      <div className="attendance-filter-bar">
+      <div className="attendance-filter-card">
         <label>
           Employee
           <select
@@ -195,14 +216,14 @@ export function AttendanceOverview({
       </div>
 
       {singleDayView ? (
-        <section className="attendance-metric-grid">
+        <section className="attendance-metric-grid attendance-app-metrics">
           <MetricCard label="Present today" value={completedCount} />
           <MetricCard label="On leave" value={dayRecords.filter((record) => record.status.includes("leave") || record.status === "Holiday").length} />
           <MetricCard label="Still on shift" value={inProgressCount} />
           <MetricCard label="Not marked / absent" value={notMarkedCount + absentCount} />
         </section>
       ) : (
-        <section className="attendance-metric-grid">
+        <section className="attendance-metric-grid attendance-app-metrics">
           <MetricCard label="Records shown" value={statusRecords.length} />
           <MetricCard label="Attendance days" value={distinctDaysCount} />
           <MetricCard label="Average work time" value={formatMinutes(averageWorkedMinutes)} />
@@ -211,7 +232,7 @@ export function AttendanceOverview({
       )}
 
       {singleDayView ? (
-        <section className="attendance-day-panel">
+        <section className="attendance-day-panel attendance-app-card">
           <div className="attendance-day-panel-head">
             <div>
               <strong>{safeFromDate === todayKey ? "Today at a glance" : `Attendance for ${safeFromDate}`}</strong>
@@ -224,13 +245,18 @@ export function AttendanceOverview({
           {dayRecords.length ? (
             <div className="attendance-day-grid">
               {dayRecords.map((record) => (
-                <article className="attendance-day-card" key={record.recordId}>
+                <button className="attendance-day-card attendance-tap-card" key={record.recordId} onClick={() => setSelectedRecord(record)} type="button">
                   <div className="attendance-day-card-head">
+                    <ProfileAvatar
+                      className="attendance-record-avatar"
+                      image={employeeById.get(record.employeeId)?.profileImageRef}
+                      name={record.employeeName}
+                    />
                     <div>
                       <strong>{record.employeeName}</strong>
                       <span>{record.branchName}</span>
                     </div>
-                    <span className="pill">{record.status}</span>
+                    <span className={`attendance-status-pill ${getAttendanceTone(record, todayKey)}`}>{record.status}</span>
                   </div>
                   <div className="attendance-day-card-meta">
                     <span>Check-in: {formatTimeOnly(record.checkInTime)}</span>
@@ -251,7 +277,7 @@ export function AttendanceOverview({
                       ? "Absent"
                       : formatWorkedHours(record.checkInTime, record.checkOutTime)}
                   </strong>
-                </article>
+                </button>
               ))}
             </div>
           ) : (
@@ -267,7 +293,7 @@ export function AttendanceOverview({
         </section>
       ) : null}
 
-      <section className="attendance-detail-panel">
+      <section className="attendance-detail-panel attendance-app-card">
         <div className="attendance-detail-panel-head">
           <div>
             <h4>Detailed records</h4>
@@ -289,6 +315,7 @@ export function AttendanceOverview({
           <AttendanceTable
             records={statusRecords}
             onPreviewImage={onPreviewImage}
+            onOpenRecord={setSelectedRecord}
             emptyMessage="No attendance records match these filters."
           />
         ) : (
@@ -298,6 +325,114 @@ export function AttendanceOverview({
           />
         )}
       </section>
+
+      {selectedRecord ? (
+        <div className="attendance-record-modal-backdrop" role="presentation">
+          <section aria-modal="true" className="attendance-record-modal" role="dialog">
+            <div className="attendance-record-modal-head">
+              <div className="attendance-record-person">
+                <ProfileAvatar
+                  className="attendance-record-avatar large"
+                  image={employeeById.get(selectedRecord.employeeId)?.profileImageRef}
+                  name={selectedRecord.employeeName}
+                />
+                <div>
+                  <span className="eyebrow">{selectedRecord.date}</span>
+                  <h3>{selectedRecord.employeeName}</h3>
+                  <p className="muted">{selectedRecord.branchName}</p>
+                </div>
+              </div>
+              <button className="ghost-button compact-button" onClick={() => setSelectedRecord(null)} type="button">
+                Close
+              </button>
+            </div>
+
+            <div className="attendance-record-summary-grid">
+              <div>
+                <span>Status</span>
+                <strong>{selectedRecord.status}</strong>
+              </div>
+              <div>
+                <span>Hours worked</span>
+                <strong>{formatWorkedHours(selectedRecord.checkInTime, selectedRecord.checkOutTime)}</strong>
+              </div>
+              <div>
+                <span>Check-in</span>
+                <strong>{formatTimeOnly(selectedRecord.checkInTime)}</strong>
+              </div>
+              <div>
+                <span>Check-out</span>
+                <strong>{formatTimeOnly(selectedRecord.checkOutTime)}</strong>
+              </div>
+            </div>
+
+            <div className="attendance-record-proof-grid">
+              <RecordProofCard
+                distance={selectedRecord.checkInDistanceMeters}
+                image={selectedRecord.checkInPhotoRef}
+                label="Check-in proof"
+                onPreviewImage={onPreviewImage}
+                record={selectedRecord}
+                time={selectedRecord.checkInTime}
+              />
+              <RecordProofCard
+                distance={selectedRecord.checkOutDistanceMeters}
+                image={selectedRecord.checkOutPhotoRef}
+                label="Check-out proof"
+                onPreviewImage={onPreviewImage}
+                record={selectedRecord}
+                time={selectedRecord.checkOutTime}
+              />
+            </div>
+          </section>
+        </div>
+      ) : null}
     </section>
+  );
+}
+
+function RecordProofCard({
+  distance,
+  image,
+  label,
+  onPreviewImage,
+  record,
+  time
+}: {
+  distance: number | null;
+  image: string | null;
+  label: string;
+  onPreviewImage?: (preview: AttendancePreview) => void;
+  record: AttendanceRow;
+  time: string | null;
+}) {
+  return (
+    <article className="attendance-proof-card">
+      <div>
+        <strong>{label}</strong>
+        <span className="muted">{formatTimeOnly(time)}</span>
+      </div>
+      {image ? (
+        <button
+          className="attendance-proof-image-button"
+          onClick={() =>
+            onPreviewImage?.({
+              image,
+              label,
+              time,
+              employeeName: record.employeeName
+            })
+          }
+          type="button"
+        >
+          <img alt={label} src={image} />
+        </button>
+      ) : (
+        <div className="attendance-proof-empty">No image captured</div>
+      )}
+      <span className="attendance-proof-distance">
+        Distance from branch: {typeof distance === "number" ? `${distance.toFixed(1)}m` : "Not available"}
+      </span>
+    </article>
   );
 }

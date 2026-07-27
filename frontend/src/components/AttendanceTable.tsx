@@ -195,11 +195,13 @@ export function AttendancePayrollTable({
 export function AttendanceTable({
   records,
   onPreviewImage,
+  onOpenRecord,
   emptyMessage,
   forceTableView = false
 }: {
   records: AttendanceRow[];
   onPreviewImage?: (preview: AttendancePreview) => void;
+  onOpenRecord?: (record: AttendanceRow) => void;
   emptyMessage?: string;
   forceTableView?: boolean;
 }) {
@@ -226,6 +228,7 @@ export function AttendanceTable({
               <th>Status</th>
               <th>Branch</th>
               <th>Evidence</th>
+              {onOpenRecord ? <th>Details</th> : null}
             </tr>
           </thead>
           <tbody>
@@ -239,6 +242,13 @@ export function AttendanceTable({
                 <td>{record.status}</td>
                 <td>{record.branchName}</td>
                 <td>{renderEvidence(record, onPreviewImage)}</td>
+                {onOpenRecord ? (
+                  <td>
+                    <button className="ghost-button compact-button" onClick={() => onOpenRecord(record)} type="button">
+                      View
+                    </button>
+                  </td>
+                ) : null}
               </tr>
             ))}
           </tbody>
@@ -266,6 +276,11 @@ export function AttendanceTable({
                 <strong>{getWorkedHoursLabel(record)}</strong>
               </div>
               <div className="attendance-card-evidence">{renderEvidence(record, onPreviewImage)}</div>
+              {onOpenRecord ? (
+                <button className="ghost-button compact-button" onClick={() => onOpenRecord(record)} type="button">
+                  View full details
+                </button>
+              ) : null}
             </article>
           ))}
         </div>
