@@ -266,8 +266,8 @@ export function AdminSubscriptionDashboard({
   const isTrial = currentPlan.subscriptionStatus.toLowerCase().includes("trial");
 
   return (
-    <>
-      <section className="panel">
+    <section className="billing-workspace">
+      <section className="billing-hero-card">
         <div className="topbar">
           <div>
             <h3>Billing</h3>
@@ -304,16 +304,20 @@ export function AdminSubscriptionDashboard({
         </div>
       </section>
 
-      <section className="grid two-column">
-        <article className="panel">
-          <div className="topbar">
+      <details className="billing-accordion" open>
+        <summary>
+          <div>
+            <strong>Upgrade or renew plan</strong>
+            <span>Choose a package, billing cycle, and pay securely.</span>
+          </div>
+        </summary>
+        <div className="billing-accordion-body">
             <div>
               <h3>Upgrade plan</h3>
               <p className="muted section-intro">
                 Choose a plan and billing cycle. You can renew the same package or move to a bigger one anytime.
               </p>
             </div>
-          </div>
           <div className="subscription-plan-stack">
             {pricing.plans.map((plan) => {
               const expanded = expandedPlanCode === plan.code;
@@ -389,13 +393,17 @@ export function AdminSubscriptionDashboard({
             {status ? <p className="status-text">{status}</p> : null}
             {error ? <p className="error-text">{error}</p> : null}
           </div>
-        </article>
+        </div>
+      </details>
 
-        <article className="panel">
-          <h3>Payment history</h3>
-          <p className="muted section-intro">
-            Track every trial, payment attempt, renewal, and paid invoice from one place.
-          </p>
+      <details className="billing-accordion">
+        <summary>
+          <div>
+            <strong>Payment history</strong>
+            <span>Trial, payment attempts, renewals, and invoices.</span>
+          </div>
+        </summary>
+        <div className="billing-accordion-body">
           {dashboard.paymentHistory.length ? (
             <>
               <div className="responsive-table-shell subscription-table-shell">
@@ -471,19 +479,17 @@ export function AdminSubscriptionDashboard({
           ) : (
             <EmptyState title="No payment history yet" message="Your trial and paid subscription records will appear here once checkout sessions are created." />
           )}
-        </article>
-      </section>
-
-      <section className="panel">
-        <div className="topbar">
-          <div>
-            <h3>Contact sales for a custom plan</h3>
-            <p className="muted section-intro">
-              Use this when you need more than 50 employees, tailored rollout help, or a custom billing arrangement.
-            </p>
-          </div>
-          <span className="pill">Custom plan</span>
         </div>
+      </details>
+
+      <details className="billing-accordion">
+        <summary>
+          <div>
+            <strong>Contact sales for custom plan</strong>
+            <span>For more than 50 employees or tailored rollout help.</span>
+          </div>
+        </summary>
+        <div className="billing-accordion-body">
         <form className="admin-form-grid" onSubmit={(event) => void submitCustomPlanInquiry(event)}>
           <div className="grid two-column compact-grid">
             <label>
@@ -552,7 +558,8 @@ export function AdminSubscriptionDashboard({
             </p>
           ) : null}
         </form>
-      </section>
-    </>
+        </div>
+      </details>
+    </section>
   );
 }
