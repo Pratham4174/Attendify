@@ -20,8 +20,7 @@ import {
   formatMoney,
   formatMonthKey,
   formatTimeOnly,
-  formatWorkedHours,
-  isLateCheckIn
+  formatWorkedHours
 } from "../lib/format";
 import { downloadPayrollCsv, downloadSalarySlip } from "../lib/payroll";
 import type {
@@ -108,6 +107,10 @@ function buildRenewalBanner(subscription: SubscriptionDashboard | null): Renewal
   }
 
   return null;
+}
+
+function isLateAttendanceRecord(record: AttendanceRow | undefined) {
+  return Boolean(record?.status?.toUpperCase().includes("LATE"));
 }
 
 function OverviewStatCard({
@@ -661,7 +664,7 @@ export function AdminScreen({
   );
   const checkedInEmployees = todayAttendance.filter((record) => record.status === "CHECKED_IN");
   const checkedOutEmployees = todayAttendance.filter((record) => record.status === "COMPLETED");
-  const lateArrivals = todayAttendance.filter((record) => isLateCheckIn(record.checkInTime));
+  const lateArrivals = todayAttendance.filter((record) => isLateAttendanceRecord(record));
   const employeeById = new Map(employees.map((employee) => [employee.id, employee]));
   const attendanceByEmployeeId = new Map(todayAttendance.map((record) => [record.employeeId, record]));
   function openEmployeeFromOverview(employeeId: string) {
@@ -671,7 +674,7 @@ export function AdminScreen({
   }
   const overviewAllEmployeeRows = activeEmployees.map((employee) => {
     const record = attendanceByEmployeeId.get(employee.id);
-    const late = isLateCheckIn(record?.checkInTime);
+    const late = isLateAttendanceRecord(record);
     const status = !record
       ? "Absent"
       : late
@@ -693,7 +696,7 @@ export function AdminScreen({
   const overviewRecentRows = [
     ...todayAttendance.map((record) => {
       const employee = employeeById.get(record.employeeId);
-      const late = isLateCheckIn(record.checkInTime);
+      const late = isLateAttendanceRecord(record);
       return {
         id: record.recordId,
         employeeId: record.employeeId,
